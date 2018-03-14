@@ -1,0 +1,20 @@
+title:             冯兄话吉
+email:             fengmengzhao@gmail.com
+description:       『格物致知，不可私享；冯兄话吉，载文传享』
+author:             冯兄
+#baseurl:           "/startbootstrap-clean-blog-jekyll"
+baseurl:           ""
+url:               "http://fengmengzhao.github.io"
+
+# Social Profiles
+twitter_username:  fengmengzhao
+github_username:   FengMengZhao
+facebook_username: fengmengzhao
+
+# Build settings
+markdown:          kramdown
+paginate:          5
+paginate_path:     "/posts/page:num/"
+plugins:
+  - jekyll-feed
+  - jekyll-paginate
