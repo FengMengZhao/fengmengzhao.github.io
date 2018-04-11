@@ -10,9 +10,9 @@ background: '/img/bg-post.jpg'
     <a href="{{ post.url | prepend: site.baseurl | replace: '//', '/' }}">
       <h2 class="post-title">{{ post.title }}</h2>
       {% if post.subtitle %}
-      <h3 class="post-subtitle">{{ post.subtitle }}</h3>
+      <h4 class="post-subtitle">{{ post.subtitle }}</h4>
       {% else %}
-      <h3 class="post-subtitle">{{ post.excerpt | strip_html | truncatewords: 15 }}</h3>
+      <h4 class="post-subtitle">{{ post.excerpt | strip_html | truncatewords: 15 }}</h4>
       {% endif %}
     </a>
     <p class="post-meta"><!--Posted by
@@ -34,11 +34,11 @@ background: '/img/bg-post.jpg'
   <div class="clearfix">
 
     {% if paginator.previous_page %}
-      <a class="btn btn-primary float-left" href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&larr; Newer<span class="d-none d-md-inline"> Posts</span></a>
+      <a class="btn btn-primary float-left" href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&larr;新<span class="d-none d-md-inline">博文</span></a>
     {% endif %}
 
     {% if paginator.next_page %}
-      <a class="btn btn-primary float-right" href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">Older<span class="d-none d-md-inline"> Posts</span> &rarr;</a>
+      <a class="btn btn-primary float-right" href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">旧<span class="d-none d-md-inline">博文</span> &rarr;</a>
     {% endif %}
 
   </div>

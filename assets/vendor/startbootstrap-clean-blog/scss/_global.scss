@@ -1,14 +1,15 @@
 // Global styling for this template
 body {
-  //modified by fmz
   //font-size: 20px;
   font-size: 16px;
-  color: $gray-900;
+  //color: $gray-900;
+  color: rgb(74, 74, 74);
   @include serif-font;
 }
 
 p {
-  line-height: 1.5;
+  //line-height: 1.5;
+  line-height: 1.9;
   margin: 30px 0;
   a {
     text-decoration: underline;
@@ -35,8 +36,11 @@ a {
 }
 
 blockquote {
-  font-style: italic;
-  color: $gray-600;
+  //font-style: italic;
+  //color: $gray-600;
+  color: #868e96;
+  padding-left: 10px;
+  border-left: 3px solid #dbdbdb;
 }
 
 .section-heading {
