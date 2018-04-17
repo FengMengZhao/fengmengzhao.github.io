@@ -315,19 +315,25 @@ title: java与模式
 
 ##### Creator Class
 
-	public class Creator{
-		public static Product factory(){
-			return new ConcreteProduct() ;
-		}
-	}
+    package pattern;
+
+    public class Creator{
+        public static Product factory(){
+            return new ConcreteProduct() ;
+        }
+    }
 
 ##### Abstract Product Class
 
-	public interface Product{
-		
-	}
+    package pattern;
+
+    public interface Product{
+        
+    }
 
 ##### Concrete Product Class
+
+    package pattern;
 
 	public class ConcreteProtuct(){
 		public ConcreteProduct(){
@@ -342,6 +348,8 @@ title: java与模式
 #### 三种角色全部合并
 
 > 如果抽象产品角色应经被忽略，那么具体产品角色可以有自己的工厂
+
+    package pattern;
 
 	public class ConcreteProduct{
 		public ConcreteProduct(){
