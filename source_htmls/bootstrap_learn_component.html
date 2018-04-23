@@ -1,0 +1,999 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" href="/assets/vendor/bootstrap/css/bootstrap.min.css">
+	<script src="/assets/vendor/jquery/jquery-1.11.3.min.js"></script>
+	<script src="/assets/vendor/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/assets/vendor/other/holder.js"></script>
+	<script src="/assets/vendor/other/application.js"></script>  
+	<style>
+		.container{
+			background: #ccc ;
+		}
+		.page-header{
+			border-color: black ;
+		}				
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h3 class="page-header">Glyphicons</h3>
+		<div class="text-center">
+			<button type="button" class="btn btn-primary">
+				<span class="glyphicon glyphicon-signal" style="font-size:15px"></span>
+			</button>	
+			<button type="button" class="btn btn-primary">
+				<span class="glyphicon glyphicon-pencil" style="font-size:15px"></span>
+			</button>	
+			<button type="button" class="btn btn-primary">
+				<span class="glyphicon glyphicon-user" style="font-size:15px"></span>
+			</button>	
+			<button type="button" class="btn btn-primary">
+				<span class="glyphicon glyphicon-trash" style="font-size:15px"></span>	
+			</button>
+		</div>
+		<h3 class="page-header">Dropdowns</h3>
+		<div class="pull-right">
+			<div class="dropdown">
+				<a href="#" class="btn btn-primary" data-toggle="dropdown">请选择<span class="caret"></span></a>		
+				<ul class="dropdown-menu">
+					<li class="dropdown-header">families</li>
+					<li class="divider"></li>
+					<li><a href="">fmz</a></li>
+					<li><a href="">cll</a></li>
+					<li class="disabled"><a href="javascript: ;" >fsl</a></li>
+					<li class="dropdown-header">fridnds</li>
+					<li class="divider"></li>
+					<li><a href="">wlm</a></li>
+					<li><a href="">zjb</a></li>
+				</ul>
+			</div>
+		</div>
+		<h3 class="page-header">Button groups</h3>
+		<h4>basic</h4>
+		<div class="text-center">
+			<div class="btn-group btn-group-lg">
+				<button type="button" class="btn btn-primary">left</button>
+				<button type="button" class="btn btn-primary">middle</button>
+				<button type="button" class="btn btn-primary">middle</button>
+				<button type="button" class="btn btn-primary">middle</button>
+				<button type="button" class="btn btn-primary">right</button>
+			</div>
+			<div class="btn-group">
+				<button type="button" class="btn btn-primary">left</button>
+				<button type="button" class="btn btn-primary">middle</button>
+				<button type="button" class="btn btn-primary">middle</button>
+				<button type="button" class="btn btn-primary">middle</button>
+				<button type="button" class="btn btn-primary">right</button>
+			</div>
+			<div class="btn-group btn-group-sm">
+				<button type="button" class="btn btn-primary">left</button>
+				<button type="button" class="btn btn-primary">middle</button>
+				<button type="button" class="btn btn-primary">middle</button>
+				<button type="button" class="btn btn-primary">middle</button>
+				<button type="button" class="btn btn-primary">right</button>
+			</div>
+		</div>
+		<h4>button toolbar</h4>
+		<div class="text-center">
+			<div class="btn-toobar">
+				<div class="btn-group">
+					<button type="button" class="btn btn-primary">left</button>
+					<button type="button" class="btn btn-primary">middle</button>
+					<button type="button" class="btn btn-primary">middle</button>
+					<button type="button" class="btn btn-primary">middle</button>
+					<button type="button" class="btn btn-primary">right</button>
+				</div>
+				<div class="btn-group">
+					<button type="button" class="btn btn-primary">left</button>
+					<button type="button" class="btn btn-primary">middle</button>
+					<button type="button" class="btn btn-primary">middle</button>
+					<button type="button" class="btn btn-primary">middle</button>
+					<button type="button" class="btn btn-primary">right</button>
+				</div>
+				<div class="btn-group">
+					<button type="button" class="btn btn-primary">left</button>
+					<button type="button" class="btn btn-primary">middle</button>
+					<button type="button" class="btn btn-primary">middle</button>
+					<button type="button" class="btn btn-primary">middle</button>
+					<button type="button" class="btn btn-primary">right</button>
+				</div>
+			</div>
+		</div>
+		<h4>nesting</h4>
+		<div class="text-center">
+			<div class="btn-group">
+				<button type="button" class="btn btn-primary">fmz</button>
+				<button type="button" class="btn btn-primary">cll</button>
+				<div class="btn-group">
+					<button class="btn btn-primary" type="primary" data-toggle="dropdown">plese select
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+						<li><a href="">fsl</a></li>
+						<li><a href="">fls</a></li>
+						<li><a href="">rbr</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<h4>vertical variation</h4>
+		<div class="text-center">
+			<div class="btn-group-vertical">
+				<button type="button" class="btn btn-primary">fmz</button>
+				<button type="button" class="btn btn-primary">cll</button>
+				<div class="btn-group">
+					<button class="btn btn-primary" type="primary" data-toggle="dropdown">plese select
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+						<li><a href="">fsl</a></li>
+						<li><a href="">fls</a></li>
+						<li><a href="">rbr</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<h3 class="page-header">Button dropdowns</h3>
+		<div class="text-center">
+			<div class="btn-group">
+				<button type="button" data-toggle="dropdown" class="btn btn-default">
+					Default
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="">fmz</a></li>
+					<li><a href="">cll</a></li>
+					<li><a href="">fsl</a></li>
+				</ul>
+			</div>
+			<div class="btn-group">
+				<button type="button" data-toggle="dropdown" class="btn btn-primary">
+					Default
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="">fmz</a></li>
+					<li><a href="">cll</a></li>
+					<li><a href="">fsl</a></li>
+				</ul>
+			</div>
+			<div class="btn-group">
+				<button type="button" data-toggle="dropdown" class="btn btn-success">
+					Success
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="">fmz</a></li>
+					<li><a href="">cll</a></li>
+					<li><a href="">fsl</a></li>
+				</ul>
+			</div>
+			<div class="btn-group">
+				<button type="button" data-toggle="dropdown" class="btn btn-info">
+					Info
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="">fmz</a></li>
+					<li><a href="">cll</a></li>
+					<li><a href="">fsl</a></li>
+				</ul>
+			</div>
+			<div class="btn-group">
+				<button type="button" data-toggle="dropdown" class="btn btn-warning">
+					Warning
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="">fmz</a></li>
+					<li><a href="">cll</a></li>
+					<li><a href="">fsl</a></li>
+				</ul>
+			</div>
+			<div class="btn-group">
+				<button type="button" data-toggle="dropdown" class="btn btn-danger">
+					Danger
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="">fmz</a></li>
+					<li><a href="">cll</a></li>
+					<li><a href="">fsl</a></li>
+				</ul>
+			</div>
+		</div>
+		<h4>Split button dropdown</h4>	
+		<div class="text-center">
+			<div class="btn-group">
+				<button type="button" class="btn btn-default">Default</button>
+				<button type="button" data-toggle="dropdown" class="btn btn-default">
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="">fmz</a></li>
+					<li><a href="">cll</a></li>
+					<li><a href="">fsl</a></li>
+				</ul>
+			</div>
+			<div class="btn-group">
+				<button type="button" class="btn btn-danger">Danger</button>
+				<button type="button" data-toggle="dropdown" class="btn btn-danger">
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="">fmz</a></li>
+					<li><a href="">cll</a></li>
+					<li><a href="">fsl</a></li>
+				</ul>
+			</div>
+			<div class="btn-group dropup">
+				<button type="button" class="btn btn-warning">Dropup</button>
+				<button type="button" data-toggle="dropdown" class="btn btn-warning">
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="">fmz</a></li>
+					<li><a href="">cll</a></li>
+					<li><a href="">fsl</a></li>
+				</ul>
+			</div>
+		</div>
+		<h3 class="page-header">Input groups</h3>
+		<h4>basic</h4>
+		<div>
+			<div class="input-group">
+				<span class="input-group-addon">@</span>
+				<input type="text" placeholder="username" class="form-control">
+			</div>
+		</div>
+		<div class="input-group input-group-lg">
+			<input type="text" placeholder="username"class="form-control">
+			<span class="input-group-addon">@example.com</span>
+		</div>
+		<div class="input-group">
+			<span class="input-group-addon">$</span>
+			<input type="text" placeholder="cash" class="form-control">
+			<span class="input-group-addon">.00</span>
+		</div>
+		<label for="basicurlid">Your basic url</label>
+		<div class="input-group">
+			<span class="input-group-addon">https://fengmengzhao.github.io</span>
+			<input type="text" id="basicurlid" class="form-control">
+		</div>
+		<h4>chechboxes and radio addons</h4>
+		<div>
+			<div class="row">
+				<div class="col-lg-6 col-lg-offset-3">
+					<div class="input-group">
+						<span class="input-group-addon">
+							<input type="checkbox">
+						</span>
+						<input type="text" class="form-control">
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-6 col-lg-offset-3">
+					<div class="input-group">
+						<span class="input-group-addon">
+							<input type="radio">
+						</span>
+						<input type="text" class="form-control">
+					</div>
+				</div>
+			</div>
+		</div>
+		<h4>button addons</h4>
+		<div>
+			<div class="row">
+				<div class="col-lg-6 col-lg-offset-3">
+					<div class="input-group">
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-primary">GO!</button>
+						</span>
+						<input placeholder="search for..." type="text" class="form-control">
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-6 col-lg-offset-3">
+					<div class="input-group">
+						<input placeholder="search for..." type="text" class="form-control">
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-primary">GO!</button>
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<h4>buttons with dropdowns</h4>
+		<div>
+			<div class="row">
+				<div class="col-lg-6 col-lg-offset-3">
+					<div class="input-group">
+						<div class="input-group-btn">
+							<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Action
+								<span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu">
+								<li><a href="">fmz</a></li>
+								<li><a href="">cll</a></li>
+								<li><a href="">fsl</a></li>
+							</ul>
+						</div>
+						<input type="text" class="form-control">
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-6 col-lg-offset-3">
+					<div class="input-group">
+						<input type="text" class="form-control">
+						<div class="input-group-btn">
+							<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Action
+								<span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu">
+								<li><a href="">fmz</a></li>
+								<li><a href="">cll</a></li>
+								<li><a href="">fsl</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<h4>segmented buttons</h4>
+		<div>
+			<div class="row">
+				<div class="col-lg-6 col-lg-offset-3">
+					<div class="input-group">
+						<div class="input-group-btn">
+							<button type="button" class="btn btn-primary">Action</button>
+							<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+								<span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu">
+								<li><a href="">fmz</a></li>
+								<li><a href="">cll</a></li>
+								<li><a href="">fsl</a></li>
+							</ul>
+						</div>
+						<input type="text" class="form-control">
+					</div>	
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-6 col-lg-offset-3">
+					<div class="input-group">
+						<input type="text" class="form-control">
+						<div class="input-group-btn">
+							<button type="button" class="btn btn-primary">Action</button>
+							<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+								<span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu">
+								<li><a href="">fmz</a></li>
+								<li><a href="">cll</a></li>
+								<li><a href="">fsl</a></li>
+							</ul>
+						</div>
+					</div>	
+				</div>
+			</div>
+		</div>
+		<h4>multiple buttons</h4>
+		<div>
+			<div class="row">
+				<div class="col-lg-6 col-lg-offset-3">
+					<div class="input-group">
+						<div class="input-group-btn">
+							<button class="btn btn-danger" type="button"><stong>A</strong></button>		
+							<button class="btn btn-danger" type="button"><stong>B</strong></button>		
+							<button class="btn btn-danger" type="button"><stong>?</strong></button>		
+						</div>
+						<input type="text" class="form-control">
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-6 col-lg-offset-3">
+					<div class="input-group">
+						<input type="text" class="form-control">
+						<div class="input-group-btn">
+							<button class="btn btn-danger" type="button"><stong>A</strong></button>		
+							<button class="btn btn-danger" type="button"><stong>B</strong></button>		
+							<button class="btn btn-danger" type="button"><stong>?</strong></button>		
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<h3 class="page-header">Navs</h3>
+		<h4>标签</h4>
+		<div>
+			<ul class="nav nav-tabs">
+				<li class="active"><a href="">Home</a></li>
+				<li class=""><a href="">Blog</a></li>
+				<li class=""><a href="">Contact</a></li>
+			</ul>
+		</div>
+		<h4>pills</h4>
+		<div>
+			<ul class="nav nav-pills">
+				<li class="active"><a href="">Home</a></li>
+				<li class=""><a href="">Profile</a></li>
+				<li class=""><a href="">Message</a></li>
+			</ul>
+		</div>
+
+		<h4>pills 竖直方向</h4>
+		<div>
+			<ul class="nav nav-pills nav-stacked">
+				<li class="active"><a href="">Home</a></li>
+				<li class=""><a href="">Profile</a></li>
+				<li class=""><a href="">Message</a></li>
+			</ul>
+		</div>
+		<h4>标签自适应</h4>
+		<div>
+			<ul class="nav nav-tabs nav-justified">
+				<li class="active"><a href="">Home</a></li>
+				<li class=""><a href="">Blog</a></li>
+				<li class=""><a href="">Contact</a></li>
+			</ul>
+		</div>
+		<h4>pills 自适应</h4>
+		<div>
+			<ul class="nav nav-pills nav-justified">
+				<li class="active"><a href="">Home</a></li>
+				<li class="disabled"><a href="javascript: ;">Blog</a></li>
+				<li class=""><a href="">Contact</a></li>
+			</ul>
+		</div>
+		<h4>using dropdowns</h4>
+		<div>
+			<ul class="nav nav-tabs">
+				<li class="active"><a href="">Home</a></li>
+				<li class=""><a href="">Blog</a></li>
+				<li class="dropdown">
+					<a href="" data-toggle="dropdown">Love
+						<span class="caret"></span>
+					</a>
+					<ul class="dropdown-menu">
+						<li><a href="">家庭</a></li>
+						<li><a href="">朋友</a></li>
+						<li><a href="">亲戚</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<div>
+			<ul class="nav nav-pills">
+				<li class="active"><a href="">Home</a></li>
+				<li class=""><a href="">Blog</a></li>
+				<li class="dropdown">
+					<a href="" data-toggle="dropdown">Love
+						<span class="caret"></span>
+					</a>
+					<ul class="dropdown-menu">
+						<li><a href="">家庭</a></li>
+						<li><a href="">朋友</a></li>
+						<li><a href="">亲戚</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<h3 class="page-header">Navbar 导航条</h3>
+		<div>
+			<div class="navbar navbar-default">
+				<div class="navbar-header">
+					<button class="navbar-toggle" data-toggle="collapse" data-target="#myheader">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a href="" class="navbar-brand"><img src="holder.js/30x30" alt="Brand"></a> 
+				</div>
+				<div class="collapse navbar-collapse" id="myheader">
+					<ul class="nav navbar-nav">
+						<li class="active"><a href="">Home <span class="badge">11</span></a></li>
+						<li><a href="">Blog</a></li>
+						<li><a href="">Profile</a></li>
+						<li><a href="">Love</a></li>
+						<li><a href="">Contact</a></li>
+						<li class="dropdown">
+							<a href="" data-toggle="dropdown">Love
+								<span class="caret"></span>
+							</a>
+							<ul class="dropdown-menu">
+								<li><a href="">家庭</a></li>
+								<li><a href="">朋友</a></li>
+								<li><a href="">亲戚</a></li>
+							</ul>
+						</li>
+					</ul>
+					<form action="" class="navbar-form pull-right">
+						<div class="form-group">
+							<input type="text" class="form-control" placeholder="keywords">
+						</div>
+						<div class="form-group">
+							<input type="submit" value="Search" class="btn btn-primary">
+						</div>
+					</form>
+					<p class="navbar-text pull-right">欢迎<a href="">某某某</a>登录!</p>
+				</div>
+			</div>
+		</div><div>
+			<div class="navbar navbar-inverse">
+				<div class="navbar-header">
+					<button class="navbar-toggle" data-toggle="collapse" data-target="#myheader">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a href="" class="navbar-brand">Brand</a> 
+				</div>
+				<div class="collapse navbar-collapse" id="myheader">
+					<ul class="nav navbar-nav">
+						<li class="active"><a href="">Home</a></li>
+						<li><a href="">Blog</a></li>
+						<li><a href="">Profile</a></li>
+						<li><a href="">Love</a></li>
+						<li><a href="">Contact</a></li>
+						<li class="dropdown">
+							<a href="" data-toggle="dropdown">Love
+								<span class="caret"></span>
+							</a>
+							<ul class="dropdown-menu">
+								<li><a href="">家庭</a></li>
+								<li><a href="">朋友</a></li>
+								<li><a href="">亲戚</a></li>
+							</ul>
+						</li>
+					</ul>
+					<form action="" class="navbar-form pull-right">
+						<div class="form-group">
+							<input type="text" class="form-control" placeholder="keywords">
+						</div>
+						<div class="form-group">
+							<input type="submit" value="Search" class="btn btn-primary">
+						</div>
+					</form>
+					<p class="navbar-text pull-right">欢迎<a href="">某某某</a>登录!</p>
+				</div>
+			</div>
+		</div>
+		<h3 class="page-header">面包屑导航</h3>
+		<div>
+			<ul class="breadcrumb">
+				<li><a href="">Home</a></li>
+				<li><a href="">Library</a></li>
+				<li class="active">Data</li>
+			</ul>
+		</div>		
+		<h3 class="page-header">分页</h3>
+		<div class="text-center">
+			<ul class="pagination">
+				<li><a href="">&laquo;</a></li>
+				<li class="active"><a href="">1</a></li>
+				<li><a href="">2</a></li>
+				<li class="disabled"><a href="" onclick="return false ;">3</a></li>
+				<li><a href="">4</a></li>
+				<li><a href="">5</a></li>
+				<li><a href="">&raquo;</a></li>
+			</ul>
+		</div>
+		<div class="text-center">
+			<ul class="pagination pagination-lg">
+				<li><a href="">&laquo;</a></li>
+				<li class="active"><a href="">1</a></li>
+				<li><a href="">2</a></li>
+				<li class="disabled"><a href="" onclick="return false ;">3</a></li>
+				<li><a href="">4</a></li>
+				<li><a href="">5</a></li>
+				<li><a href="">&raquo;</a></li>
+			</ul>
+		</div>
+		<div class="text-center">
+			<ul class="pagination pagination-sm">
+				<li><a href="">&laquo;</a></li>
+				<li class="active"><a href="">1</a></li>
+				<li><a href="">2</a></li>
+				<li class="disabled"><a href="" onclick="return false ;">3</a></li>
+				<li><a href="">4</a></li>
+				<li><a href="">5</a></li>
+				<li><a href="">&raquo;</a></li>
+			</ul>
+		</div>
+		<h4>翻页</h4>
+		<div>
+			<ul class="pager">
+				<li><a href="">previous</a></li>
+				<li><a href="">next</a></li>
+			</ul>
+		</div>
+		<div>
+			<ul class="pager">
+				<li class="previous"><a href="">&larr;previous</a></li>
+				<li class="next"><a href="">next&rarr;</a></li>
+			</ul>
+		</div>
+		<h3 class="page-header">Labels</h3>
+		<div>
+			<h3>Example heading<span class="label label-default">new</span></h3>
+			<h3>Example heading<span class="label label-primary">new</span></h3>
+			<h3>Example heading<span class="label label-success">new</span></h3>
+			<h3>Example heading<span class="label label-info">new</span></h3>
+			<h3>Example heading<span class="label label-warning">new</span></h3>
+			<h3>Example heading<span class="label label-danger">new</span></h3>
+		</div>
+		<h3 class="page-header">徽章</h3>
+		<div>
+			<a href="">Inbox <span class="badge">15</span></a>
+			<button class="btn btn-primary">Message
+				<span class="badge">33</span>
+			</button>
+		</div>
+		<h3 class="page-header">大屏幕显示</h3>
+		<div>
+			<div class="jumbotron">
+				<h1>通知</h1>
+				<p>今天下午六点准时在教务处开会，今天下午六点准时在教务处开会，今天下午六点准时在教务处开会，今天下午六点准时在教务处开会，今天下午六点准时在教务处开会，今天下午六点准时在教务处开会，今天下午六点准时在教务处开会，今天下午六点准时在教务处开会。</p>
+				<button class="btn btn-primary">Learn More</button>
+			</div>
+		</div>
+		<h3 class="page-header">Thumbnails</h3>
+		<div>
+			<div class="row">
+				<div class="col-lg-3">
+					<a href="" class="thumbnail">
+						<img src="holder.js/100x200" alt="">
+					</a>
+				</div>
+				<div class="col-lg-3">
+					<a href="" class="thumbnail">
+						<img src="holder.js/100x200" alt="">
+					</a>
+				</div>
+				<div class="col-lg-3">
+					<a href="" class="thumbnail">
+						<img src="holder.js/100x200" alt="">
+					</a>
+				</div>
+				<div class="col-lg-3">
+					<a href="" class="thumbnail">
+						<img src="holder.js/100x200" alt="">
+					</a>
+				</div>
+			</div>
+		</div>
+		<h4>定制内容</h4>
+		<div>
+			<div class="row">
+				<div class="col-lg-3">
+					<div class="thumbnail text-center">
+						<img src="holder.js/100x200" alt="">
+						<h3>书籍</h3>
+						<p>好的东西总是经得住琢磨，好的东西总是经得住琢磨，好的东西总是经得住琢磨</p>
+						<p>
+							<a href="" class="btn btn-primary">购买</a>
+							<a href="" class="btn btn-primary">取消</a>
+						</p>
+					</div>
+				</div>
+				<div class="col-lg-3">
+					<div class="thumbnail text-center">
+						<img src="holder.js/100x200" alt="">
+						<h3>书籍</h3>
+						<p>好的东西总是经得住琢磨，好的东西总是经得住琢磨，好的东西总是经得住琢磨</p>
+						<p>
+							<a href="" class="btn btn-primary">购买</a>
+							<a href="" class="btn btn-primary">取消</a>
+						</p>
+					</div>
+				</div>
+				<div class="col-lg-3">
+					<div class="thumbnail text-center">
+						<img src="holder.js/100x200" alt="">
+						<h3>书籍</h3>
+						<p>好的东西总是经得住琢磨，好的东西总是经得住琢磨，好的东西总是经得住琢磨</p>
+						<p>
+							<a href="" class="btn btn-primary">购买</a>
+							<a href="" class="btn btn-primary">取消</a>
+						</p>
+					</div>
+				</div>
+				<div class="col-lg-3">
+					<div class="thumbnail text-center">
+						<img src="holder.js/100x200" alt="">
+						<h3>书籍</h3>
+						<p>好的东西总是经得住琢磨，好的东西总是经得住琢磨，好的东西总是经得住琢磨</p>
+						<p>
+							<a href="" class="btn btn-primary">购买</a>
+							<a href="" class="btn btn-primary">取消</a>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<h3 class="page-header">警告框</h3>
+		<div>
+			<div class="alert">请输入你的名字</div>
+			<div class="alert alert-success">请输入你的名字</div>
+			<div class="alert alert-info">请输入你的名字</div>
+			<div class="alert alert-warning">请输入你的名字</div>
+			<div class="alert alert-danger">请输入你的名字</div>
+		</div>
+		<h4>可关闭的警告框</h4>
+		<div>
+			<div class="alert alert-success">
+				<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+				请输入你的名字
+			</div>
+			<div class="alert alert-info">
+				<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+				请输入你的名字
+			</div>
+			<div class="alert alert-warning">
+				<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+				请输入你的名字
+			</div>
+			<div class="alert alert-danger">
+				<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+				请输入你的名字
+			</div>
+		</div>
+		<h4>警告框中的链接</h4>
+		<div>
+			<div class="alert alert-success">
+				<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+				请<a class="alert-link" href="">这里是一个链接</a>输入你的名字
+			</div>
+			<div class="alert alert-info">
+				<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+				请输入你的名字<a href="" class="alert-link">这里是一个链接</a>
+			</div>
+			<div class="alert alert-warning">
+				<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+				<a href="" class="alert-link">这里是一个链接</a>请输入你的名字
+			</div>
+			<div class="alert alert-danger">
+				<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+				请输入你<a href="" class="alert-link">这里是一个链接</a>的名字
+			</div>
+		</div>
+		<h3 class="page-header">进度条</h3>
+		<div>
+			<div class="progress">
+				<div class="progress-bar" style="width: 40%">40%</div>
+			</div>
+			<div class="progress">
+				<div class="progress-bar progress-bar-success" style="width: 50%">50%</div>
+			</div>
+			<div class="progress">
+				<div class="progress-bar progress-bar-info" style="width: 60%">60%</div>
+			</div>
+			<div class="progress">
+				<div class="progress-bar progress-bar-warning" style="width: 70%">70%</div>
+			</div>
+			<div class="progress">
+				<div class="progress-bar progerss-bar-danger" style="width: 80%">80%</div>
+			</div>
+		</div>
+		<h3 class="page-header">有条纹的进度条和激活的进度条</h3>
+		<div>
+			<div class="progress">
+				<div class="progress-bar progress-bar-striped" style="width: 40%">40%</div>
+			</div>
+			<div class="progress">
+				<div class="progress-bar progress-bar-success progress-bar-striped" style="width: 50%">50%</div>
+			</div>
+			<div class="progress">
+				<div class="progress-bar progress-bar-info progress-bar-striped" style="width: 60%">60%</div>
+			</div>
+			<div class="progress">
+				<div class="progress-bar progress-bar-warning progress-bar-striped active" style="width: 70%">70%</div>
+			</div>
+			<div class="progress">
+				<div class="progress-bar progerss-bar-danger progress-bar-striped active" style="width: 80%">80%</div>
+			</div>
+		</div>
+		<h3 class="page-header">评论列表</h3>
+		<div>
+			<div class="media">
+				<div class="media-left">
+					<a href=""><img src="holder.js/50x60" alt=""></a>
+				</div>
+				<div class="media-body">
+					<h4 class="media-heading">生活的意义</h4>
+					<p>中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。</p>
+					<div class="media">
+						<div class="media-left">
+							<a href=""><img src="holder.js/50x60" alt=""></a>
+						</div>
+						<div class="media-body">
+							<h4 class="media-heading">生活的意义</h4>
+							<p>中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。</p>
+							<div class="media">
+								<div class="media-left">
+									<a href=""><img src="holder.js/50x60" alt=""></a>
+								</div>
+								<div class="media-body">
+									<h4 class="media-heading">生活的意义</h4>
+									<p>中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="media">
+						<div class="media-left">
+							<a href=""><img src="holder.js/50x60" alt=""></a>
+						</div>
+						<div class="media-body">
+							<h4 class="media-heading">生活的意义</h4>
+							<p>中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="media">
+				<div class="media-left">
+					<a href=""><img src="holder.js/50x60" alt=""></a>
+				</div>
+				<div class="media-body">
+					<h4 class="media-heading">生活的意义</h4>
+					<p>中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。中国人民从此过上了幸福的生活，是如此的美好。</p>
+				</div>
+			</div>
+		</div>
+		<h3 class="page-header">list列表</h3>
+		<h4>list列表中的徽章</h4>
+		<div>
+			<ul class="list-group">
+				<li class="list-group-item">
+					<span class="badge">44</span>
+					fmz
+				</li>
+				<li class="list-group-item">cll</li>
+				<li class="list-group-item">wlm</li>
+				<li class="list-group-item">fsl</li>
+				<li class="list-group-item">fls</li>
+				<li class="list-group-item">
+					<span class="badge">66</span>
+					rbr
+				</li>
+			</ul>	
+		</div>
+		<h4>列表中的链接</h4>
+		<div>
+			<div class="list-group">
+				<a href="" class="list-group-item active">www.baidu.com<span class="badge">44</span></a>
+				<a href="" class="list-group-item">www.baidu.com</a>
+				<a href="" class="list-group-item">www.baidu.com</a>
+				<a href="" class="list-group-item">www.baidu.com</a>
+			</div>
+		</div>
+		<h4>列表内容定制</h4>
+		<div>
+			<div class="list-group">
+				<a href="" class="list-group-item active">
+					<h4>中国最高的人</h4>
+					<p>中国最高的人是谁呢？中国最高的人是谁呢？中国最高的人是谁呢？中国最高的人是谁呢？中国最高的人是谁呢？中国最高的人是谁呢？中国最高的人是谁呢？中国最高的人是谁呢？中国最高的人是谁呢？中国最高的人是谁呢？中国最高的人是谁呢？中国最高的人是谁呢？</p>
+				</a>
+				<a href="" class="list-group-item">www.baidu.com</a>
+				<a href="" class="list-group-item">www.baidu.com</a>
+				<a href="" class="list-group-item">www.baidu.com</a>
+			</div>
+		</div>
+		<h4>无标题面板</h4>
+		<h3 class="page-header">面板</h3>
+		<div class="panel panel-primary">
+			<div class="panel-heading">没有标题</div>
+			<div class="panel-body">这里面是面板的内容，我们也可以在这里写出自己的心里话。</div>
+		</div>
+		<h4>有标题面板</h4>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">中华民族的伟大复兴</h4>
+			</div>
+			<div class="panel-body">这里面是面板的内容，我们也可以在这里写出自己的心里话。</div>
+		</div>
+		<h4>有标题的footer的面板</h4>
+		<div class="panel panel-danger">
+			<div class="panel-heading">
+				<h4 class="panel-title">中华民族的伟大复兴</h4>
+			</div>
+			<div class="panel-body">这里面是面板的内容，我们也可以在这里写出自己的心里话。这里面是面板的内容，我们也可以在这里写出自己的心里话。这里面是面板的内容，我们也可以在这里写出自己的心里话。这里面是面板的内容，我们也可以在这里写出自己的心里话。</div>
+			<div class="panel-footer">还是好好学习吧</div>
+		</div>
+		<h4>有表格的面板</h4>
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				<h3 class="panel-title">中华民族的伟大复兴</h3>
+			</div>
+			<div class="panel-body">
+				<table class="table table-bordered table-striped">
+					<tr>
+						<th>数字</th>
+						<th>数字</th>
+						<th>数字</th>
+						<th>数字</th>
+						<th>数字</th>
+						<th>数字</th>
+						<th>数字</th>
+						<th>数字</th>
+					</tr>
+					<tr>
+						<td>1</td>
+						<td>2</td>
+						<td>3</td>
+						<td>4</td>
+						<td>5</td>
+						<td>6</td>
+						<td>7</td>
+						<td>8</td>
+					</tr>
+					<tr>
+						<td>1</td>
+						<td>2</td>
+						<td>3</td>
+						<td>4</td>
+						<td>5</td>
+						<td>6</td>
+						<td>7</td>
+						<td>8</td>
+					</tr>
+					<tr>
+						<td>1</td>
+						<td>2</td>
+						<td>3</td>
+						<td>4</td>
+						<td>5</td>
+						<td>6</td>
+						<td>7</td>
+						<td>8</td>
+					</tr>
+					<tr>
+						<td>1</td>
+						<td>2</td>
+						<td>3</td>
+						<td>4</td>
+						<td>5</td>
+						<td>6</td>
+						<td>7</td>
+						<td>8</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<h4>带list的面板</h4>
+		<div class="panel panel-success">
+			<div class="panel-heading">
+				<h3 class="panel-title">中华民族的伟大复兴</h3>
+			</div>
+			<div class="panel-body">
+				<ul class="list-group">
+					<li class="list-group-item">某某某</li>
+					<li class="list-group-item">某某某</li>
+					<li class="list-group-item">某某某</li>
+					<li class="list-group-item">某某某</li>
+					<li class="list-group-item">某某某</li>
+					<li class="list-group-item">某某某</li>
+					<li class="list-group-item">某某某</li>
+					<li class="list-group-item">某某某</li>
+				</ul>
+			</div>
+		</div>
+		<h3 class="page-header">Well墙体</h3>
+		<div>
+			<div class="well">
+				中国人民自己的抵抗力，中国人民自己的抵抗力，中国人民自己的抵抗力，中国人民自己的抵抗力，中国人民自己的抵抗力，中国人民自己的抵抗力，中国人民自己的抵抗力，中国人民自己的抵抗力，中国人民自己的抵抗力，中国人民自己的抵抗力，中国人民自己的抵抗力。
+			</div>
+		</div>
+	</div>	
+</body>
+</html>
