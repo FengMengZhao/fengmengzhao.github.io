@@ -5,7 +5,7 @@ title: Java的异常处理
 
 > Java对异常的定义
 
-![Java Exception](../img/posts/exception-in-java.png)
+![Java Exception](/img/posts/exception-in-java.png)
 
 - `UncheckExcption`
     - `RuntimeExceptin` & `Error`
