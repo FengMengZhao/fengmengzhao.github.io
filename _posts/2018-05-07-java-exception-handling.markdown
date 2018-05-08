@@ -16,7 +16,7 @@ title: Java的异常处理
 `RuntimeException`和`Error`在运行时进行检查<br><br>
 `UncheckExcption`被认为是程序的错误.其中,`RuntimeException`被认为是程序可以掌控的错误;`Error`被认为是程序无法掌控的错误(多交给JVM处理)
 
-### 9中异常处理的最佳实践
+### 9种异常处理的最佳实践
 
 ### 1. `try{}catch{}finally{}`或者`try-with-resource()`对打开的资源(Resources)进行关闭
 
@@ -277,6 +277,6 @@ title: Java的异常处理
 
     }
 
-> 参考文章：<br><br>
+> 参考文章：<br>
 - [9 Best Practices to Handle Exceptions in Java](https://stackify.com/best-practices-exceptions-java/)
 - [Is it really that bad to catch a general exception?](https://stackoverflow.com/questions/21938/is-it-really-that-bad-to-catch-a-general-exception)
