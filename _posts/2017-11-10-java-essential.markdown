@@ -3,6 +3,8 @@ layout: post
 title: Java Essential
 ---
 
+> Java的基本思想、概念
+
 ## 目录
 
 - [1. Java思想](#1)
@@ -22,6 +24,7 @@ title: Java Essential
     - [4.6 不可更改(Immutable)对象](#4.6)
     - [4.7 并发进阶](#4.7)
     - [4.8 并发安全策略](#4.8)
+    - [4.9 Java并发实践(干货-读取并入库large-size XML文件)](#4.9)
 - [5. JVM内存模型](#5)
     - [5.1 JVM内存模型](#5.1)
     - [5.2 Java垃圾回收](#5.2)
@@ -854,7 +857,131 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 
 **Lock Object**
 
-*TODO...*
+`Synchronized`程序依赖Java对象的内置锁,这种锁是一种`reentrant lock`,这种锁机制很容易使用,但是也有自身的局限性.`java.util.concurrent.locks`包中提供了功能更加复杂的锁机制.
+
+`java.util.concurrent.locks.Lock`和内置锁非常相似。与内置锁一样，一个线程一次只能拥有一个`Lock`对象，通过与之相关联的`Condition`对象，`Lock`对象也支持`wait/notify`机制。
+
+`Lock`对象与内置锁相比较，最大的优点是：它能够退出正在尝试获取的锁。`tryLock()`方法当锁对象不可用是立即退出，或者在尝试获取指定时间后退出(如果设置的尝试获取时间)；`lockInterruptibly()`方法在某线程发送中断信号时退出正在尝试获取锁。
+
+示例：用`Lock`对象尝试解决死锁的问题：
+
+    package org.fmz.thread;
+
+    import java.util.concurrent.locks.Lock;
+    import java.util.concurrent.locks.ReentrantLock;
+    import java.util.Random;
+
+    public class Safelock {
+        static class Friend {
+            private final String name;
+            private final Lock lock = new ReentrantLock();
+
+            public Friend(String name) {
+                this.name = name;
+            
+            }
+
+            public String getName() {
+                return this.name;
+            
+            }
+
+            public boolean impendingBow(Friend bower) {
+                Boolean myLock = false;
+                Boolean yourLock = false;
+                try {
+                    myLock = lock.tryLock();
+                    yourLock = bower.lock.tryLock();
+                
+                } finally {
+                    if (! (myLock && yourLock)) {
+                        if (myLock) {
+                            lock.unlock();
+                        
+                        }
+                        if (yourLock) {
+                            bower.lock.unlock();
+                        
+                        }
+                    
+                    }
+                
+                }
+                return myLock && yourLock;
+            
+            }
+                
+            public void bow(Friend bower) {
+                if (impendingBow(bower)) {
+                    try {
+                        System.out.format("%s: %s has"
+                            + " bowed to me!%n", 
+                            this.name, bower.getName());
+                        bower.bowBack(this);
+                    
+                    } finally {
+                        lock.unlock();
+                        bower.lock.unlock();
+                    
+                    }
+                
+                } else {
+                    System.out.format("%s: %s started"
+                        + " to bow to me, but saw that"
+                        + " I was already bowing to"
+                        + " him.%n",
+                        this.name, bower.getName());
+                
+                }
+            
+            }
+
+            public void bowBack(Friend bower) {
+                System.out.format("%s: %s has" +
+                    " bowed back to me!%n",
+                    this.name, bower.getName());
+            
+            }
+        
+        }
+
+        static class BowLoop implements Runnable {
+            private Friend bower;
+            private Friend bowee;
+
+            public BowLoop(Friend bower, Friend bowee) {
+                this.bower = bower;
+                this.bowee = bowee;
+            
+            }
+        
+            public void run() {
+                Random random = new Random();
+                for (;;) {
+                    try {
+                        Thread.sleep(random.nextInt(10));
+                    
+                    } catch (InterruptedException e) {}
+                    bowee.bow(bower);
+                
+                }
+            
+            }
+        
+        }
+                
+
+        public static void main(String[] args) {
+            final Friend alphonse =
+                new Friend("Alphonse");
+            final Friend gaston =
+                new Friend("Gaston");
+            new Thread(new BowLoop(alphonse, gaston)).start();
+            new Thread(new BowLoop(gaston, alphonse)).start();
+        
+        }
+
+    }
 
 **Executors**
 
@@ -932,9 +1059,13 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 - concurrent包中并发类集很多依赖于atomic包,atomic包提供的CAS并发机制有很好的扩展性
 - 基本数据类型的操作都是相对简单的,适合与CAS方式的并发机制
 
+<h4 id="4.9">4.9 Java并发实践(读取并入库large-size XML文件)</h4>
+
+**参考博文：**[Java多线程解析并入库large-size XML 文件]()
+
 ---
 
-- <h3 id="5">5. Java虚拟机(JVM, Java Virtual Machine)</h3>
+<h2 id="5">5. Java虚拟机(JVM, Java Virtual Machine)</h2>
 
 <h3 id="5.1">5.1 JVM内存模型</h3>
 
