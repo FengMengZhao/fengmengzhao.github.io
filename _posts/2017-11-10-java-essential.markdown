@@ -268,6 +268,8 @@ Thread主要方法:
 
 **join()方法示例:**
 
+    package org.fmz.thread;
+    
     public class ThreadJoin{
         private static class PrintInteger implements Runnable{
             
@@ -301,6 +303,8 @@ Thread主要方法:
     }
 
 **使用join让多线程顺序执行:**
+
+    package org.fmz.thread;
 
     public class ThreadSequence{
         private static class PrintInteger implements Runnable{
@@ -369,6 +373,8 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 
 **死锁示例:**
 
+    package org.fmz.thread;
+
     public class DeadLock{
 
         static class Friend{
@@ -422,6 +428,8 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 
 线程之间需要协作对方的行为.最常用的一种协作方式是`Guarded Block`,这个block循环一个条件,当这个条件为`true`时,block才能继续执行.
 
+    package org.fmz.thread;
+
     public void guardedJoy() {
         // Simple loop guard. Wastes
         // processor time. Don't do this!
@@ -432,6 +440,8 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 这样的代码虽然满足了`Guarded Block`的要求,但是浪费资源.在`while`循环中,线程在等待时还一直处于工作状态(消耗CPU).
 
 通常我们用同步中`wait`和`notify`解决上述问题:
+
+    package org.fmz.thread;
 
     public synchronized void guardedJoy() {
         // This guard only loops once for each special event, which may not
@@ -449,6 +459,8 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 **Wait & Notify实现Producer-Consumer Model:**
 
 *示例一:同一个对象中有两个同步分发,该对象锁实现wait-notify*
+
+    package org.fmz.thread;
 
     import java.util.Vector;
 
@@ -491,6 +503,8 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 
 > 生产者线程类,有产生消息的方法,也有消费消息的方法.生产和消费消息的方法都是同步的.生产者类线程负责生产消息.
 
+    package org.fmz.thread;
+
     public class Consumer extends Thread{
         Producer producer;
 
@@ -521,6 +535,8 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 > 消费者类,持有一个生产者对象,消费者线程负责消费消息.二者能够完成消息的自动生成和消费.
 
 *示例二:生产者和消费者持有Message对象,Message对象有生产和消费消息的同步方法,该对象实现wait-notify*
+
+    package org.fmz.thread;
 
     import java.util.Vector;
 
@@ -559,6 +575,8 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 
 > Message类,有生产和消费消息的同步方法,用次对象完成消息的生成和消费.
 
+    package org.fmz.thread;
+
     import java.util.Vector;
 
     public class ProducerMessage extends Thread{
@@ -582,6 +600,8 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
     }
 
 > 生产者线程,负责生产消息.
+
+    package org.fmz.thread;
 
     import java.util.Vector;
 
@@ -607,6 +627,8 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 
 > 消费者线程类,负责消费消息.
 
+    package org.fmz.thread;
+
     import java.util.Vector;
 
     public class ProducerConsumer{
@@ -627,6 +649,8 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 > main()方法类
 
 *示例三:对集合进行同步,完成wait-notify*
+
+    package org.fmz.thread;
 
     import java.util.Vector;
 
@@ -670,6 +694,8 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 
 > 生产者类,对Vector进行同步.
 
+    package org.fmz.thread;
+
     import java.util.Vector;
 
     public class ConsumerVector extends Thread{
@@ -711,6 +737,8 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 
 > 消费者类,对Vector进行同步.
 
+    package org.fmz.thread;
+
     import java.util.Vector;
 
     public class ProducerConsumerSolution{
@@ -732,6 +760,8 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 如果一个对象创建之后,它的状态(state)就不能别修改,我们称之为`Immutable Object`.在并发的应用中,Immutable对象显得尤为重要.
 
 *示例: 对Mutable对象同步*
+
+    package org.fmz.thread;
 
     public class SynchronizedRGB {
 
@@ -793,12 +823,16 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 
 当我们使用的时候,就要用到下面的同步方法:
 
+    package org.fmz.thread;
+
     synchronized (color) {
         int myColorInt = color.getRGB();
         String myColorName = color.getName();
     } 
 
 我们可以试图设计一个Immutable类,避免上述繁琐的同步操作:
+
+    package org.fmz.thread;
 
     final public class ImmutableRGB {
 
