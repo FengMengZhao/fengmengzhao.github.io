@@ -632,21 +632,14 @@ The Simple API for XML(SAX)是一个基于回调函数(callback routines)或者�
         public static final String HOSTNAME = "Hostname";
         public static final String PORT = "Port";
         public static final String DBNAME = "Dbname";
-        //public static final String SID = "SID";
-        //public static final String SERVICENAME = "ServiceName";
-        //public static final String SERVERMODE = "Server";
-        //public static final String SCHEMA = "Schema";
         public static final String USERNAME = "Username";
         public static final String PASSWORD = "Password";
         public static final String POOL = "Pool";
-        //public static final String THIN_DRIVER = "thin";
-        // public static final String OCI_DRIVER = "oci8";
 
         public static final String DEFAULT_CONNECTION_DEFINITION = "E:\\connection-mysql.xml";
         public static final String DEFAULT_DRIVER = "com.mysql.jdbc.Driver";
         public static final String DEFAULT_HOSTNAME = "localhost";
         public static final String DEFAULT_PORT = "3306";
-        //public static final String DEFAULT_SERVERMODE = "DEDICATED";
 
         public static final String TARGET_DIRECTORY = "targetDirectory";
 
@@ -693,14 +686,6 @@ The Simple API for XML(SAX)是一个基于回调函数(callback routines)或者�
                 dumpConnectionSettings();
             }
         }
-
-        /*public void initalizeConnection(String connectionLocation, PrintStream log)
-                throws SAXException, IOException, SQLException {
-            DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
-            this.log = log;
-            loadConnectionSettings(connectionLocation);
-            this.connection = openConnection();
-        }*/
         
         public ConnectionProvider getConnectionProvider() {
             return this;
@@ -772,18 +757,6 @@ The Simple API for XML(SAX)是一个基于回调函数(callback routines)或者�
             return getSetting(PORT, DEFAULT_PORT);
         }
 
-        /*protected String getServerMode() {
-            return getSetting(SERVERMODE, DEFAULT_SERVERMODE);
-        }*/
-
-        /*protected String getServiceName() {
-            return getSetting(SERVICENAME);
-        }*/
-
-        /*protected String getSID() {
-            return getSetting(SID);
-        }*/
-        
         protected String getDbname() {
             return getSetting(DBNAME);
         }
@@ -797,28 +770,11 @@ The Simple API for XML(SAX)是一个基于回调函数(callback routines)或者�
             return !usePool.equalsIgnoreCase(Boolean.FALSE.toString());
         }
 
-        /*protected String getSchema() {
-            return getSetting(SCHEMA);
-        }*/
-
         protected String getPassword() {
             return getSetting(PASSWORD);
         }
 
         protected String getDatabaseURL() {
-            /*if (getDriver() != null) {
-                if (getDriver().equalsIgnoreCase(THIN_DRIVER)) {
-                    return "jdbc:oracle:thin:@" + getHostname() + ":" + getPort()
-                            + ":" + getSID();
-                } else {
-                    return "jdbc:oracle:oci8:@(description=(address=(host="
-                            + getHostname() + ")(protocol=tcp)(port=" + getPort()
-                            + "))(connect_data=(service_name=" + getServiceName()
-                            + ")(server=" + getServerMode() + ")))";
-                }
-            } else {
-                return null;
-            }*/
             if(getDriver() != null){
                 return "jdbc:mysql://" + getHostname() + ":" + getPort() + "/" + getDbname(); 
             }else{
@@ -842,7 +798,6 @@ The Simple API for XML(SAX)是一个基于回调函数(callback routines)或者�
                     /* 加载数据库驱动 */
                     Class.forName(getDriver());
                 } catch (ClassNotFoundException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
                 conn =  DriverManager.getConnection(
@@ -885,3 +840,53 @@ The Simple API for XML(SAX)是一个基于回调函数(callback routines)或者�
     }
 
 > 异常类
+
+**配置文件：**
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <SourceXML>
+        <Driver>com.mysql.jdbc.Driver</Driver>
+        <Hostname>127.0.0.1</Hostname>
+        <Port>3306</Port>
+        <Username>fmz</Username>
+        <Dbname>parsexml</Dbname>
+        <Password>147258</Password>
+        <Table>testmt</Table>
+        <SourceXML>E:\\fpcx_ext.xml</SourceXML>
+        <CommitCharge>100</CommitCharge>
+        <ThreadCount>32</ThreadCount>
+    </SourceXML>
+
+> connection-mysql.xml
+
+**被解析文件示例：**
+
+<?xml version="1.0" encoding="gbk"?>
+<business comment="认证接口" id="RZJK">
+    <body>
+        <output>
+            <returncode>01</returncode>
+            <returnmsg>处理成功！</returnmsg>
+            <returnfpnum>3492</returnfpnum>
+            <fpxx>
+                <group>
+                    <fpdm>44139085</fpdm>
+                    <fphm>44139085</fphm>
+                    <kprq>2016-12-05</kprq>
+                    <xfmc>北京市北京饭店</xfmc>
+                    <hjje>2320.75</hjje>
+                    <hjse>139.25 </hjse>
+                    <fpzt>0</fpzt>
+                    <gxzt>0</gxzt>
+                    <gxrq/>
+                    <sfsmrz>0</sfsmrz>
+                    <rzrq/>
+                    <fpzl>1</fpzl>
+                    <rzyf/>
+                </group>
+            </fpxx>
+        </output>
+    </body>
+</business>
+
+> fpcx.xml

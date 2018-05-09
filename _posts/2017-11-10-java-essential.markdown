@@ -1061,7 +1061,7 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 
 <h4 id="4.9">4.9 Java并发实践(读取并入库large-size XML文件)</h4>
 
-**参考博文：**[Java多线程解析并入库large-size XML 文件]()
+**参考博文：**[Java多线程解析并入库large-size XML 文件](https://fengmengzhao.github.io/2018/05/09/java-concurrent-parse-and-store-large-size-XML.html)
 
 ---
 
