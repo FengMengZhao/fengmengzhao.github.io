@@ -861,32 +861,32 @@ The Simple API for XML(SAX)是一个基于回调函数(callback routines)或者�
 
 **被解析文件示例：**
 
-<?xml version="1.0" encoding="gbk"?>
-<business comment="认证接口" id="RZJK">
-    <body>
-        <output>
-            <returncode>01</returncode>
-            <returnmsg>处理成功！</returnmsg>
-            <returnfpnum>3492</returnfpnum>
-            <fpxx>
-                <group>
-                    <fpdm>44139085</fpdm>
-                    <fphm>44139085</fphm>
-                    <kprq>2016-12-05</kprq>
-                    <xfmc>北京市北京饭店</xfmc>
-                    <hjje>2320.75</hjje>
-                    <hjse>139.25 </hjse>
-                    <fpzt>0</fpzt>
-                    <gxzt>0</gxzt>
-                    <gxrq/>
-                    <sfsmrz>0</sfsmrz>
-                    <rzrq/>
-                    <fpzl>1</fpzl>
-                    <rzyf/>
-                </group>
-            </fpxx>
-        </output>
-    </body>
-</business>
+    <?xml version="1.0" encoding="gbk"?>
+    <business comment="认证接口" id="RZJK">
+        <body>
+            <output>
+                <returncode>01</returncode>
+                <returnmsg>处理成功！</returnmsg>
+                <returnfpnum>3492</returnfpnum>
+                <fpxx>
+                    <group>
+                        <fpdm>44139085</fpdm>
+                        <fphm>44139085</fphm>
+                        <kprq>2016-12-05</kprq>
+                        <xfmc>北京市北京饭店</xfmc>
+                        <hjje>2320.75</hjje>
+                        <hjse>139.25 </hjse>
+                        <fpzt>0</fpzt>
+                        <gxzt>0</gxzt>
+                        <gxrq/>
+                        <sfsmrz>0</sfsmrz>
+                        <rzrq/>
+                        <fpzl>1</fpzl>
+                        <rzyf/>
+                    </group>
+                </fpxx>
+            </output>
+        </body>
+    </business>
 
 > fpcx.xml
