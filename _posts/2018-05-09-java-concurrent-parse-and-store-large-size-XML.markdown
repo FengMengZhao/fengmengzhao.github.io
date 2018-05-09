@@ -850,7 +850,7 @@ The Simple API for XML(SAX)是一个基于回调函数(callback routines)或者�
         <Port>3306</Port>
         <Username>fmz</Username>
         <Dbname>parsexml</Dbname>
-        <Password>147258</Password>
+        <Password>******</Password>
         <Table>testmt</Table>
         <SourceXML>E:\\fpcx_ext.xml</SourceXML>
         <CommitCharge>100</CommitCharge>
