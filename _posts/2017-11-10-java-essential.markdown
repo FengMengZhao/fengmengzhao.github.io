@@ -603,6 +603,8 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 
 > 生产者线程,负责生产消息.
 
+    package org.fmz.thread;    
+
     import java.util.Vector;
 
     public class ConsumerMessage extends Thread{
