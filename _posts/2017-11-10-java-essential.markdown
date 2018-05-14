@@ -46,6 +46,8 @@ Java是一个面向对象的编程语言.面向对象是一种看待世界的世
 
 面向过程的编程方式也被称为`自上而下`的设计.当你设计自己模型时,首先会有一个主要的问题,这个问题可能以要有一些子问题来解决,直到某个子问题可能独立的完成任务为止.这种编程模式的主要缺点是软件的维护成本大而且费时.当我们主问题的逻辑发生改变的时候,这种逻辑会传递性的影响到金字塔格局中的各个子问题.
 
+面向过程与面向对象最大的区别：面向过程主要的关注点在`functionality`；面向对象的主要关注点在`data`.
+
 **面向过程示例:**
 
 - 主流电商网站爬虫(php)
@@ -76,7 +78,11 @@ Java是一个面向对象的编程语言.面向对象是一种看待世界的世
 这是语言级别的.更广泛一点,可以理解为:
 
 - 抽象
+    - 保留事物的本质特征，去除事物的差异化细节，有`generalization`的概念
+    - 对外提供`API`接口
 - 封装
+    - 将数据和对数据的操作绑定在一个实体当中
+    - 控制外部对数据的访问权限
 - 复用
 
 对应到现实世界,可以理解为:
@@ -536,6 +542,101 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 
 > 消费者类,持有一个生产者对象,消费者线程负责消费消息.二者能够完成消息的自动生产和消费.
 
+**日常生活示例：排队上厕所**
+
+    package org.fmz.thread;
+
+    public class Toilet {
+
+        private boolean available = true;
+
+        public void setOccupied() {
+            available = false;
+            System.out.println("Warning: The toilet has been occupied by " + Thread.currentThread().getName() + "!");
+        
+        }
+
+        public void setAvailable() {
+            available = true;
+            System.out.println("Warning: The toilet has been available by " + Thread.currentThread().getName() + "!");
+        
+        }
+
+        public boolean getAvaiable(){
+            return available;
+        
+        }
+
+        public synchronized void getInToilet() {
+            while(!available){
+                System.out.println(Thread.currentThread().getName() + " --> is waiting for the toilet...");
+                try{
+                    wait();
+                
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                
+                }
+            
+            }
+            System.out.println(Thread.currentThread().getName() + "--> the toilet will be closed!");
+            setOccupied();
+            System.out.println(Thread.currentThread().getName() + "--> the toilet has been closed and will last for 3 seconds!");
+            try{
+                Thread.sleep(3000);
+            
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            
+            }
+
+            //notify();
+        
+        }
+
+        public synchronized void getOutToilet() {
+            notify();
+            System.out.println(Thread.currentThread().getName() + "--> the toilet will be opened now!");
+            setAvailable();
+        
+        }
+
+    }
+
+> 厕所对象。厕所对象是共享资源类，有`synchronized`方法，负责指示共享资源的状态(厕所是否有人)。
+
+    package org.fmz.thread;
+
+    public class IntendToilet extends Thread {
+
+        private Toilet toilet;
+
+        public  IntendToilet(Toilet t, String threadName){
+            super(threadName);
+            toilet = t;  
+        
+        }
+        
+        @Override
+            public void run(){
+            toilet.getInToilet();
+            toilet.getOutToilet();
+        
+            }
+
+        public static void main(String args[]){
+            Toilet toilet = new Toilet();
+            for(int i = 0; i < 10; i++){
+                new IntendToilet(toilet, "Person--" + i).start();
+            
+            }
+        
+        }
+
+    }
+
+> 消费线程。每一个线程先进厕所，然后再出厕所。
+
 *示例二:生产者和消费者持有Message对象,Message对象有生产和消费消息的同步方法,该对象实现wait-notify*
 
     package org.fmz.thread;
@@ -655,6 +756,15 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
     }
 
 > main()方法类
+
+> 举一个生活中的例子来理解，生产者消费者模型和`wait()`和`notify()`的概念：<br><br>
+师傅在平底锅上做烤冷面，平底锅只能容下方5个烤冷面；路人不断聚集过来买烤冷面；每当师傅放在平底锅上一个烤冷面或者路人付完款后都会有报时器警告：可支配烤冷面还有多少个<br><br>
+在这里<br><br>
+师傅是生产者线程，当报时器报的数字是5时，等待(停下来休息下)；其余数字继续做烤冷面<br><br>
+路人是消费者线程，当报时器报的数字是0时，等待(没有现成的，等一等吧)；其余数字可以付款<br><br>
+烤冷面是生产者-消费者协作的内容，报时器是`wait()`和`notify()`的信号<br><br>
+为什么烤冷面的操作:1,师傅做烤冷面(putMsg())和2,付款(getMsg())要是线程安全的？<br><br>
+设想一个，这时候刚好报时器报告警告只剩下1个烤冷面，如果路人甲由于网络问题付款没有成功，(如果方法没有同步)这时候路人乙也开始付款了，而路人乙成功了，这时候路人甲的网络好了，完成了付款，但是烤冷面已经没了(假设刚好是最后一个)
 
 *示例三:对集合进行同步,完成wait-notify*
 
