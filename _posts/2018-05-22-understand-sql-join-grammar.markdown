@@ -31,7 +31,7 @@ title: 理解SQL的join用法
 
 `join`说白了是：带有`filter`的笛卡尔积(cartesian produce)，用图说明：
 
-![join是带有filter的笛卡尔积](/imp/posts/venn-cross-product.png)
+![join是带有filter的笛卡尔积](/img/posts/venn-cross-product.png)
 
 我们使用什么样的方法来形象化`join`操作呢？
 
