@@ -149,6 +149,12 @@ title: 设计模式
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/adapter)
 
+> 示例说明：<br><br>
+假设有一个第三方类库类`NumberSorter`提供一个方法`sort(List list)`是对`List`进行排序<br><br>
+客户端想要对原生的array进行排序<br><br>
+这个时候就可以用到适配器模式，接口的实现中引用`NumberSorter`，把Array转化为`List`后，调用`NumberSorter`的`sort`方法进行排序，完成适配的目的。<br><br>
+实际上是将客户端的请求转发给被适配的类
+
 <h4 id='3.6'>装饰器模式(Decorator Pattern, structrual)</h4>
 
 ![Decorator Pattern UML](/img/posts/decorator.png "装饰器模式")
