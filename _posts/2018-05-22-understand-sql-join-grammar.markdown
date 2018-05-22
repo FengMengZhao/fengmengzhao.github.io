@@ -15,15 +15,15 @@ title: 理解SQL的join用法
 
 **UNION(并集)**
 
-![并集](../img/posts/venn-union.png)
+![并集](/img/posts/venn-union.png)
 
 **INTERSACT(交集)**
 
-![交集](../img/posts/venn-intersection.png)
+![交集](/img/posts/venn-intersection.png)
 
 **EXCEPT(补集)**
 
-![补集](../img/posts/venn-difference.png)
+![补集](/img/posts/venn-difference.png)
 
 关键的问题在于：韦恩图的操作基于的集合都是同种类型的。例如图中示例，所有的记录都是由`first name`和`last name`组成，如果不是由同种类型的记录组成的集合，则`INTERSECT`和`EXCEPT`操作就变的没有什么意义了。那么，如果我想将演员表和对应的电影表关联起来，用韦恩图这种方法显然就不可能了。
 
@@ -31,13 +31,13 @@ title: 理解SQL的join用法
 
 `join`说白了是：带有`filter`的笛卡尔积(cartesian produce)，用图说明：
 
-![join是带有filter的笛卡尔积](../imp/posts/venn-cross-product.png)
+![join是带有filter的笛卡尔积](/imp/posts/venn-cross-product.png)
 
 我们使用什么样的方法来形象化`join`操作呢？
 
 首先我们来看看`cross join`吧，`cross join`是一种笛卡尔积的形式，任何类型的`join`都可以从`cross join`中推到出来。
 
-![cross join](../img/posts/veen-cross-join1.png)
+![cross join](/img/posts/veen-cross-join1.png)
 
 需要注意的是：`cross join`也可以写成用逗号隔开表的形式，它做的事情仅仅是将左边的每一条记录和右边的每一条记录组合起来。如果左边是3条记录，右边是4条记录，那么组合及时`3x4=12`条记录。
 
@@ -45,7 +45,7 @@ title: 理解SQL的join用法
 
 **INNER JOIN**
 
-![INNER JOIN](../img/posts/venn-join1.png)
+![INNER JOIN](/img/posts/venn-join1.png)
 
 `INNER JOIN`是`cross join`结果集中再指定一个过滤条件，看一个SQL示例：
 
