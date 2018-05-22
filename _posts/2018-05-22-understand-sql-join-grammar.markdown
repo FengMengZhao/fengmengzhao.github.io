@@ -17,7 +17,7 @@ title: 理解SQL的join用法
 
 ![并集](/img/posts/venn-union.png)
 
-**INTERSACT(交集)**
+**INTERSECT(交集)**
 
 ![交集](/img/posts/venn-intersection.png)
 
@@ -37,7 +37,7 @@ title: 理解SQL的join用法
 
 首先我们来看看`cross join`吧，`cross join`是一种笛卡尔积的形式，任何类型的`join`都可以从`cross join`中推到出来。
 
-![cross join](/img/posts/veen-cross-join1.png)
+![cross join](/img/posts/venn-cross-join1.png)
 
 需要注意的是：`cross join`也可以写成用逗号隔开表的形式，它做的事情仅仅是将左边的每一条记录和右边的每一条记录组合起来。如果左边是3条记录，右边是4条记录，那么组合及时`3x4=12`条记录。
 
