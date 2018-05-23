@@ -2,6 +2,7 @@
 layout: post
 title: Java并发读取并入库large-size XML文件
 subtitle: 通过多线程并发实现大XML文件的解析和入库
+comment: true
 ---
 
 > 项目中需要读取1G大小的XML文件，解析文件，将相应的字段存入数据库中<br><br>

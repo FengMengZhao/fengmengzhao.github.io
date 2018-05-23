@@ -1,6 +1,7 @@
 ---
 layout: post
 title: 理解SQL的join用法
+comment: true
 ---
 
 当我们在试图理解`SQL`中的`join`用法时，获得大量的信息都是韦恩图(Venn Diagram)示例。然而，韦恩图真的能准确的说明`join`的用法，不然！
