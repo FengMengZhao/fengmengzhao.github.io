@@ -55,13 +55,14 @@ layout: default
 <script src="/assets/vendor/gitment/js/gitment.js"></script>
 <script>
 var gitment = new Gitment({
+    id: "{{ page.date }}"
     owner: 'FengMengZhao', //比如我的叫nilzzzz
-        repo: 'fengmengzhao.github.io', //比如我的叫nilzzzz.github.io
-        oauth: {
-            client_id: 'e0d1b3375f67b4f4af6c', //比如我的828***********
-            client_secret: 'ac8f80bb31d7ccd562f3c2737f9d02eb78c89fc1', //比如我的49e************************
-                            
-        },
+    repo: 'fengmengzhao.github.io', //比如我的叫nilzzzz.github.io
+    oauth: {
+        client_id: 'e0d1b3375f67b4f4af6c', //比如我的828***********
+        client_secret: 'ac8f80bb31d7ccd562f3c2737f9d02eb78c89fc1', //比如我的49e************************
+                        
+    },
 
     });
 gitment.render('gitmentContainer');
