@@ -161,6 +161,15 @@ title: 设计模式
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/decorator)
 
+> 装饰器模式的存在是为了能够动态的改变对象的行为<br><br>
+相比较于`继承`，装饰器能够在运行时(runtime)动态改变对象的行为，而不会影响到这个类原来的结构。
+举一个例子进行说明：<br><br>
+我们有一个`Logger`接口，有两个实现类`LoggerCloud`和`LoggerFileSystem`，分别可以向云端和日志文件中打印日志；现在来了一个新的需求，如果用户选择输出日志方式中加了时间(日志输出方式可以配置，有一个时间的单选框，选中表明日志输出时间)，需要在每条日志后边加上时间<br><br>
+这是我们当然可以考虑两种方法：1，写两个新的实现类分别继承`LoggerCloud`和`LoggerFileSystem`，在打印方法后，打印出日期。这种方法增加了类的继承层次，如果用户日志输出方式可配置项很多，将无法维护类的层次结构；2，改写`LoggerCloud`和`LoggerFileSystem`，这种方法不符合设计模式中的开闭原则，影响的原始的对象，并这种变化是永久的，不是动态的<br><br>
+适配器模式就是用来解决这个问题，添加一个抽象类`TimeLoggerDecorator`，这个类实现`Logger`接口，同时持有一个`Logger`对象，它的实现类调用`Logger`的`print()`方法，同时可以动态的添加一些行为。类图如下：
+
+![decorator-demo](/img/posts/decorator-demo.png)
+
 <h4 id='3.7'>代理模式(Proxy Pattern, structural)</h4>
 
 ![Proxy Pattern UML](/img/posts/proxy.png "代理模式")
