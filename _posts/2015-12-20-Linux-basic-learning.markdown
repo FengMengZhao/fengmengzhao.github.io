@@ -228,6 +228,39 @@ title: Linux 基础
 
 保存防火墙策略：`service iptables save`
 
+关闭所有的`INPUT FORWARD OUTPUT`端口:
+
+    iptables -P INPUT DROP
+    iptables -P OUTPUT DROP
+    iptables -P FORWARD DROP
+
+禁用/开放端口:
+
+    iptables -A INPUT -p tcp --dport 20 -j [ACCEPT|DROP]
+    iptables -A OUTPUT -p tcp --sport 20 -j [ACCEPT|DROP]
+
+删除规则：
+
+    iptables -L -n --line-number
+    iptables -D [INPUT|OUTPUT] ${num}
+
+#### Linux ftp配置
+
+客户端连接ftp server分两种模式：主动模式(Active)和被动模式(Passive)。
+
+主动模式(Active)工作原理：需要数据传输时，客户端开启一个RANDOM端口，并通过21端口将RANDOM端口告知server，并监听。Server端主动通过默认20端口和RANDOM端口建立数据传输通道。
+
+被动模式(Passive)工作原理：由客户端发起PASV(passive mode)的数据传输通道连接请求。客户端被动接受，所以称为被动模式。
+
+**Active|Passive配置**
+
+    pasv_enable=NO #(passive模式关闭)
+    pasv_min_port=3000
+    pasv_max_port=4000
+    port_enable=YES #(active模式开启)
+    connect_from_port_20=YES #(默认Active Mode情况下server端数据传输通过20端口)
+
+
 ##### selinux
 
 `vi /etc/selinux/config`，设置：`SELINUX=disabled`
