@@ -98,3 +98,9 @@ FTP服务仅仅基于TCP协议，实现不包括UDP协议部分。FTP工作时�
     Passive FTP:
         command: client >N   --> server 21
         data   : client >N+1 --> server P(P>1023)
+
+---
+
+**Reference**
+
+- [http://slacksite.com/other/ftp.html](http://slacksite.com/other/ftp.html)
