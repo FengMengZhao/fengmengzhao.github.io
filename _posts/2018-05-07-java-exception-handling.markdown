@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Java的异常处理
-subtitle: 让人让人忧的java异常处理机制
+subtitle: 让人欢喜让人忧的java异常处理机制
 background: '/img/posts/java-exception.jpg'
 comment: true
 ---
