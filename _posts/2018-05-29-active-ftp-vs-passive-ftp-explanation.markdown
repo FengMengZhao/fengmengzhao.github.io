@@ -1,6 +1,7 @@
 ---
 layout: post
-title: 详解主动型(Active Mode)FTP和被动型(Passive)FTP
+title: 详解主动型(Active Mode)FTP和被动型(Passive Mode)FTP
+subtile: ftp的传统的连接模式是主动模式，为什么有了被动模式，主动模式和被动模式分别是怎么工作的？
 comment: true
 ---
 
