@@ -3,6 +3,7 @@ layout: post
 title: "什么是开发者最重要的技能？"
 subtitle: "对于开发人员来说，每天繁杂的工作已经把我们湮没了，我们还要学习新的技术跟上时代的变化。可是，计算机的知识浩如烟海又不断更新，我们想学到核心，究竟什么是最重要的？"
 background: '/img/posts/learn-how-to-learn-is-most-important-for-programmars.jpg'
+comment: true
 ---
 
 成为一个高效的学习者比成为一个高效开发者至少同样重要。
