@@ -72,10 +72,9 @@ FTP服务仅仅基于TCP协议，实现不包括UDP协议部分。FTP工作时�
 
 主动与被动ftp工作连接方式：
 
-Active FTP:
-    command: client >N   --> server 21
-    data   : client >N+1 <-- server 20 
-Passive FTP:
-    command: client >N   --> server 21
-    data   : client >N+1 --> server P(P>1023)
-
+    Active FTP:
+        command: client >N   --> server 21
+        data   : client >N+1 <-- server 20 
+    Passive FTP:
+        command: client >N   --> server 21
+        data   : client >N+1 --> server P(P>1023)
