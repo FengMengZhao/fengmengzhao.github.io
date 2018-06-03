@@ -44,6 +44,8 @@ SimpleJekyllSearch({
 $('#search-bar').click(function() {
     var $search = $('#search-container');
     if($search.css('display') == 'none'){
+        $search.find('input').val('');
+        $search.find('ul').empty();
         $search.show();
     }else{
         $search.hide();
