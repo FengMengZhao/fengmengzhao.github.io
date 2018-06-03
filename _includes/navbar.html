@@ -20,7 +20,26 @@
         <li class="nav-item">
           <a class="nav-link" href="{{"/contact" | relative_url }}">联系</a>
         </li>
+        <!-- for search -->
+        <!--
+        <div id="search-container">
+            <input type="text" id="search-input" placeholder="搜索">
+            <ul id="results-container"></ul>
+        </div>
+        -->
+            <!--
+            <div class="dropdown navbar-form navbar-right">
+              <input id="dLabel" name="word" type="text" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" class="form-control typeahead" placeholder="搜索" />
+              <ul class="dropdown-menu" aria-labelledby="dLabel" id="c"></ul>
+            </div>
+            -->
       </ul>
     </div>
   </div>
 </nav>
+{% if page.search == true %}
+<div id="search-container">
+  <input type="text" id="search-input" placeholder="搜索">
+  <ul id="results-container"></ul>
+</div>
+{% endif %}
