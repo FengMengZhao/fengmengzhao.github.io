@@ -20,6 +20,9 @@
         <li class="nav-item">
           <a class="nav-link" href="{{"/contact" | relative_url }}">联系</a>
         </li>
+        <li id="search-bar" class="nav-item">
+          <a class="nav-link" href="javascript:void(0)"><span><i class="fa fa-search" aria-hidden="true"></i></span></a>
+        </li>
         <!-- for search -->
         <!--
         <div id="search-container">
@@ -38,7 +41,7 @@
   </div>
 </nav>
 {% if page.search == true %}
-<div id="search-container">
+<div id="search-container" style="display: none;">
   <input type="text" id="search-input" placeholder="搜索">
   <ul id="results-container"></ul>
 </div>

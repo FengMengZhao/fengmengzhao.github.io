@@ -39,3 +39,13 @@ SimpleJekyllSearch({
     limit: 20,
     fuzzy: false
 })
+
+/* 点击搜索按钮弹出搜索框 */
+$('#search-bar').click(function() {
+    var $search = $('#search-container');
+    if($search.css('display') == 'none'){
+        $search.show();
+    }else{
+        $search.hide();
+    }
+});
