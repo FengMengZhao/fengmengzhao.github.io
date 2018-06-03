@@ -2,7 +2,7 @@ $(function () {
   $('[data-toggle="tooltip"]').tooltip()
 
 })
-/* back to top */
+/* 回顶部时间 */
 $('body').prepend('<a href="#" class="back-to-top">Back to Top</a>');
 
 var amountScrolled = 300;
@@ -29,3 +29,13 @@ $('a.back-to-top').click(function() {
 
 });
 
+/* 搜素事件  */
+SimpleJekyllSearch({
+    searchInput: document.getElementById('search-input'),
+    resultsContainer: document.getElementById('results-container'),
+    json: '/search.json',
+    searchResultTemplate: '<li><a href="{url}" title="{desc}">{title}</a></li>',
+    noResultsText: '没有搜索到文章',
+    limit: 20,
+    fuzzy: false
+})
