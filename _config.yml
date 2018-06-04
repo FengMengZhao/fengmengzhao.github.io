@@ -11,6 +11,11 @@ twitter_username:  #fengmengzhao
 github_username:   FengMengZhao
 facebook_username: #fengmengzhao
 
+# 百度统计
+analytics:
+    baidu:
+        siteid: a66e23d778dbfa813dcc8e5ad7b661ec
+
 # Build settings
 markdown:          kramdown
 highlighter: rouge
