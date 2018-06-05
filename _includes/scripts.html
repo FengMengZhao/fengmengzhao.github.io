@@ -2,14 +2,14 @@
 <script src="{{"/assets/vendor/bootstrap/js/bootstrap.bundle.min.js" | relative_url }}"></script>
 <script src="{{"/assets/vendor/startbootstrap-clean-blog/js/clean-blog.min.js" | relative_url }}"></script>
 
-<!-- 搜索模板  -->
-<script src="https://unpkg.com/simple-jekyll-search@1.5.0/dest/simple-jekyll-search.min.js"></script>
+<!-- 不蒜子网站统计 -->
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
 <script src="{{"/assets/scripts.js" | relative_url }}"></script>
 
 {% if page.search == ture %}
-    <!-- 不蒜子网站统计 -->
-    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <!-- 搜索模板  -->
+    <script src="https://unpkg.com/simple-jekyll-search@1.5.0/dest/simple-jekyll-search.min.js"></script>
     <script src="{{"/assets/simple-jekyll-search.js" | relative_url }}"></script>
 {% endif %}
 
