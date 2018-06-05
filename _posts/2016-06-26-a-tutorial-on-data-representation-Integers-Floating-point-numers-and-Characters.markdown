@@ -1,6 +1,9 @@
 ---
 layout: post
 title: 整数、浮点数及字符在计算机中的数据表示教程
+subtitle: 计算机中只能存储0和1,那么数字、字符、和数值在计算机中是怎么表示的呢？
+background: '/img/posts/data-representation-in-computer.png'
+comment: true
 ---
 
 ### 目录
@@ -18,7 +21,8 @@ title: 整数、浮点数及字符在计算机中的数据表示教程
     - [3.4 用1's-complement的方式表示n个字节的有符号整数](#3.4)
     - [3.5 用2's-complement的方式表示n个字节的有符号整数](#3.5)
     - [3.6 计算机使用2's-complement的方式来表示有符号的整数](#3.6)
-    - [3.7 Big Endia Vs. Little Endian](#3.7)
+    - [3.7 2's-complement数值表示范围 ](#3.7)
+    - [3.8 Big Endia Vs. Little Endian](#3.8)
 - [4 浮点数表示](#4)
     - [4.1 IEEE-754 32-bit单精度浮点数](#4.1)
     - [4.2 IEEE-754 64-bit双精度浮点数](#4.2)
@@ -140,7 +144,23 @@ title: 整数、浮点数及字符在计算机中的数据表示教程
 
 就整数来说，可以用16-bit、32-bit或者64-bit来表示。程序员负责来选择到底使用哪一种bit长度，不同的bit长度会限制整数的表示范围。整数可以用不同的表达范式(representation shceme)来表示，例如无符号(Unsigned)和有符号(Signed)。
 
-计算机储存的只是二进制的数据，至于数据怎么被读取，完全决定于你。例如，8-bit二进制数据`0100 0001B`可以被解释成无符号的数字65，也可以被解释成ASCII编码的'A'。
+计算机储存的只是二进制的数据，至于数据怎么被读取，完全决定于你。例如，8-bit二进制数据`0100 0001B`可以被解释成无符号的数字65，也可以被解释成ASCII编码的`'A'`。
+
+**罗塞塔石碑和埃及象形文字的解读**
+
+公元前4000年开始，古埃及人就开始使用象形文字。不幸的是，公元500年之后就没有人能够理解这种文字了，这种情况一致持续到1799拿破仑的远征部队占领埃及时在尼罗河三角洲的罗塞塔小镇上意外挖到了一块黑色的大石头。
+
+罗塞塔石碑上刻的是公元前196年国王托米勒五世颁布的诏令，共有三种语言刻在石碑上。从上到下依次是：古埃及象形语、古埃及草书(平民使用的文字)和古希腊语言。它们都表示同样诏书的意思，而人们能看懂古希腊语言，这就成为了人们解密古埃及象形语的关键一把钥匙。
+
+悲伤的故事告诉我们：除非你知道编码范式，否则你无法解码数据。
+
+> 罗塞塔石碑
+
+![罗塞塔石碑](/img/posts/Representation_RosettaStone.jpg "罗塞塔石碑")
+
+> 古埃及象形文字
+
+![古埃及象形文字](/img/posts/Representation_hieroglyphs.jpg "古埃及象形文字")
 
 ---
 
@@ -150,8 +170,8 @@ title: 整数、浮点数及字符在计算机中的数据表示教程
 
 整数通常使用8-bit、16-bit、32-bit、64-bit来表示，表示的范式有两种：
 
-- 无符号整数：可以用来表示0和正数
-- 有符号整数：可以用来表示负数、0和正数，有三种不同的表示方法:
+- 无符号整数(UNSIGNED INTEGER)：可以用来表示0和正数
+- 有符号整数(SIGNED INTEGER)：可以用来表示负数、0和正数，有三种不同的表示方法:
     - Sign-magnitude representation 
     - 1's complement representation 
     - 2's complement representation 
@@ -168,7 +188,7 @@ n-bit无符号整数表示方法可以用来表示2^n个数值，从0到2^n-1，
 2. 1's complement representation
 3. 2's complement representation
 
-> 当我们用字节表示一个整数的时候，我们把第一个字节称为：msb(most-significant-bit)，我们把最后一个字节称为：lsb(least-significant-bit)
+> 当我们用字节(实际上是多个bit)表示一个整数的时候，我们把第一个bit称为：msb(most-significant-bit)，我们把最后一个bit称为：lsb(least-significant-bit)
 
 在所有表示整数的不同范式中，msb是符号字节(sign bit)。如果符号字节是0，表示正整数；如果符号是1，表示负整数。
 
@@ -187,14 +207,16 @@ n-bit无符号整数表示方法可以用来表示2^n个数值，从0到2^n-1，
 
 - 1 000 0000B(8-bit) 表示 -0D，...
 
-Sing-magnitude数值表示的缺点：
+![sign-magnitude有符号整数](/img/posts/DataRep_SignMagnitude.png "SignMagnitude有符号整数表示")
+
+Sign-magnitude数值表示的缺点：
 
 1. 有两中表示都是表示的0，造成低效和混淆
 2. 正数和负数需要分开来处理
 
 <h4 id="3.4">3.4 用1's-complement的方式表示n个字节的有符号整数</h4>
 
-- 同样，符号字节为0表示为正整数，符号字节为1表示为负整数
+- 同样，符号bit为0表示为正整数，符号bit为1表示为负整数
 - 除了第一个符号字节(msb)的其他n-1个字节代表数值真实的量
     - 对于正整数，其量就等于剩余的字节的量
     - 对于负整数，其量等于剩余的n个字节翻转后(0变为1,1变为0)后的量
@@ -208,6 +230,8 @@ Sing-magnitude数值表示的缺点：
 - 0 000 0000B(8-bit) 表示 +0D，...
 
 - 1 000 0000B(8-bit) 表示 -0D，...
+
+![1's-complement有符号整数](/img/posts/DataRep_OneComplement.png "1's-complement有符号整数")
 
 Sing-magnitude数值表示的缺点：
 
@@ -231,6 +255,8 @@ Sing-magnitude数值表示的缺点：
 
 - 1 000 0000B(8-bit) 表示 -128D，其中1代表的是-的意思，后边的字节翻转后为111 1111的量加1
 
+![2's-complement有符号整数](/img/posts/DataRep_TwoComplement.png "2's-complement有符号整数")
+
 <h4 id="3.6">3.6 计算机使用2's-complement的方式来表示有符号的整数</h4>
 
 在计算机科学当中，我们使用2's-complement的方式来表示有符号的整数，那么因为：
@@ -250,7 +276,17 @@ Sing-magnitude数值表示的缺点：
 
 > 固定bit的整数都有自己的范围，当我们在进行运算的时候，要记得查询计算的数值是否越界
 
-<h4 id="3.7">3.7 Big Endia Vs. Little Endian</h4>
+下图表示三种有符号整数表示范式的变迁：
+
+![DataRep_SignedIntegers](/img/posts/DataRep_SignedIntegers.gif "taRep_SignedIntegers")
+
+<h4 id="3.7">3.7 2's-complement数值表示范围</h4>
+
+用2's-complement方法来表示一个有符号整数的表示范围是`-2^(n-1) ~ +(2^(n-1)-1)`，最大值`2^(n-1)-1 + 1`等于最小值`-2^(n-1)`
+
+![2's-complement有符号整数表示范围](/img/posts/2-complement-range.png "2's-complement有符号整数表示范围")
+
+<h4 id="3.8">3.8 Big Endia Vs. Little Endian</h4>
 
 现代的计算机在一个内存地址(memory address)中储存一个字节(8bit)，因此一个32-bit的整数需要4个内存地址。那么这些字节是以什么样的顺序储存的呢？
 
@@ -385,9 +421,8 @@ Unicode和UTF-8之间的转化：
 
 ![Unicode to UTF-8](/img/posts/Utf_8_to_unicode.png)
 
-> UTF-8是用1-3个字节来表示BMP(16-bit)，并且用4-bit来表示Supplementary Characters(21-bit)
-
-> 128 ACSII字符(拉丁字符、数字和标点)使用1个Byte；扩展的拉丁字符、希腊字符、亚美尼亚语、希伯来语、阿拉伯语使用2个字节；中文、日本语和韩语(CJK)用3个字节。
+> UTF-8是用1-3个字节来表示BMP(16-bit)，并且用4-bit来表示Supplementary Characters(21-bit)<br><br>
+128 ACSII字符(拉丁字符、数字和标点)使用1个Byte；扩展的拉丁字符、希腊字符、亚美尼亚语、希伯来语、阿拉伯语使用2个字节；中文、日本语和韩语(CJK)用3个字节。
 
 <h4 id="5.6">5.6 多字节型字符表示的文档文件</h4>
 
