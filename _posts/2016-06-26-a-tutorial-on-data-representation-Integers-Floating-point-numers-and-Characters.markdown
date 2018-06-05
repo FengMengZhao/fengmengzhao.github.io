@@ -27,14 +27,15 @@ comment: true
     - [4.1 IEEE-754 32-bit单精度浮点数](#4.1)
     - [4.2 IEEE-754 64-bit双精度浮点数](#4.2)
     - [4.3 Special Vlaue](#4.3)
-- [5 字符编码](#5)
-    - [5.1 7-bit ASCII Code(aka US-ASCII, ISO/IEC 646, ITU-T T.50)](#5.1)
-    - [5.2 8-bit Latin-1(aka ISO/IEC 8859-1)](#5.2)
-    - [5.3 US-ASCII(ASCII Extensions)的其他8-bit扩展](#5.3)
-    - [5.4 Unicode(aka ISO/IEC 10646 Universal Character Set)](#5.4)
-    - [5.5 UTF-8(Unicode Transformation Format - 8-bit)](#5.5)
-    - [5.6 多字节型字符表示的文档文件](#5.6)
-    - [5.7 完档文件的格式](#5.7)
+- [5 字符集&字符编码](#5)
+    - [5.1 字符集VS字符编码](#5.1)
+    - [5.2 7-bit ASCII Code(aka US-ASCII, ISO/IEC 646, ITU-T T.50)](#5.2)
+    - [5.3 8-bit Latin-1(aka ISO/IEC 8859-1)](#5.3)
+    - [5.4 US-ASCII(ASCII Extensions)的其他8-bit扩展](#5.4)
+    - [5.5 Unicode(aka ISO/IEC 10646 Universal Character Set)](#5.5)
+    - [5.6 UTF-8(Unicode Transformation Format - 8-bit)](#5.6)
+    - [5.7 多字节型字符表示的文档文件](#5.7)
+    - [5.8 完档文件的格式](#5.8)
 
 ---
 
@@ -356,11 +357,18 @@ zero不能用归一化的形式来表示，必须用非归一化的形式E=0，F
 
 ---
 
-<h3 id="5">5 字符编码</h3>
+<h3 id="5">5 字符集&字符编码</h3>
 
 最常用的字符编码方式是：7-bit ASCII(ISO/IEC 646)和8-bit Latin-x(ISO/IEC 8895-x)，这些编码主要用来表示西欧的字符；Unicode(ISO/IEC 10646)是为了表示国际化字符。
 
-<h4 id="5.1">5.1 7-bit ASCII Code(aka US-ASCII, ISO/IEC 646, ITU-T T.50)</h4>
+<h4 id="5.1">5.1 字符集VS字符编码</h4>
+
+所谓的字符集可以理解为一种规范，它定义了一个字符和对应表示这个字符的数值(Code Point)。而字符编码是描述怎么将字符集的**Code Point**用在计算机中存储起来。
+
+> 字符集可以看做一个字典，根据一个字符可以查找到对应的数值，怎么把数值存储在计算机中呢？需要用一定的编码格式，为什么呢？因为，有的值(Code Point)用一个字节(byte)可以表示，有的值至少用两个字节(byte)，要定义好编码规则，才能有效读取存储的数据。<br><br>
+ASCII和ISO-8859-X似乎字符集和字符编码时一回事啊？是的，因为这两个字符集的最大长度是一个字节，那么我们可以直接用字符集的Code Point的数值表示在计算机中存储起来，所以没有编码一说；而对于Unicode字符集来说，字符集对应的Code Point最大值要大于两个字符，这时候就需要定义编码格式，才能有效的编码和解码数据。于是就有了不同的实现：UTF-8(可变字符，1-3 byte)，UTF-16(可变字符，2 bytes OR 4 bytes)和UTF-32(4 bytes)。
+
+<h4 id="5.2">5.2 7-bit ASCII Code(aka US-ASCII, ISO/IEC 646, ITU-T T.50)</h4>
 
 ASCII(American Standard Code for Information Interchange)是比较早的一种字符表示方式。现在的ASCII已经扩展到了8-bit，这样能够更好的利用计算机8-bit作为一个memory address的特点
 
@@ -378,7 +386,7 @@ ASCII(American Standard Code for Information Interchange)是比较早的一种�
 
 ![ASCII Code Unprintable](/img/posts/Ascii_code_unprintable.png)
 
-<h4 id="5.2">5.2 8-bit Latin-1(aka ISO/IEC 8859-1)</h4>
+<h4 id="5.3">5.3 8-bit Latin-1(aka ISO/IEC 8859-1)</h4>
 
 ISO/IEC-8859是西方语言的标准。ISO/IEC 8859-1又称为Latin alphabet No.1或者是Latin-1，Latin-1共有191个可打印字符，向后兼容ASCII编码。主要覆盖的语言有：英语、德语、意大利语、葡萄牙语和西班牙语
 
@@ -388,7 +396,7 @@ ISO/IEC-8859是西方语言的标准。ISO/IEC 8859-1又称为Latin alphabet No.
 
 > ISO/IEC=8895共分为16个部分，最常用的是Part 1，Part 2主要覆盖中欧(波兰、捷克、匈牙利等)，Part 3主要覆盖南欧(土耳其等)，Part 4主要覆盖北欧(爱沙尼亚、拉脱维亚等)，Part 5主要是为西里尔字母，Part 7主要是为希腊，Part8主要是为希伯来人(以色列)，Part 9主要是为土耳其，Part 10主要是为北欧人，Part 11主要是为泰国，Part 12已经被抛弃，Part 13主要是为波罗的海沿岸，Part 14主要是为赛尔特语，Part 15主要是为法国、芬兰等，Part 16主要是为欧洲东南部。
 
-<h4 id="5.3">5.3 US-ASCII(ASCII Extensions)的其他8-bit扩展</h4>
+<h4 id="5.4">5.4 US-ASCII(ASCII Extensions)的其他8-bit扩展</h4>
 
 ANSI(American National Standard Institude)(aka Windowns-1252)是8-bit的字符集，也是Latin-1的一个超集，它定义了128D(80H)到159D(9FH)之间的字符为"Displayable Character"，例如："smart" 单引号等
 
@@ -398,7 +406,7 @@ ANSI(American National Standard Institude)(aka Windowns-1252)是8-bit的字符�
 
 ![Windows Code 1252](/img/posts/Windows_code_1252.png)
 
-<h4 id="5.4">5.4 Unicode(aka ISO/IEC 10646 Universal Character Set)</h4>
+<h4 id="5.5">5.5 Unicode(aka ISO/IEC 10646 Universal Character Set)</h4>
 
 Unicode试图提供一个标准的字符集，这个字符集同样是国际化的、有效的、统一的和不易混淆的。
 
@@ -413,7 +421,11 @@ Unicode有两种编码的方式：
 
 ![UCS-2](/img/posts/Ucs_2.png)
 
-<h4 id="5.5">5.5 UTF-8(Unicode Transformation Format - 8-bit)</h4>
+**Unicode BMP(基本面)**
+
+Unicode将所有的字符定义为17个平面(code area)，其中第一个也是最重要的一个面叫做基本面(BMP, Basic Multilingual Plane)，定义了从`U+0000 ~ U+FFFF`的数值。各个国家常用的字符都包含在BMP之内。
+
+<h4 id="5.6">5.6 UTF-8(Unicode Transformation Format - 8-bit)</h4>
 
 Unicode效率非常低，因为如果一个文档大部分包含ASCII字符，每一个字符需要用2个或者4个字节来表示，就造成了大量的空间浪费。因此UTF-8使用可变字节表示的编码方式，用1-4个字节来表示一个字符。
 
@@ -424,7 +436,7 @@ Unicode和UTF-8之间的转化：
 > UTF-8是用1-3个字节来表示BMP(16-bit)，并且用4-bit来表示Supplementary Characters(21-bit)<br><br>
 128 ACSII字符(拉丁字符、数字和标点)使用1个Byte；扩展的拉丁字符、希腊字符、亚美尼亚语、希伯来语、阿拉伯语使用2个字节；中文、日本语和韩语(CJK)用3个字节。
 
-<h4 id="5.6">5.6 多字节型字符表示的文档文件</h4>
+<h4 id="5.7">5.7 多字节型字符表示的文档文件</h4>
 
 **BOM(Byte Order Mark)**
 
@@ -432,7 +444,7 @@ BOM用来标记big-endian储存和small-endian储存。当BOM是`FE FFH`时候�
 
 UTF-8的文档默认是Big-Endian储存的。然而在Windows系统中，BOM作为最开始的字节加入文件，在UTF-8的文档中加入BOM是不推荐的，这样容易在其他的操作系统中产生混乱，Windows将`FE FFH`编码为`EF BB BF`插入文件的头(.txt文件的UTF-8格式默认含有BOM)，在Windows下最好选择没有BOM的UTF-8文件(可以采用其他字符编辑器Notepad)
 
-<h4 id="5.7">5.7 文档文件的格式</h4>
+<h4 id="5.8">5.8 文档文件的格式</h4>
 
 - Windowns/DOS 使用`0D0AH(CR+LF or \r\n)`作为EOL(End Of Line)
 - Unix和Mac使用`0AH(LF or \n)`作为EOL
