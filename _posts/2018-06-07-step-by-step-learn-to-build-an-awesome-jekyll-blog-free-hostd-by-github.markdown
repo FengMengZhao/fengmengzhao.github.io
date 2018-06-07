@@ -115,11 +115,11 @@ Github Pages默认支持Jekyll作为静态站点生成器。如果你写的Jekyl
 
 > 冯兄话吉博客V3-克隆 
 
-![冯兄话吉博客V3-克隆](fxhj-blog-repository-fork.png "冯兄话吉博客V3-Fork")
+![冯兄话吉博客V3-克隆](/img/posts/fxhj-blog-repository-fork.png "冯兄话吉博客V3-Fork")
 
 > 修改克隆后仓库名为**username.github.io**
 
-![更改克隆后仓库名为username.github.io](change-repository-name.png "更改克隆后仓库名为username.github.io")
+![更改克隆后仓库名为username.github.io](/img/posts/change-repository-name.png "更改克隆后仓库名为username.github.io")
 
 ---
 
@@ -167,7 +167,7 @@ Github Pages默认支持Jekyll作为静态站点生成器。如果你写的Jekyl
 
 > 百度统计新增网站
 
-![百度统计新增网站](baidutongji-new-site.png "百度统计新增网站")
+![百度统计新增网站](/img/posts/baidutongji-new-site.png "百度统计新增网站")
 
 <h5 id="3.2.4">3.2.4 评论</h5>
 
@@ -190,7 +190,7 @@ Github Pages默认支持Jekyll作为静态站点生成器。如果你写的Jekyl
 
 ---
 
-- [4 jekyll本地开发](#4)
+<h3 id="4">4 jekyll本地开发</h3>
 
 如果你前端厉害或者感兴趣，经过第3部分，博客已经被你定制化的清新脱俗了。
 
