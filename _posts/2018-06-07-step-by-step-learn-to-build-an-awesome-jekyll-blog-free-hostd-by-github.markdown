@@ -8,7 +8,7 @@ comment: true
 
 ## 目录
 
-- [1 基于git-pages的Jekyll-blog你需要知道这些](#1)
+- [1 基于Github Pages的Jekyll-blog你需要知道这些](#1)
     - [1.1 Github之Github Pages](#1.1)
     - [1.2 SSG之Jekyll](#1.2)
     - [1.3 Jekyll + Github Pages](#1.3)
@@ -41,7 +41,7 @@ Github是使用Git进行版本控制的基于Web的托管服务。单位和个�
 
 **Github Pages**是Github推出的基于Git仓库的为个人/组织或者项目提供静态站点的托管服务。
 
-说白了，如果你有静态站点(或者希望Git Pages帮助生成)，只需要把代码推送到Github仓库(Repository)中并进行一定的配置，Github就会为你提供免费的托管服务和域名。
+说白了，如果你有静态站点(或者希望Git Pages帮助生成)，只需要把代码推送到Github仓库(Repository)中并进行一定的配置，Github就会为你提供免费的托管服务和域名(可以理解为一个web server服务)。
 
 > 这里说的代码可能是静态网站生成后的HTML静态代码，也可能是静态站点生成器(SSG, Static Site Generator)的代码。
 
@@ -64,7 +64,7 @@ Github是使用Git进行版本控制的基于Web的托管服务。单位和个�
 - 针对个人/组织或者项目不同，像1一样分别把代码推送到`master`或者`gh-pages`分支上
 - 注意：只需要把生成后的静态代码推送到相应分支，代码可以推送的任意分支或者再本地维护
 
-> 为什么Github pages既支持帮助生成静态站点，又支持生成后的静态站点直接托管？<br><br>
+> 为什么Github pages既支持帮助生成静态站点，又支持生成后的静态HTML直接托管？<br><br>
 因为：Github pages默认支持的静态站点生成器(SSG)有局限，如果你使用的SSG默认Github Pages不支持，这样你可以在本地生成后，把生成的结果推送到Github Pages，就具有更大的灵活性。
 
 总结一下，对于一个Github账户：
@@ -108,7 +108,7 @@ Github Pages默认支持Jekyll作为静态站点生成器。如果你写的Jekyl
 <h4 id="2.2">2.2 克隆项目</h4>
 
 1. 登录你的Github账号
-2. 访问[本博客Github仓库-冯兄话吉博客V3](https://github.com/FengMengZhao/fengmengzhao.github.io "冯兄话吉博客V3")
+2. 访问[移步这里-冯兄话吉博客V3](https://github.com/FengMengZhao/fengmengzhao.github.io "冯兄话吉博客V3")
 3. Fork(参照附图 - 冯兄话吉博客V3-克隆)
 4. 修改你Github账号中仓库`fengmengzhao.github.io`为`username.github.io`(参照附图 - 修改克隆后仓库名为username.github.io)
 5. 这样，在浏览器中输入`https://username.github.io`(记得把`username`替换为你真实注册的用户名)，你新的博客就可以访问了
