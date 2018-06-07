@@ -2,7 +2,7 @@
 layout: post
 title: 一步一个脚印学习创建免费的个人博客
 subtitle: 也许你需要分享，也许你需要记录，也许你需要宣传...，跟随我的脚步，你就能创建一个神奇的个人网站。如果你对前端感兴趣，那么更能够大显身手...
-background: '/img/posts/step-by-step-create-free-jekyll-blog.png'
+background: '/img/posts/step-by-step-create-free-jekyll-blog.jpg'
 comment: true
 ---
 
