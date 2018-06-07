@@ -1,6 +1,8 @@
 ---
-title: Java面试准备向导
 layout: post
+title: Java面试准备向导
+subtitle: 致力于收集、整理和完善Java程序员面试基础知识。成竹于胸，方能决胜千里之外。
+background: '/img/posts/java-interview-guid.jpg'
 comment: true
 ---
 
