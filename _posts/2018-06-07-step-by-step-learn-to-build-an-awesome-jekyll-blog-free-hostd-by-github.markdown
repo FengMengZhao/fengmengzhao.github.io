@@ -198,6 +198,8 @@ Github Pages默认支持Jekyll作为静态站点生成器。如果你写的Jekyl
 
 参考[Jekyll官方中文文档](https://jekyllcn.com/docs/home/ "Jekyll官方中文文档")。
 
+需要注意的是：如果在虚拟机上记性开发，最好指定IP启动，例如：`bundle exec jekyll serve --host 172.16.192.208`。
+
 > 因为官方有中文文档，讲解特别清晰，就不再赘述了。
 
 **Reference：**
