@@ -1,6 +1,9 @@
 ---
 layout: post
 title: Spring Boot学习
+subtitle: 一个内嵌Web服务器(Tomcat/Jetty)的可执行程序框架,利用SpringBoot开发的程序不需要作为war包部署到web服务器中,而是作为一个可执行的程序,直接启动执行.
+background: '/img/posts/spring-boot.jpg'
+comment: true
 ---
 
 

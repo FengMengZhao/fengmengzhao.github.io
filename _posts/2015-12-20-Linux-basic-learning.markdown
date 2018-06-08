@@ -281,6 +281,14 @@ title: Linux 基础
 
 `ls --help`；`zip -h`
 
+**Windows CMD技巧**
+
+查看端口号-PID：`netstat -nao | findstr ${PORT}`
+
+查看PID：`tasklist |findstr ${PID}`
+
+强制结束进程：`taskkill /pid ${PID} -t -f`
+
 ---
 
 ---

@@ -31,7 +31,7 @@ comment: true
 
 <h3 id="1">1 基于Github Pages的Jekyll-blog你需要知道这些</h3>
 
-我刚接触`Github`的时候，对于`Github`,`git-pages`,`Jekyll`等词汇总是傻傻的弄不明白，不知道它们是用来干什么的，又是怎么依赖的，怎么就可以免费的创建一个博客呢？接下来我们弄明白这些概念吧。
+我刚接触`Github`的时候，对于`Github`,`Github Pages`,`Jekyll`等词汇总是傻傻的弄不明白，不知道它们是用来干什么的，又是怎么依赖的，怎么就可以免费的创建一个博客呢？接下来我们弄明白这些概念吧。
 
 <h4 id="1.1">1.1 Github之Github pages</h4>
 
@@ -41,13 +41,13 @@ Github是使用Git进行版本控制的基于Web的托管服务。单位和个�
 
 **Github Pages**是Github推出的基于Git仓库的为个人/组织或者项目提供静态站点的托管服务。
 
-说白了，如果你有静态站点(或者希望Git Pages帮助生成)，只需要把代码推送到Github仓库(Repository)中并进行一定的配置，Github就会为你提供免费的托管服务和域名(可以理解为一个web server服务)。
+说白了，如果你有静态站点(或者希望Github Pages帮助生成)，只需要把代码推送到Github仓库(Repository)中并进行一定的配置，Github就会为你提供免费的托管服务和域名(可以理解为一个Web Server服务)。
 
-> 这里说的代码可能是静态网站生成后的HTML静态代码，也可能是静态站点生成器(SSG, Static Site Generator)的代码。
+> 这里说的代码可能是静态网站生成后的HTML静态代码，也可能是静态站点生成器(SSG, Static Site Generator)的代码(Jekyll代码)。
 
 具体来说，分为两个方面：
 
-**1. 如果你想把代码推送到Git仓库，希望Git Pages来生成静态站点:**
+**1. 如果你想把代码推送到Github仓库，希望Git Pages来生成静态站点:**
 
 你只需要一个分支:
 
@@ -62,10 +62,10 @@ Github是使用Git进行版本控制的基于Web的托管服务。单位和个�
 你需要为代码创建一个分支(非必须)，同时生成后的静态站点用一个分支
 
 - 针对个人/组织或者项目不同，像1一样分别把代码推送到`master`或者`gh-pages`分支上
-- 注意：只需要把生成后的静态代码推送到相应分支，代码可以推送的任意分支或者再本地维护
+- 注意：只需要把生成后的静态代码推送到相应分支，代码可以推送的任意分支或者在本地维护
 
-> 为什么Github pages既支持帮助生成静态站点，又支持生成后的静态HTML直接托管？<br><br>
-因为：Github pages默认支持的静态站点生成器(SSG)有局限，如果你使用的SSG默认Github Pages不支持，这样你可以在本地生成后，把生成的结果推送到Github Pages，就具有更大的灵活性。
+> 为什么Github Pages既支持帮助生成静态站点，又支持生成后的静态HTML直接托管？<br><br>
+因为：Github Pages默认支持的静态站点生成器(SSG)有局限，如果你使用的SSG默认Github Pages不支持，这样你可以在本地生成后，把生成的结果推送到Github Pages，就具有更大的灵活性。
 
 总结一下，对于一个Github账户：
 
@@ -125,7 +125,7 @@ Github Pages默认支持Jekyll作为静态站点生成器。如果你写的Jekyl
 
 <h3 id="3">3 定制化你的博客</h3>
 
-如果上面操作成功了，恭喜你有自己的博客了！可是全部是[冯兄话吉](https://fengmengzhao.github.io)的内容啊？怎么把它定制化为自己的呢？接下来我们首先讲解一下Github Jekyll仓库的目录接口，然后再讲解是怎么集成一个个插件的，这样就可以根据自己的情况定制修改啦！
+如果上面操作成功了，恭喜你有自己的博客了！可是全部是[冯兄话吉](https://fengmengzhao.github.io)的内容啊？怎么把它定制化为自己的呢？接下来我们首先讲解一下Github Jekyll仓库的目录结构，然后再讲解是怎么集成一个个插件的，这样就可以根据自己的情况定制修改啦！
 
 <h4 id="3.1">3.1 项目目录结构讲解</h4>
 
@@ -198,7 +198,7 @@ Github Pages默认支持Jekyll作为静态站点生成器。如果你写的Jekyl
 
 参考[Jekyll官方中文文档](https://jekyllcn.com/docs/home/ "Jekyll官方中文文档")。
 
-需要注意的是：如果在虚拟机上记性开发，最好指定IP启动，例如：`bundle exec jekyll serve --host 172.16.192.208`。
+需要注意的是：如果在虚拟机上进行开发，最好指定IP启动，例如：`bundle exec jekyll serve --host 172.16.192.208`。
 
 > 因为官方有中文文档，讲解特别清晰，就不再赘述了。
 
