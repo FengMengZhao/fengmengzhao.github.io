@@ -13,7 +13,9 @@ comment: true
     - [2.1 SL4J默认简单实现方式](#2.1)
     - [2.2 JDK Logging](#2.2)
     - [2.3 log4j](#2.3)
-    - [2.4 logback](#2.3)
+    - [2.4 logback](#2.4)
+        - [2.4.1 logback命名层次结构(Named Hierarchy)](#2.4.1)
+        - [2.4.2 logback Additivity](#2.4.2)
 
 ---
 
@@ -40,6 +42,15 @@ SL4J提供了日志框架的一个API。它是怎么工作的呢:
         <artifactId>slf4j-api</artifactId>
         <version>1.7.21</version>
     </dependency>
+
+**日志对象获取**
+
+```
+private static Logger logger = LoggerFactory.getLogger(Class|name);
+```
+
+> getLogger通过`org.fmz.Class`获取的日志对象是对应的包，也就是`<logger name="com.fmz">`，如果对应的Logger对象没有定义，则向父或祖先logger寻找<br><br>
+getLogger也可以通过`LoggerFactory.getLogger($name)`，这个name就是在配置文件中配置的`<logger name="$name">`
 
 <h4 id="2.1">2.1 SL4J默认简单的实现方式</h4>
 
@@ -234,5 +245,19 @@ JUL可以通过两种方式进行配置：
         </root>
 
     </configuration>
+
+<h5 id="2.4.1">2.4.1 logback命名层次结构(Named Hierarchy)</h5>
+
+logback的`<logger name="$name">`的命名是大小写敏感的并且具有层次结构。是用`.`分割开分级层次，在前面的层次是后面层次的`祖先(ancestor)`并且在前面的层次是紧随层次的`父级(parent)`。`root logger`位于这个层次结构的顶端。可以理解为这样：`root.ancestor1.ancestor2.parent.child`。
+
+<h5 id="2.4.2">2.4.2 logback Additivity</h5>
+
+`Appender`代表日志输出的目的地，可以是文件，控制台，网络等。每一个`logger`可以附加多个`Appender`，这样日志就可以在不止一个地方进行输出了。
+
+每一个`logger`在输出日志时会向自身的`Appender`和祖先(ancestor)logger `Appender`进行输出，直到某一个祖先logger的`Additivity`属性设置为`false`，就在这里停止了。也就是说如果一个logger的属性`Additivity`为`true`，就继续在层次结构中向上找(直到rooter)，直到遇到`Additivity`属性为`false`的logger停下来。
+
+用一张图说明这种层次寻找关系：
+
+![Logback Additivity属性说明](/img/posts/logback-additivity.png "Logback Additivity属性说明")
 
 ---
