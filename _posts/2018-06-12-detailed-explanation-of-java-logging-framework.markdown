@@ -31,7 +31,7 @@ SL4J提供了日志框架的一个API。它是怎么工作的呢:
 
 > 下图说明Java日志API和框架如何协同工作的：
 
-![Java日志API和框架如何协同工作的](/img/post/how-java-logging-facade-works.png "Java日志API和日志框架是如何协同工作的")
+![Java日志API和框架如何协同工作的](/img/posts/how-java-logging-facade-works.png "Java日志API和日志框架是如何协同工作的")
 
 <h4 id="2.1">2.1 SL4J默认简单的实现方式</h4>
 
