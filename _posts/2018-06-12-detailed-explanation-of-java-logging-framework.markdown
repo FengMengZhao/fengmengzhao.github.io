@@ -261,3 +261,8 @@ logback的`<logger name="$name">`的命名是大小写敏感的并且具有层�
 ![Logback Additivity属性说明](/img/posts/logback-additivity.png "Logback Additivity属性说明")
 
 ---
+
+**Reference：**
+
+- [https://loggingguide.wpengine.com/java-logging-basics/](https://loggingguide.wpengine.com/java-logging-basics/)
+- [https://examples.javacodegeeks.com/enterprise-java/logback/logback-additivity-example/](https://examples.javacodegeeks.com/enterprise-java/logback/logback-additivity-example/)
