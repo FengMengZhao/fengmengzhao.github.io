@@ -33,6 +33,14 @@ SL4J提供了日志框架的一个API。它是怎么工作的呢:
 
 ![Java日志API和框架如何协同工作的](/img/posts/how-java-logging-facade-works.png "Java日志API和日志框架是如何协同工作的")
 
+**SL4J API maven包依赖**
+
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.21</version>
+    </dependency>
+
 <h4 id="2.1">2.1 SL4J默认简单的实现方式</h4>
 
 **maven包依赖**
