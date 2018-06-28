@@ -151,4 +151,27 @@ url可以写成两种情况
 
 `git remote -r`：列出远程分支
 
+**Git清除历史提交中的大文件**
+
+首先，找出大文件
+
+- 找出大文件ID
+    - `git verify-pack -v .git/objects/pack/pack-*.idx | sort -k 3 -g | tail -5`
+- 根据大文件的ID(上述命令的第一列)，找出文件名
+    - `git rev-list --objects --all | grep 8f10eff91bb6aa2de1f5d096ee2e1687b0eab007`
+
+接下来，删除文件
+
+```
+git filter-branch --index-filter 'git rm --cached --ignore-unmatch <your-file-name>'
+rm -rf .git/refs/original/
+git reflog expire --expire=now --all
+git fsck --full --unreachable
+git repack -A -d
+git gc --aggressive --prune=now
+git push --force [remote] master
+```
+
+> `<your-file-name>`可以是文件名，也可以是目录名
+
 ---
