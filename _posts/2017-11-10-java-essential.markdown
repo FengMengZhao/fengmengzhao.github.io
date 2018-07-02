@@ -119,6 +119,8 @@ I/O流可以支持多种类型的数据: 字节(byte),基本数据类型,本地�
 
 *使用字节流读并写文件:*
 
+    package org.fmz.io;
+
     import java.io.FileInputStream;
     import java.io.FileOutputStream;
     import java.io.IOException;
@@ -148,15 +150,63 @@ I/O流可以支持多种类型的数据: 字节(byte),基本数据类型,本地�
         }
     }
 
-> 流读取或者输出完毕,不用时,一定要记得关闭流(finally);当文件不存在或者无法打开文件时,流仍为`null`,所以在关闭流前要做一个非空判断.
+> 流读取或者输出完毕,不用时,一定要记得关闭流(finally);当文件不存在或者无法打开文件时,流仍为`null`,所以在关闭流前要做一个非空判断.<br><br>
+字节流代表了一种比较底层的I/O流,像上述读取字符文件,我们最好不用字节流,而是用字符流.
 
-> 字节流代表了一种比较底层的I/O流,像上述读取字符文件,我们最好不用字节流,而是用字符流.
+在实际的应用中，使用上述代码来进行文件的copy效率非常低下，通常我们会定义一个缓冲区，当缓冲区满了再一次性写文件:
+
+    import org.fmz.io;
+
+    private static void copyFileUsingStream(File source, File dest) throws IOException {
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = new FileInputStream(source);
+            os = new FileOutputStream(dest);
+            byte[] buffer = new byte[1024];//缓冲区
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            
+            }
+        
+        } finally {
+            is.close();
+            os.close();
+        
+        }
+
+    }
+
+在nio中我们也可以使用`FileChannel`来实现文件的copy：
+
+    package com.fmz.io;
+
+    private static void copyFileUsingChannel(File source, File dest) throws IOException {
+        FileChannel sourceChannel = null;
+        FileChannel destChannel = null;
+        try {
+            sourceChannel = new FileInputStream(source).getChannel();
+            destChannel = new FileOutputStream(dest).getChannel();
+            destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
+           
+        }finally{
+               sourceChannel.close();
+               destChannel.close();
+           
+        }
+
+    }
+
+> Apache的common-io包中的`FileUtils#copyFile`也是使用了`FileChannel`的方法实现的文件的copy。
 
 <h4 id="3.2">3.2 字符流(Character Stream)</h4>
 
 Java语言的默认编码方式是:`UTF-16`.字符流自动将本地字符进行内部转化或者由内部转为本地字符.所有的字符流都继承自`Reader`和`Writter`
 
 *使用字符流读并写文件:*
+
+    package org.fmz.io;
 
     import java.io.FileReader;
     import java.io.FileWriter;
@@ -188,6 +238,10 @@ Java语言的默认编码方式是:`UTF-16`.字符流自动将本地字符进行
     }
 
 字符用常常是字节流的封装,将字节流转化为字符用常用的方式是:`InputStreamReader`和`OutputStreamWriter`.
+
+> 当使用`FileReader`或者`FileWriter`时，其实现使用平台默认的编码方式(Windows:GBK; Linux:UTF-8)，这不是一个好的实现。如果需要用指定的编码格式，可以使用`new InputStream(new FileInputStreamReader(pathToFile, <encoding>))`
+
+如果一个Windows的默认GBK文件copy到Linux系统上进行文件的复制，就会出现问题：
 
 <h4 id="3.3">3.3 Buffered Stream</h4>
 
