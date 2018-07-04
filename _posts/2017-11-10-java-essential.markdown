@@ -155,7 +155,7 @@ I/O流可以支持多种类型的数据: 字节(byte),基本数据类型,本地�
 
 在实际的应用中，使用上述代码来进行文件的copy效率非常低下，通常我们会定义一个缓冲区，当缓冲区满了再一次性写文件:
 
-    import org.fmz.io;
+    package org.fmz.io;
 
     private static void copyFileUsingStream(File source, File dest) throws IOException {
         InputStream is = null;
