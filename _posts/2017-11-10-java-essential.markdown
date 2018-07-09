@@ -15,6 +15,7 @@ title: Java Essential
     - [3.1 字节流(Byte Stream)](#3.1)
     - [3.2 字符流(Character Stream)](#3.2)
     - [3.3 Buffered Stream](#3.3)
+    - [3.4 Java NIO](#3.4)
 - [4. Java多线程](#4)
     - [4.1 进程 VS 线程](#4.1)
     - [4.2 线程对象](#4.2)
@@ -283,6 +284,10 @@ Java语言的默认编码方式是:`UTF-16`.字符流自动将本地字符进行
     }
 
 除了这三种流之外,Java还提供了DataStream和ObjectStream,分别用来处理基本数据类型和序列化操作.
+
+<h4 id="3.4">3.4 Java NIO</h4>
+
+
 
 ---
 
