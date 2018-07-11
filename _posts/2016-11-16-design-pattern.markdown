@@ -122,6 +122,83 @@ title: 设计模式
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/singleton)
 
+> 单例模式要解决的问题：一个类只要求对外提供一个对象。
+
+*轻对象单例模式代码：*
+
+    package com.fmz.pattern;
+
+    public class SingletonLightObject2 {
+        
+        private String attribute;
+
+        private SingletonLightObject2(String attr){
+            attribute = attr;
+        
+        };
+
+        public void setAttribute(String attr){
+            attribute = attr;
+        
+        }
+
+        public String getAttribute(){
+            return attribute;
+        
+        }
+
+        private static final SingletonLightObject2 obj = new SingletonLightObject2("init attribute");
+
+        public static SingletonLightObject2 getInstance(){
+            return obj;
+        
+        }
+
+    }
+
+> 轻对象单例模式不涉及到线程的安全问题，对象在类初始化(load --> link --> init)的过程中创建对象。
+
+*重对象单例模式代码：*
+
+    package com.fmz.pattern;
+
+    public class SingletonHeavyObject {
+
+        private static SingletonHeavyObject obj = null;
+        
+        private String attribute;
+
+        private SingletonHeavyObject(){}
+
+        public void setAttribute(String attr){
+            attribute = attr;
+        
+        }
+
+        public String getAttribute(){
+            return attribute;
+        
+        }
+
+        public static SingletonHeavyObject getInstance() {
+            if(obj == null){
+                synchronized(SingletonHeavyObject.class){
+                    if(obj == null){
+                        obj = new SingletonHeavyObject();
+                    
+                    }
+                
+                }
+            
+            }
+            return obj;
+        
+        }
+
+    }
+
+> 重对象(对象的实例化耗费较大的资源)采用了延迟初始化(lazy-instance)的方法创建单例对象，所谓的延迟实例化时指：当需要用到单例对象，即访问静态方法`getInstance()`时，进行单例对象的实例化，而不是在类加载的时候就完成了。
+
 <h4 id='3.2'>简单工厂模式(Simple Factory Pattern, creational)</h4>
 
 ![Simple Factory Pattern UML](/img/posts/simple_factory.png "简单工厂模式")
@@ -140,8 +217,12 @@ title: 设计模式
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/abstract_factory)
 
-> 工厂模式的核心在于工厂，一般情况下使用工厂模式生产的对象都比较特殊(复杂，例如对象创建过程中有其他依赖等)，如果客户端对依赖对象的具体实现不关心或者不想关心，这时候使用工厂模式能够使得客户端对对象是怎么创建的(对象的具体实现)不可见(只依赖对象的创建，不依赖对象具体实现)，使得客户端把对象的创建和对象的实现解耦合(解除了客户端对对象创建不必要的依赖)。<br><br>
-简单工厂模式、工厂方法模式和抽象工厂模式都是工厂模式，核心在于将客户端对依赖对象（复杂对象）的创建从该对象的具体实现中解耦出来。当客户端想创建的对象发生改变时，为了程序的扩展性(符合开闭原则)，出现了工厂方法模式；后来发现，对象的创建过程也会发生改变(创建的对象可能是多种对象的组合，如何将不同的对象组合在一起这个过程会发生改变)，就出现了抽象工厂模式。
+> 工厂模式的核心在于工厂，一般情况下使用工厂模式生产的对象都比较特殊(复杂，例如对象创建过程中有其他依赖、对象创建消耗的资源比较大等)，如果客户端对依赖对象的具体实现不关心或者不想关心，这时候使用工厂模式能够使得客户端对对象是怎么创建的(对象的具体实现)不可见(只依赖对象的创建，不依赖对象具体实现)，使得客户端把对象的创建和对象的实现解耦合(解除了客户端对对象创建不必要的依赖或者解除客户端对创建对象负责)。<br><br>
+简单工厂模式、工厂方法模式和抽象工厂模式都是工厂模式，核心在于将客户端对依赖对象（复杂对象）的创建从该对象的具体实现中解耦出来。当客户端想创建的对象发生改变时，为了程序的扩展性(符合开闭原则)，出现了工厂方法模式；后来发现，对象的创建过程也会发生改变(创建的对象可能是多种对象的组合，如何将不同的对象组合在一起这个过程会发生改变)，就出现了抽象工厂模式。<br><br>
+工厂模式的通过不同的方式供客户端调用来生产对象，至于对象是怎么生产出来的，客户端不关心或者不想关心，这是工厂模式的核心和本质，简单工厂到工厂方法到抽象工厂都首先是工厂，其次由于不同的场景，衍生出不同的模式。<br><br>
+简单工厂模式最简单，通过客户端的参数不同，返回不同的对象。简单工厂模式的缺点在于：当工厂新增一个提供的对象时，需要需要工厂类，不符合设计原则中的开闭原则，这个缺点在工厂方法模式中能够克服。<br><br>
+工厂方法模式将工厂抽象，抽象工厂的具体实现对应一个提供的对象，当工厂新增加对象时，只需要新实现抽象工厂即可，符合开不原则。工厂方法模式也有缺点，如果一个对象有多个组件组成，或者说要向创建一系列对象的组合，工厂方法就不适合了，这时候就出现了抽象工厂模式。<br><br>
+抽象工厂模式旨在创建一系列相关的产品，比如说一家餐厅提供的饮食是由开胃菜、主食和甜点组成的，开胃菜、主食和甜点有多重多样，这家餐厅如果要提供一道饮食就适合采用抽象工厂模式，每一种饮食提供一种组合，当新的组合产生时，可以增加工厂的实现，提供新的组合。
 
 <h4 id='3.5'>适配器模式(Adapter Pattern，structural)</h4>
 
