@@ -17,6 +17,7 @@ title: 设计模式
     - [3.1 单例模式](#3.1)
     - [3.2 简单工厂模式](#3.2)
     - [3.3 工厂方法模式](#3.3)
+    - [3.4 Builder 模式](#3.4)
     - [3.4 抽象工厂模式](#3.4)
     - [3.5 适配器模式](#3.5)
     - [3.6 装饰器模式](#3.6)
@@ -592,6 +593,239 @@ title: 设计模式
 简单工厂模式最简单，通过客户端的参数不同，返回不同的对象。简单工厂模式的缺点在于：当工厂新增一个提供的对象时，需要需要工厂类，不符合设计原则中的开闭原则，这个缺点在工厂方法模式中能够克服。<br><br>
 工厂方法模式将工厂抽象，抽象工厂的具体实现对应一个提供的对象，当工厂新增加对象时，只需要新实现抽象工厂即可，符合开不原则。工厂方法模式也有缺点，如果一个对象有多个组件组成，或者说要向创建一系列对象的组合，工厂方法就不适合了，这时候就出现了抽象工厂模式。<br><br>
 抽象工厂模式旨在创建一系列相关的产品，比如说一家餐厅提供的饮食是由开胃菜、主食和甜点组成的，开胃菜、主食和甜点有多重多样，这家餐厅如果要提供一道饮食就适合采用抽象工厂模式，每一种饮食提供一种组合，当新的组合产生时，可以增加工厂的实现，提供新的组合。
+
+<h4 id='3.4'>Builder模式(Builder Pattern, creational)</h4>
+
+![Builder Design Pattern](/img/posts/builder-design-pattern.png "Builder模式")
+
+Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象主要表现为两个方面：
+
+1. 对象构造的构造方法参数很多并且一些构造参数是可选的。如果让客户端通过传参去直接创建对象，很容易放生错误；并且如果通过构造方法重写的方式来实现构造参数可选构会很复杂。比如烤冷面基本有酸口的、甜口的和辣口，并且这些口味可以组合，如果用构造方法来重写所有的口味，则需要8个构造方法，使用Builder模式的话，可以在对象的创建过程中来选择口味。
+2. 对象的构造需要一定的流程，并且构造参数位置的不同可能导致最后生产的对象不同。通过Builder模式，我们可以把用这个流程生产出来不同的对象。
+
+*示例代码-针对构造参数多且可选的情况：*
+
+    package com.fmz.pattern;
+
+    /* 做一个烤冷面吧 */
+    public class KaoLengMian{
+        private String egg;//鸡蛋
+        private String lengMian;//冷面
+
+        /* 默认情况下是不加糖醋辣 */
+        private boolean ifSugar;//是否加糖(甜口味)
+        private boolean ifVinegar;//是否加醋(酸口味)
+        private boolean ifPepper;//是否加辣(辣口味)
+
+        private KaoLengMian(KaoLengMianBuilder builder){
+            this.egg = builder.egg;
+            this.lengMian = builder.lengMian;
+            this.ifSugar = builder.ifSugar;
+            this.ifVinegar = builder.ifVinegar;
+            this.ifPepper= builder.ifPepper;
+        }
+
+        public static class KaoLengMianBuilder{
+            private String egg;//鸡蛋
+            private String lengMian;//冷面
+            private boolean ifSugar;//是否加糖(甜口味)
+            private boolean ifVinegar;//是否加醋(酸口味)
+            private boolean ifPepper;//是否加辣(辣口味)
+
+            public KaoLengMianBuilder(String egg, String lengMian){
+                this.egg = egg;
+                this.lengMian = lengMian;
+            }
+
+            public KaoLengMianBuilder setIfOrNotNeedSugar(boolean ifSugar) {
+                this.ifSugar = ifSugar;
+                return this;
+            }
+
+            public KaoLengMianBuilder setIfOrNotNeedVinegar(boolean ifVinegar) {
+                this.ifVinegar= ifVinegar;
+                return this;
+            }
+
+            public KaoLengMianBuilder setIfOrNotNeedPepper(boolean ifPepper) {
+                this.ifPepper = ifPepper;
+                return this;
+            }
+
+            public KaoLengMian build(){
+                return new KaoLengMian(this);
+            }
+        }
+
+        public String toString(){
+            return "这是一个[" + (this.ifSugar ? "甜" : "不含糖") + "、" + (this.ifVinegar ? "酸" : "没加醋") + "、" + (this.ifPepper ? "辣" : "不辣") + "]的烤冷面";
+        }
+
+        public static void main(String args[]){
+            KaoLengMian k1 = new KaoLengMian.KaoLengMianBuilder("柴鸡蛋", "正大冷面").setIfOrNotNeedSugar(true).setIfOrNotNeedPepper(true).build();//这是一个甜辣口的
+            KaoLengMian k2 = new KaoLengMian.KaoLengMianBuilder("柴鸡蛋", "正大冷面").setIfOrNotNeedVinegar(true).setIfOrNotNeedPepper(true).build();//这是一个酸辣口的
+            KaoLengMian k3 = new KaoLengMian.KaoLengMianBuilder("柴鸡蛋", "正大冷面").build();//这是一个酸辣口的
+
+            System.out.println(k1);
+            System.out.println(k2);
+            System.out.println(k3);
+        }
+    }
+
+> 这种实现方式通过一个内部类来实现：<br><br>
+0). 对象的构造方法传入`Builder`对象，赋值`Builder`对象的属性值给要构造的对象<br><br>
+1). 在需要构建的类中构建一个`Builder`类<br><br>
+2). `Builder`类中持有和对象一样的属性<br><br>
+3). 在`Builder`中写`Setter`方法，为可选属性设置值，方法的返回类型为Builder<br><br>
+4). 在`Builder`中写一个`build()`方法，方法返回要构造的对象
+
+*示例代码-针对用同一个流程构造不同的对象：*
+
+> 场景是：KFC的套餐是由主食、饮料和甜点组成的，并且给客户上单时要按照先主食、接着饮料和最后甜点的顺序来进行(这样的目的非正常情况下客户随时来取单的时候，这个顺序对顾客来说是用餐人性化的，也就是说不能客户来拿订单准备吃的时候，只上了冰淇淋，这样对顾客的伤害是很大的，还不如什么都没准备好呢！)。
+
+    package com.fmz.pattern;
+
+    public class KFCOrder {
+        
+        private String main;//主食
+        private String juice;//果汁
+        private String dessert;//甜点
+
+        public String getMain(){
+            return this.main;
+        }
+
+        public void setMain(String main){
+            this.main = main;
+        }
+
+        public String getJuice(){
+            return this.juice;
+        }
+
+        public void setJuice(String juice){
+            this.juice = juice;
+        }
+
+        public String getDessert(){
+            return this.dessert;
+        }
+
+        public void setDessert(String dessert){
+            this.dessert = dessert;
+        }
+
+        public String toString(){
+            return "主食是：" + main + "；饮料是：" + juice + "；甜点是：" + dessert;
+        }
+
+    }
+
+> `KFCOrder`KFC的订单。
+
+    package com.fmz.pattern;
+
+    public abstract class AbstractKFCOrderBuilder {
+        protected KFCOrder kfcOrder;
+        
+        public abstract void buildMain();
+
+        public abstract void buildJuice();
+
+        public abstract void buildDessert();
+
+        public KFCOrder getKFCOrder(){
+            return kfcOrder;
+        }
+
+        public void createKFCOrder(){
+            kfcOrder = new KFCOrder();
+        }
+    }
+
+> `AbstractKFCOrderBuilder`抽象的KFC订单Builder。
+
+    package com.fmz.pattern;
+
+    public class BreakfastKFCOrderBuilder extends AbstractKFCOrderBuilder {
+
+        @Override
+        public void buildMain(){
+            kfcOrder.setMain("油条");
+        }
+
+        @Override
+        public void buildJuice(){
+            kfcOrder.setJuice("豆浆");
+        }
+
+        @Override
+        public void buildDessert(){
+            kfcOrder.setDessert("冰淇淋");
+        }
+    }
+
+> `BreakfastKFCOrderBuilder`早餐KFC订单，抽象KFC订单的实现类。
+
+    package com.fmz.pattern;
+
+    public class NoonKFCOrderBuilder extends AbstractKFCOrderBuilder {
+
+        @Override
+        public void buildMain(){
+            kfcOrder.setMain("汉堡包");
+        }
+
+        @Override
+        public void buildJuice(){
+            kfcOrder.setJuice("百事可乐");
+        }
+
+        @Override
+        public void buildDessert(){
+            kfcOrder.setDessert("沙拉");
+        }
+
+    }
+
+> `NoonKFCOrderBuilder`午餐KFC订单，抽象KFC订单的实现类。
+
+    package com.fmz.pattern;
+
+    public class KFCDirector {
+        private AbstractKFCOrderBuilder kfcBuilder;
+
+        public KFCDirector(AbstractKFCOrderBuilder kfcBuilder){
+            this.kfcBuilder = kfcBuilder;
+        }
+
+        public void setKFCOrderBuilder(AbstractKFCOrderBuilder kfcBuilder){
+            this.kfcBuilder = kfcBuilder;
+        }
+
+        public KFCOrder getKFCOrder(){
+            return kfcBuilder.getKFCOrder();
+        }
+
+        public void constructKFCOrder(){
+            kfcBuilder.createKFCOrder();
+            kfcBuilder.buildMain();
+            kfcBuilder.buildJuice();
+            kfcBuilder.buildDessert();
+        }
+
+        public static void main(String args[]){
+            KFCDirector director = new KFCDirector(new BreakfastKFCOrderBuilder());
+            director.constructKFCOrder();
+
+            KFCOrder kc = director.getKFCOrder();
+            System.out.println(kc);
+        }
+    }
+
+> `KFCDirector`KFC订单操作者，具体对象的生产流程在这里定义。
+
+**抽象工厂模式与Builder模式的区别：**
 
 <h4 id='3.5'>适配器模式(Adapter Pattern，structural)</h4>
 
