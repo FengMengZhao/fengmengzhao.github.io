@@ -205,17 +205,386 @@ title: 设计模式
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/simple_factory)
 
+*代码：*
+
+    package com.fmz.pattern;
+
+    public interface Fruit {
+
+        void plant();
+
+        void grow();
+
+        Fruit harvest();
+
+    }
+
+> `Fruit`类是工厂生产对象的接口
+
+    package com.fmz.pattern;
+
+    public class Apple implements Fruit {
+
+        @Override
+            public void plant(){
+                System.out.println("Apple has been plant!");
+            }
+
+        @Override
+            public void grow(){
+                System.out.println("Apple is growing!");
+            }
+
+        @Override
+            public Fruit harvest(){
+                System.out.println("Apple has been harvest!");
+                return this;
+            }
+
+    }
+
+> `Apple`是工厂生产的具体对象。
+
+    package com.fmz.pattern;
+
+    public class Orange implements Fruit {
+
+        @Override
+        public void plant(){
+            System.out.println("Orange has been plant!");
+        }
+
+        @Override
+        public void grow(){
+            System.out.println("Orange is growing!");
+        }
+
+        @Override
+        public Fruit harvest(){
+            System.out.println("Orange has been harvest!");
+            return this;
+        }
+
+    }
+
+> `Orange`是工厂生产的具体对象。
+
+    package com.fmz.pattern;
+
+    public class FruitFactory {
+        public Fruit getFruit(String fruitName) throws Exception {
+            if("Apple".equals(fruitName)){
+                return new Apple();
+            }else if("Orange".equals(fruitName)){
+                return new Orange();
+            }else{
+                throw new Exception("工厂不支持" + fruitName + "类型的水果!");
+            
+            }
+        
+        }
+
+    }
+
+> `FruitFactory`是水果的工厂类，当传入的参数不同时，返回不同的对象。<br><br>
+这里存在一个问题：<br><br>
+当工厂新进一中水果`Banana`时，如果想对客户端返回新的水果，则必须修改`FruitFactory`的生产逻辑，这不符合开闭原则(open for extension, closed for modification)，工厂方法模式解决了这个问题。
+
 <h4 id='3.3'>工厂方法模式(Factory Method Pattern, creational)</h4>
 
 ![Factory Method Pattern UML](/img/posts/factory_method.png "工厂方法模式")
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/factory_method)
 
+*代码：*
+
+> `Fruit.java`,`Apple.java`,`Orange.java`同简单工厂模式相同。
+
+    package com.fmz.pattern;
+
+    public interface FruitFactory {
+
+        Fruit getFruit();
+
+    }
+
+> `FruitFactory`是一个抽象的工厂。
+
+    package com.fmz.pattern;
+
+    public class AppleFactory implements FruitFactory{
+
+        @Override
+        public Fruit getFruit() {
+            return new Apple();
+    
+        }
+
+    }
+
+> `AppleFactory`是抽象工厂的一个具体实现，返回`Apple`对象。
+
+    package com.fmz.pattern;
+
+    public class OrangeFactory implements FruitFactory{
+
+        @Override
+        public Fruit getFruit() {
+            return new Orange();
+        }
+
+    }
+
+> `OrangeFactory`是抽象工厂的一个具体实现，返回`Orange`对象。
+
+> 如果这个时候工厂新进了一种水果`Banana`，我们只需要分别实现一个`Fruit`接口和一个`FruitFactory`接口即可完成对程序的扩展，而无需修改代码，符合程序设计的开闭原则。
+
+**新进的一种水果Banan扩展代码如下：**
+
+    package com.fmz.pattern;
+
+    public class Banana implements Fruit {
+
+        @Override
+        public void plant(){
+            System.out.println("Banana has been plant!");
+        }
+
+        @Override
+        public void grow(){
+            System.out.println("Banana is growing!");
+        }
+
+        @Override
+        public Fruit harvest(){
+            System.out.println("Banana has been harvest!");
+            return this;
+        }
+    }
+
+> 新进的水果`Banana`。
+
+    package com.fmz.pattern;
+
+    public class BananaFactory implements FruitFactory{
+
+        @Override
+        public Fruit getFruit() {
+            return new Banana();
+        }
+    }
+
+> 新扩展的工厂类`BananaFactory`用来生产`Banana`。
+
 <h4 id='3.4'>抽象工厂模式(Abstract Factory Pattern, creational)</h4>
 
 ![Abstract Factory Pattern UML](/img/posts/abstract_factory.png "抽象工厂模式")
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/abstract_factory)
+
+> 如果一家餐馆要制作一次饮食服务，服务包括开胃菜(Appetizer)、主食(Entree)和甜点(dessert)，这家餐馆可以理解为一个工厂，工厂需要生产一系列相关的产品。
+
+*代码：*
+
+    package org.fmz.pattern;
+
+    public interface Appetizer{
+        void eat();
+    }
+
+> `Appetizer`抽象开胃菜。
+
+    package org.fmz.pattern;
+
+    public class Oysters implements Appetizer{
+        public void eat(){
+            System.out.println("Eating oysters...");
+        }
+    }
+
+> `Oysters`生蚝，开胃菜的一个实现。
+
+    package org.fmz.pattern;
+
+    public class Pizza implements Appetizer{
+        public void eat(){
+            System.out.println("Eating pizza...");
+        }
+    }
+
+> `Pizza`披萨，开胃菜的一个实现。
+
+    package org.fmz.pattern;
+
+    public interface Entree{
+        void eat();
+
+    }
+
+> `Entree`抽象主食。
+
+    package org.fmz.pattern;
+
+    public class Pasta implements Entree{
+        public void eat(){
+            System.out.println("Eating pasta...");
+        }
+    }
+
+> `Pasta`意大利面，主食的一个实现。
+
+    package org.fmz.pattern;
+
+    public class Steak implements Entree{
+        public void eat(){
+            System.out.println("Eating steak...");
+        }
+    }
+
+> `Steak`牛排，主食的一种实现。
+
+    package org.fmz.pattern;
+
+    public interface Dessert{
+        void eat();
+
+    }
+
+> `Dessert`抽象甜点。
+
+    package org.fmz.pattern;
+
+    public class CheeseCake implements Dessert{
+        public void eat(){
+            System.out.println("Eating cheesecake...");
+        
+        }
+
+    }
+
+> `CheeseCake`奶酪蛋糕，甜点的一种实现。
+
+    package org.fmz.pattern;
+
+    public class Gelato implements Dessert {
+        public void eat(){
+            System.out.println("Eating gelato...");
+        
+        }
+
+    }
+
+> `Gelato`冰淇淋，甜点的一种实现。
+
+    package org.fmz.pattern;
+
+    public interface RestaurantOrderFactory {
+        Order getOrder();
+
+    }
+
+> `RestaurantOrderFactory`工厂类接口，产生一个订单，订单中包含开胃菜、主食和甜点。
+
+    package org.fmz.pattern;
+
+    public class Order {
+        private Appetizer appetizer;
+        private Entree entree;
+        private Dessert dessert;
+
+        public Order(Appetizer appetizer, Entree entree, Dessert dessert){
+            this.appetizer = appetizer;
+            this.entree = entree;
+            this.dessert = dessert;
+        }
+
+        public void setAppetizer(Appetizer appetizer){
+            this.appetizer = appetizer;
+        }
+
+        public Appetizer getAppetizer(){
+            return appetizer;
+        }
+
+        public void setEntree(Entree entree){
+            this.entree = entree;
+        }
+
+        public Entree getEntree(){
+            return entree;
+        }
+
+        public void setDessert(Dessert dessert){
+            this.dessert = dessert;
+        }
+
+        public Dessert getDessert(){
+            return dessert;
+        }
+    }
+
+> `Order`订单，每个订单有开胃菜、主食和甜点组成。
+
+    package org.fmz.pattern;
+
+    public abstract class AbstractRestaurantOrderFactory implements RestaurantOrderFactory {
+
+        @Override
+        public Order getOrder(){
+            return new Order(getAppetizer(), getEntree(), getDessert());
+        }
+
+        public abstract Appetizer getAppetizer();
+        public abstract Entree getEntree();
+        public abstract Dessert getDessert();
+    }
+
+> `AbstractRestaurantOrderFactory`抽象的订单工厂生产模板，实现基本的方法，将具体的实现抽象化到子类实现。
+
+    package org.fmz.pattern;
+
+    public class AmericanRestaurantOrderFactory extends AbstractRestaurantOrderFactory {
+
+        @Override
+        public Appetizer getAppetizer(){
+            return new Oysters();//牡蛎
+        }
+
+        @Override
+        public Entree getEntree(){
+            return new Steak();//牛排
+        }
+
+        @Override
+        public Dessert getDessert(){
+            return new CheeseCake();//奶酪
+        }
+    }
+
+> `AmericanRestaurantOrderFactory`美国订单生产工厂，生产符合美国口味的订单。
+
+    package org.fmz.pattern;
+
+    public class ItalianRestaurantOrderFactory extends AbstractRestaurantOrderFactory {
+
+        @Override
+        public Appetizer getAppetizer(){
+            return new Pizza();//披萨
+        }
+
+        @Override
+        public Entree getEntree(){
+            return new Pasta();//意大利面
+        }
+
+        @Override
+        public Dessert getDessert(){
+            return new Gelato();//冰淇淋
+        }
+
+    }
+
+> `ItalianRestaurantOrderFactory`意大利订单生产工厂，生产符合意大利口味的订单。
 
 > 工厂模式的核心在于工厂，一般情况下使用工厂模式生产的对象都比较特殊(复杂，例如对象创建过程中有其他依赖、对象创建消耗的资源比较大等)，如果客户端对依赖对象的具体实现不关心或者不想关心，这时候使用工厂模式能够使得客户端对对象是怎么创建的(对象的具体实现)不可见(只依赖对象的创建，不依赖对象具体实现)，使得客户端把对象的创建和对象的实现解耦合(解除了客户端对对象创建不必要的依赖或者解除客户端对创建对象负责)。<br><br>
 简单工厂模式、工厂方法模式和抽象工厂模式都是工厂模式，核心在于将客户端对依赖对象（复杂对象）的创建从该对象的具体实现中解耦出来。当客户端想创建的对象发生改变时，为了程序的扩展性(符合开闭原则)，出现了工厂方法模式；后来发现，对象的创建过程也会发生改变(创建的对象可能是多种对象的组合，如何将不同的对象组合在一起这个过程会发生改变)，就出现了抽象工厂模式。<br><br>
