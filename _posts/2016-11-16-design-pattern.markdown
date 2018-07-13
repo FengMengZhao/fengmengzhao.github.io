@@ -827,17 +827,27 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 **抽象工厂模式与Builder模式的区别：**
 
+抽象工厂模式强调的是生产一系列相关的产品，注重产品的生产结果；Builder模式强调的是按照某一个生产流程，生产出组件不同的产品，注重的产品的生产过程。上述例子中的`AbstractRestaurantOrderFactory`生产的餐厅的订单，订单是由开胃菜、主食和甜点组成的，不同国家的订单，只需要不同的组合即可；`AbstractKFCOrderBuilder`生产的餐厅订单，订单是由主食、果汁和甜点组成，并且订单的生产过程中，这些产品的生产顺序是由要求的，在`KFCDirector#constructKFCOrder()`中可以看到订单的生产顺序。
+
 <h4 id='3.5'>适配器模式(Adapter Pattern，structural)</h4>
 
 ![Adapter Pattern UML](/img/posts/adapter.png "适配器模式")
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/adapter)
 
+> 适配器模式分为三种：<br><br>
+1). 对象的适配器。这种适配器简单，就是引用一个被适配的对象，把这个对象转换成另一个对象(接口)。例如JDK中`InputStreamReader(InputStream is)`可以将一个`Inputstream`对象转换为一个`Reader`对象。<br><br>
+2). 类的适配器。这种适配器模式一般要求适配器类继承被适配的类，同时实现新的接口。当客户端访问接口时，适配器类会将请求转发给被适配器类(结合自身的一些处理)，从而达到接口兼容的目的。<br><br>
+3). 接口的适配器。当一个接口里面有很多方法时，我们要使用这个接口，就要实现接口中的所有方法，这往往是不必要的。我们可以在接口和实现类之间定义一个适配器类，这个适配器类覆写接口中的所有方法(可以是空方法)，这样当继承这个抽象类的时候，我们只需要覆写类本身需要的方法即可。
+
 > 示例说明：<br><br>
 假设有一个第三方类库类`NumberSorter`提供一个方法`sort(List list)`是对`List`进行排序<br><br>
 客户端想要对原生的array进行排序<br><br>
 这个时候就可以用到适配器模式，接口的实现中引用`NumberSorter`，把Array转化为`List`后，调用`NumberSorter`的`sort`方法进行排序，完成适配的目的。<br><br>
 实际上是将客户端的请求转发给被适配的类
+
+> 生活中的适配器例子：<br><br>
+当我们用笔记本电脑电源插电时，发现只有双脚插座，这时候是不能用的。用适配器模式就是，我们寻找一个插排(插排上提供三角插头)，插排插入双脚插座，把电脑插入插排上的三角插座，这样电脑就完成了充电。这个插排就是所谓的适配器。
 
 <h4 id='3.6'>装饰器模式(Decorator Pattern, structrual)</h4>
 
@@ -853,6 +863,14 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 适配器模式就是用来解决这个问题，添加一个抽象类`TimeLoggerDecorator`，这个类实现`Logger`接口，同时持有一个`Logger`对象，它的实现类调用`Logger`的`print()`方法，同时可以动态的添加一些行为。类图如下：
 
 ![decorator-demo](/img/posts/decorator-demo.png)
+
+> 在`java.io`包中有经典的装饰器模式的实现。`InputStream`有一些基本的实现`ByteArrayInputStream`、`PipeInputStream`、`ObjectInputStream`、`FileInputStream`，当我们想为IO动态的增加一些功能的时候，比如说增加一个`Buffer`功能，这个`Buffer`功能在这些`InputStream`上都合适，也就是说当我们读取文件`FileInputStream`或者在读取对象`ObjectInpuStream`时都可以增加`Buffer`功能，这时候如果单纯继承这些类的话就使得类的层次关系变得臃肿，而且每增加一个新的实现，如果想要增加`Buffer`功能，都需要新实现一个继承类来完成`Buffer`功能。这时候就装饰器模式就能够解决问题：`FilterInputStream`是一个装饰类，它同时持有了`InputStream`基类的引用，在`Buffer`功能的实现过程中，需要调用`InputStream`的`read()`，这时候传入不同的实现类，由于多态就能表现出不同的功能。<br><br>
+看看IO包的UML图吧：
+
+![java io decorator pattern](/imp/posts/inputstream-decorator-diagram.png "Java IO 装饰器模式UML图")
+
+> 再举一个例子讲述一下为什么要**动态**增加对象的功能:<br><br>
+考虑有这样一家Pizza店，提供基本的Pizza和Pizza上面的水果馅(Topping)，如果有四种基本的Pizza和8中不同的Topping，如果程序要维持全部的组合，也有32中之多。
 
 <h4 id='3.7'>代理模式(Proxy Pattern, structural)</h4>
 
