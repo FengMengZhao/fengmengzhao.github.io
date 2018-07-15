@@ -872,6 +872,174 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 > 再举一个例子讲述一下为什么要**动态**增加对象的功能:<br><br>
 考虑有这样一家Pizza店，提供基本的Pizza和Pizza上面的水果馅(Topping)，如果有四种基本的Pizza和8中不同的Topping，如果程序要维持全部的组合，也有32中之多。
 
+*代码：*
+
+    package com.fmz.pattern;
+
+    public abstract class Pizza {
+        private double price;
+
+        public abstract double getPrice();
+
+    }
+
+> `Pizza`披萨。
+
+    package com.fmz.pattern;
+
+    public class AmericanPizza extends Pizza {
+
+        public String name;
+
+        public AmericanPizza(String name){
+            this.name = name;
+        }
+        
+        public double getPrice(){
+            return 33.33;
+        }
+
+        public String toString(){
+            return name;
+        }
+    } 
+
+> `AmericanPizza`美国披萨。基本Pizza的一种。
+
+    package com.fmz.pattern;
+
+    public class ChinesePizza extends Pizza {
+        private String name;
+
+        public  ChinesePizza(String name){
+            this.name = name;
+        }
+        
+        public double getPrice(){
+            return 13.33;
+        }
+
+        public String toString(){
+            return name;
+        }
+
+    } 
+
+> `ChinesePizza`中国披萨。基本Pizza的一种。
+
+    package com.fmz.pattern;
+
+    public abstract class Topping {
+        private String toppingContent;
+
+        public Topping(String content){
+            toppingContent = content;
+        }
+        
+        public abstract double getPrice();
+
+        public String toString(){
+            return "水果馅的内容是：" + toppingContent;
+        }
+    }
+
+> `Topping`披萨上的水果馅。
+
+    package com.fmz.pattern;
+
+    public class AppleTopping extends Topping {
+
+        public AppleTopping(String content){
+            super(content);
+        }
+
+        public double getPrice(){
+            return 0.3;
+        }
+    }
+
+> `AppleTopping`苹果馅。
+
+    package com.fmz.pattern;
+
+    public class StrawberryTopping extends Topping {
+
+        public StrawberryTopping(String content){
+            super(content);
+        }
+
+        public double getPrice(){
+            return 0.9;
+        }
+    }
+
+> `StrawberryTopping`草莓馅。
+
+    package com.fmz.pattern;
+
+    public class PizzaDecorator extends Pizza {
+
+        private Pizza pizza;
+
+        private Topping topping;
+
+        public PizzaDecorator(Pizza pizza, Topping topping){
+            this.pizza = pizza;
+            this.topping = topping;
+        }
+
+        public double getPrice(){
+            return pizza.getPrice() + topping.getPrice();
+        }
+
+        public String toString(){
+            return pizza.toString() + ";" + topping.toString();
+        }
+    }
+
+> `PizzaDecorator`披萨的装饰类(Decorator)。
+
+    package com.fmz.pattern;
+
+    public class ApplePizzaDecorator extends PizzaDecorator {
+
+        public ApplePizzaDecorator(Pizza pizza){
+            super(pizza, new AppleTopping("苹果馅"));
+        }
+    }
+
+> `ApplePizzaDecorator`苹果馅披萨的装饰类。
+
+    package com.fmz.pattern;
+
+    public class StrawberryPizzaDecorator extends PizzaDecorator {
+
+        public StrawberryPizzaDecorator(Pizza pizza){
+            super(pizza, new StrawberryTopping("草莓馅"));
+        }
+    }
+
+> `StrawberryPizzaDecorator`草莓馅披萨的装饰类。
+
+    package com.fmz.pattern;
+
+    public class PizzaTest {
+
+        public static void main(String args[]){
+            Pizza strawberryToppingAmericanPizza = new StrawberryPizzaDecorator(new AmericanPizza("美国Pizza"));
+            Pizza strawberryToppingChinesePizza = new StrawberryPizzaDecorator(new ChinesePizza("中国Pizza"));
+            Pizza appleToppingChinesePizza = new ApplePizzaDecorator(new ChinesePizza("中国Pizza"));
+            Pizza appleToppingAmericanPizza = new ApplePizzaDecorator(new AmericanPizza("美国Pizza"));
+
+            System.out.println(strawberryToppingAmericanPizza + "的价格为：" + strawberryToppingAmericanPizza.getPrice());
+            System.out.println(strawberryToppingChinesePizza + "的价格为：" + strawberryToppingChinesePizza.getPrice());
+            System.out.println(appleToppingChinesePizza + "的价格为：" + appleToppingChinesePizza.getPrice());
+            System.out.println(appleToppingAmericanPizza + "的价格为：" + appleToppingAmericanPizza.getPrice());
+        }
+    }
+
+> `PizzaTest`披萨测试类。通过传入不同的基本披萨，装饰类能够获取不同的装饰组合。
+
 <h4 id='3.7'>代理模式(Proxy Pattern, structural)</h4>
 
 ![Proxy Pattern UML](/img/posts/proxy.png "代理模式")
