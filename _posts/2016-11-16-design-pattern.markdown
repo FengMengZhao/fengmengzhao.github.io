@@ -1107,7 +1107,7 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 *自己的设计：*
 
-![上述问题自己的设计](design-practice-exercise-1-01.png)
+![上述问题自己的设计](/img/posts/design-practice-exercise-1-01.png)
 
 > `RemoteController`遥控器抽象类<br><br>
 `TVRemoteController`、`RefrigeratorRemoteController`电视和冰箱的遥控器实现<br><br>
