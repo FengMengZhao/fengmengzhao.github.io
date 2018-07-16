@@ -17,8 +17,8 @@ title: 设计模式
     - [3.1 单例模式](#3.1)
     - [3.2 简单工厂模式](#3.2)
     - [3.3 工厂方法模式](#3.3)
-    - [3.4 Builder 模式](#3.4)
     - [3.4 抽象工厂模式](#3.4)
+    - [3.4 Builder 模式](#3.4)
     - [3.5 适配器模式](#3.5)
     - [3.6 装饰器模式](#3.6)
     - [3.7 代理模式](#3.7)
@@ -1045,6 +1045,113 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 <h4 id='3.7'>代理模式(Proxy Pattern, structural)</h4>
 
 ![Proxy Pattern UML](/img/posts/proxy.png "代理模式")
+
+> *代码：*
+
+    //为了兼容，抽象了一个接口
+    package com.fmz.pattern.proxy;
+
+    public interface SocketInterface {
+        String readLine();
+
+        void writeLine(String str);
+
+        void dispose();
+
+    }
+
+> 将Server-side Socket或者Client-side Socket封装为一个统一的接口
+
+    //创建一个远程对象的Wrapper或者是重对象或者是安全对象 
+    package com.fmz.pattern.proxy;
+
+    import java.io.*;
+    import java.net.*;
+
+    public class SocketProxy implements SocketInterface {
+        private Socket socket;
+
+        private BufferedReader in;
+
+        private PrintWriter out;
+
+        public SocketProxy(String host, int port, boolean wait) {
+            try {
+                if (wait) {
+                    //2. 将对象的复杂性封装在wrapper中
+                    ServerSocket server = new ServerSocket(port);
+                    socket = server.accept();
+                } else {
+                    socket = new Socket(host, port);
+                }
+                in = new BufferedReader(new InputStreamReader(
+                        socket.getInputStream()));
+                out = new PrintWriter(socket.getOutputStream(), true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public String readLine() {
+            String str = null;
+            try {
+                str = in.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return str;
+        }
+
+        @Override
+        public void writeLine(String str) {
+            //4. Wrapper代理给Target
+            out.println(str);
+        }
+
+        @Override
+        public void dispose() {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+> 通过wait参数的不同，产生不用的Socket对象。
+
+    package com.fmz.pattern.proxy;
+
+    import java.util.*;
+
+    public class ProxyDemo {
+        public static void main(String[] args) {
+            // 3. 客户端只和Wrapper交互
+            SocketInterface socket = new SocketProxy("127.0.0.1", 8080,
+                    args[0].equals("first") ? true : false);
+            String str;
+            boolean skip = true;
+            while (true) {
+                if (args[0].equals("second") && skip) {
+                    skip = !skip;
+                } else {
+                    str = socket.readLine();
+                    System.out.println("Receive - " + str);
+                    if (str.equals("")) {
+                        break;
+                    }
+                }
+                System.out.print("Send ---- ");
+                str = new Scanner(System.in).nextLine();
+                socket.writeLine(str);
+                if (str.equals("quit")) {
+                    break;
+                }
+            }
+            socket.dispose();
+        }
+    }
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/proxy)
 
