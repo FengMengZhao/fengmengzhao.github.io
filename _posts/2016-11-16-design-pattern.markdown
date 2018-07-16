@@ -867,7 +867,7 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 > 在`java.io`包中有经典的装饰器模式的实现。`InputStream`有一些基本的实现`ByteArrayInputStream`、`PipeInputStream`、`ObjectInputStream`、`FileInputStream`，当我们想为IO动态的增加一些功能的时候，比如说增加一个`Buffer`功能，这个`Buffer`功能在这些`InputStream`上都合适，也就是说当我们读取文件`FileInputStream`或者在读取对象`ObjectInpuStream`时都可以增加`Buffer`功能，这时候如果单纯继承这些类的话就使得类的层次关系变得臃肿，而且每增加一个新的实现，如果想要增加`Buffer`功能，都需要新实现一个继承类来完成`Buffer`功能。这时候就装饰器模式就能够解决问题：`FilterInputStream`是一个装饰类，它同时持有了`InputStream`基类的引用，在`Buffer`功能的实现过程中，需要调用`InputStream`的`read()`，这时候传入不同的实现类，由于多态就能表现出不同的功能。<br><br>
 看看IO包的UML图吧：
 
-![java io decorator pattern](/imp/posts/inputstream-decorator-diagram.png "Java IO 装饰器模式UML图")
+![java io decorator pattern](/img/posts/inputstream-decorator-diagram.png "Java IO 装饰器模式UML图")
 
 > 再举一个例子讲述一下为什么要**动态**增加对象的功能:<br><br>
 考虑有这样一家Pizza店，提供基本的Pizza和Pizza上面的水果馅(Topping)，如果有四种基本的Pizza和8中不同的Topping，如果程序要维持全部的组合，也有32中之多。
