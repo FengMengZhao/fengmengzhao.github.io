@@ -29,6 +29,8 @@ title: 设计模式
     - [3.12 迭代子模式](#3.12)
     - [3.13 观察者模式](#3.13)
     - [3.14 责任链模式](#3.14)
+- [4 设计模式实践](#4)
+    - [4.1 exercise-1](#4.1)
 
 > 学习设计模式避免进入的误区：<br>
 - 我们经常试图记住一些设计模式，而没有明白设计模式是要解决什么问题的
@@ -1087,5 +1089,35 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 ![Chain of Responsibility Pattern UML](/img/posts/chain_of_responsibility.png "责任链模式")
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/chain_of_responsibility)
+
+---
+
+<h3 id='4'>设计模式实践</h3>
+
+<h4 id='4.1'>exercise-1</h4>
+
+*问题描述：*
+
+> 设计一个万能遥控器（手机端），要求实现如下功能：<br><br>
+1. 控器通过网络把控制指令发送到红外设备上实现控制
+2. 可以控制不同品牌的电视、空调等电器
+3. 不同品牌同类电器的按钮相同，控制指令不同
+4. 不同种类的电器控制按钮不同，控制指令也不同
+5. 遥控器内置空调、电视等电器的常见品牌的控制程序，也支持自定义新的电器
+
+*自己的设计：*
+
+![上述问题自己的设计](design-practice-exercise-1-01.png)
+
+> `RemoteController`遥控器抽象类<br><br>
+`TVRemoteController`、`RefrigeratorRemoteController`电视和冰箱的遥控器实现<br><br>
+`Menu`菜单抽象类<br><br>
+`TVMenu`、`RefrigeratorMenu`电视和冰箱的菜单实现类<br><br>
+`Button`按钮抽象类<br><br>
+`CenterController`万能遥控（硬件）
+
+*架构师的设计：*
+
+期待...
 
 ---
