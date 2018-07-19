@@ -1155,6 +1155,8 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/proxy)
 
+**动态代理：**
+
 <h4 id='3.8'>合成模式(Composite Pattern, structural)</h4>
 
 ![Composite Pattern UML](/img/posts/composite.png "合成模式")
