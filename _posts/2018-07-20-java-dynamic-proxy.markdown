@@ -417,6 +417,15 @@ Java API 1.3提供了动态代理的功能，使用动态代理，我们不需�
             genericDynamicS.print();
             genericDynamicS.resize();
         }
-    }
+    }/*output:
+        日志输出：draw
+        画图了！
+        日志输出：move
+        移动了！
+        日志输出：print
+        打印了！
+        日志输出：resize
+        重新定义大小了！
+    */
 
 > `Client6`客户端。通用的`GenericLogger`只需要客户端改变下即可实现了Logger功能，莫不妙哉！
