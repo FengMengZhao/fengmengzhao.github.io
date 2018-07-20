@@ -677,10 +677,10 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
     }
 
 > 这种实现方式通过一个内部类来实现：<br><br>
-0). 对象的构造方法传入`Builder`对象，赋值`Builder`对象的属性值给要构造的对象<br><br>
-1). 在需要构建的类中构建一个`Builder`类<br><br>
-2). `Builder`类中持有和对象一样的属性<br><br>
-3). 在`Builder`中写`Setter`方法，为可选属性设置值，方法的返回类型为Builder<br><br>
+0). 对象的构造方法传入`Builder`对象，赋值`Builder`对象的属性值给要构造的对象<br>
+1). 在需要构建的类中构建一个`Builder`类<br>
+2). `Builder`类中持有和对象一样的属性<br>
+3). 在`Builder`中写`Setter`方法，为可选属性设置值，方法的返回类型为Builder<br>
 4). 在`Builder`中写一个`build()`方法，方法返回要构造的对象
 
 *示例代码-针对用同一个流程构造不同的对象：*
@@ -835,7 +835,7 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 <h4 id='3.4'>原型-克隆模式(Prototype，creational)</h4>
 
-![Prototype Pattern UML](/img/posts/prototype.png "原型-克隆模式")
+![Prototype Pattern UML](/img/posts/prototype-pattern.png "原型-克隆模式")
 
 > 原型-克隆模式是为了能够克隆出来和自己一样的基本对象。使用这种模式的原因是对象的创建以来的资源是一个比较重的资源，如果每次创建对象都获取这个重的依赖，会造成资源的浪费。<br><br>
 原型-克隆模式我们的软件设计中很常见，比如画图的时候，我们复制一个做好的图，然后再在此基础上进行修改。
