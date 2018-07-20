@@ -20,6 +20,7 @@ title: 设计模式
     - [3.4 抽象工厂模式](#3.4)
     - [3.4 Builder 模式](#3.4)
     - [3.4 原型-克隆模式](#3.4)
+    - [3.4 对象池模式](#3.4)
     - [3.5 适配器模式](#3.5)
     - [3.6 装饰器模式](#3.6)
     - [3.7 代理模式](#3.7)
@@ -911,6 +912,119 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
     }
 
 > `PrototypePatternTest`测试类。通过原型-克隆模式我们能够克隆相似的对象，而不用每次都加载重对象。
+
+<h4 id='3.4'>对象池模式(Object Pool Pattern，structural)</h4>
+
+![对象池模式](/img/posts/object-pool-pattern.png "对象池模式")
+
+*对象池模式的一般用法是：*
+
+> 1. 向对象池请求一个对象;
+2. 对象池或者给你返回一个未使用对象，或者重新给你创建一个对象，把对象的引用返回给你;
+3. 你使用对象做想做的任何事情;
+4. 对象使用完毕后，将对象的应用返回给对象池，以便其他客户端使用
+
+*数据库连接池就是一个典型的对象池模式，下面给出简单的实现：*
+
+    package com.fmz.pattern;
+
+    import java.util.*;
+
+    public abstract class ObjectPool {
+        private long expirationTime;
+        private Hashtable locked;
+        private Hashtable unlocked;
+
+        public ObjectPool() {
+            expirationTime = 30000; //30 seconds
+            locked = new Hashtable();
+            unlocked = new Hashtable();
+        }
+
+        /* 从对象池中获取一个未过期的连接 */
+        public synchronized Object checkOut() {
+            long now = System.currentTimeMillis();
+            Object o;
+
+            if (unlocked.size() > 0) {
+                Enumeration e = unlocked.keys();
+
+                while (e.hasMoreElements()) {
+                    o = e.nextElement();
+
+                    if ((now - ((Long) unlocked.get(o)).longValue()) > expirationTime) {
+                        // object has expired
+                        unlocked.remove(o);
+                        expire(o);
+                        o = null;
+                    } else {
+                        if (validate(o)) {
+                            unlocked.remove(o);
+                            locked.put(o, new Long(now));
+
+                            return (o);
+                        } else {
+                            // object failed validation
+                            unlocked.remove(o);
+                            expire(o);
+                            o = null;
+                        }
+                    }
+                }
+            }
+
+            // no objects available, create a new one
+            o = create();
+            locked.put(o, new Long(now));
+
+            return (o);
+        }
+
+        public synchronized void checkIn(Object o) {
+            locked.remove(o);
+            unlocked.put(o, new Long(System.currentTimeMillis()));
+        }
+
+        abstract Object create();
+
+        abstract boolean validate(Object o);
+
+        abstract void expire(Object o);
+    }
+
+> `ObjectPool`抽象对象池类。
+
+    package com.fmz.pattern;
+
+    import java.util.*;
+
+    public class Client {
+
+        public static void main(String args[]) {
+            JDBCConnectionPool pool = new JDBCConnectionPool("com.mysql.jdbc.Driver", "jdbc:mysql://172.16.193.14:3306/test", "fmz", "147258");
+
+            for(int i = 0; i < 10; i++){
+                new Thread(new Runnable(){
+
+                    @Override
+                    public void run() {
+                        try{
+                            Thread.sleep(new Random().nextInt(30) * 1000);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                        Object o = pool.checkOut();
+                        if(o != null){
+                            System.out.println("得到了数据连接！");
+                            pool.checkIn(o);
+                        }
+                    }
+                }).start();
+            }
+        }
+    }
+
+> `Client`客户端。验证数据库连接是否成功。
 
 <h4 id='3.5'>适配器模式(Adapter Pattern，structural)</h4>
 
