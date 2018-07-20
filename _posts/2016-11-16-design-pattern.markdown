@@ -19,6 +19,7 @@ title: 设计模式
     - [3.3 工厂方法模式](#3.3)
     - [3.4 抽象工厂模式](#3.4)
     - [3.4 Builder 模式](#3.4)
+    - [3.4 原型-克隆模式](#3.4)
     - [3.5 适配器模式](#3.5)
     - [3.6 装饰器模式](#3.6)
     - [3.7 代理模式](#3.7)
@@ -831,6 +832,86 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 抽象工厂模式强调的是生产一系列相关的产品，注重产品的生产结果；Builder模式强调的是按照某一个生产流程，生产出组件不同的产品，注重的产品的生产过程。上述例子中的`AbstractRestaurantOrderFactory`生产的餐厅的订单，订单是由开胃菜、主食和甜点组成的，不同国家的订单，只需要不同的组合即可；`AbstractKFCOrderBuilder`生产的餐厅订单，订单是由主食、果汁和甜点组成，并且订单的生产过程中，这些产品的生产顺序是由要求的，在`KFCDirector#constructKFCOrder()`中可以看到订单的生产顺序。
 
+<h4 id='3.4'>原型-克隆模式(Prototype，creational)</h4>
+
+![Prototype Pattern UML](/img/posts/prototype.png "原型-克隆模式")
+
+> 原型-克隆模式是为了能够克隆出来和自己一样的基本对象。使用这种模式的原因是对象的创建以来的资源是一个比较重的资源，如果每次创建对象都获取这个重的依赖，会造成资源的浪费。<br><br>
+原型-克隆模式我们的软件设计中很常见，比如画图的时候，我们复制一个做好的图，然后再在此基础上进行修改。
+
+*示例代码：*
+
+    package com.fmz.pattern;
+
+    import java.util.ArrayList;
+    import java.util.List;
+
+    public class Employees implements Cloneable{
+
+        private List<String> empList;
+        
+        public Employees(){
+            empList = new ArrayList<String>();
+        }
+        
+        public Employees(List<String> list){
+            this.empList=list;
+        }
+        public void loadData(){
+            /* 这个方法在生产中可能会连接数据库
+             * 从数据库中读取所有的雇员
+             * 这就是所谓的重资源(完成此项功能费劲)
+             */
+            empList.add("Pankaj");
+            empList.add("Raj");
+            empList.add("David");
+            empList.add("Lisa");
+        }
+        
+        public List<String> getEmpList() {
+            return empList;
+        }
+
+        @Override
+        public Object clone() throws CloneNotSupportedException{
+            List<String> temp = new ArrayList<String>();
+            for(String s : this.getEmpList()){
+                temp.add(s);
+            }
+            return new Employees(temp);
+        }
+        
+    }
+
+> `Employees`所有雇员类。这个类在实际的生产中可能会从数据库读取所有的雇员，再加载到对象中。如果不使用克隆的方法，那么每次创建这个对象，都要连接数据库进行读取，会造成资源的浪费。
+
+    package com.fmz.pattern;
+
+    import java.util.List;
+
+    public class PrototypePatternTest {
+
+        public static void main(String[] args) throws CloneNotSupportedException {
+            Employees emps = new Employees();
+            emps.loadData();
+            
+            //Use the clone method to get the Employee object
+            Employees empsNew = (Employees) emps.clone();
+            Employees empsNew1 = (Employees) emps.clone();
+            List<String> list = empsNew.getEmpList();
+            list.add("John");
+            List<String> list1 = empsNew1.getEmpList();
+            list1.remove("Pankaj");
+            
+            System.out.println("emps List: "+emps.getEmpList());
+            System.out.println("empsNew List: "+list);
+            System.out.println("empsNew1 List: "+list1);
+        }
+
+    }
+
+> `PrototypePatternTest`测试类。通过原型-克隆模式我们能够克隆相似的对象，而不用每次都加载重对象。
+
 <h4 id='3.5'>适配器模式(Adapter Pattern，structural)</h4>
 
 ![Adapter Pattern UML](/img/posts/adapter.png "适配器模式")
@@ -1157,9 +1238,13 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 **动态代理：**
 
+[参考文章-Java动态代理](https://fengmengzhao.github.io/2018/07/20/java-dynamic-proxy.html "Java动态代理")
+
 <h4 id='3.8'>合成模式(Composite Pattern, structural)</h4>
 
 ![Composite Pattern UML](/img/posts/composite.png "合成模式")
+
+> 当我们发现客户端对待一系列对象的组合和单独的一个对象无差别时，就应该使用合成模式。比如说目录中存在文件，每一个文件都有可能是目录。
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/composite)
 
@@ -1168,6 +1253,21 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 ![Bridge Pattern UML](/img/posts/bridge.png "桥梁模式")
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/bridge)
+
+> 桥梁模式要解决的问题是将具体的实现从抽象中分离出来。
+
+*举一个例子进行说明：*
+
+![桥梁模式-耦合的设计](/img/posts/bridge-coupling.png "桥梁模式-耦合的设计")
+
+> 上面的设计中把`Shape`这个抽象和图形的北京颜色耦合在了一起，这样造成的坏处是类的层次结构变得很臃肿，在每一个Level中增加一种新的实现，需要将上一个Level都实现一遍。比如说图中的纯色`SolidXXX`和渐进色`GradientXXX`需要分别继承`Circle`和`Square`。<br><br>
+如果仔细想，图形的背景的颜色其实是图形的实现，更好的设计应该把图形的抽象层和图形的实现层分离开来，让他们独立进行演变，这也正是桥梁模式所做的事情。<br><br>
+能够将业务抽象化，分清除抽象层和实现层，进行业务的解耦是一样非常重要的能力。<br><br>
+下面看一看桥梁模式运用之后的设计：
+
+![桥梁模式-解耦合的设计](img/posts/bridge-decoupling.png "桥梁模式-解耦合的设计")
+
+> 将原来的设计中的实现图形的背景颜色抽象出来一个`Background`接口，并且从抽象的层次引用实现的层次，而这两个层次都可以独立的进行演变。
 
 <h4 id='3.10'>模板模式(Template Pattern, structural)</h4>
 
