@@ -18,19 +18,22 @@ title: 设计模式
     - [3.2 简单工厂模式](#3.2)
     - [3.3 工厂方法模式](#3.3)
     - [3.4 抽象工厂模式](#3.4)
-    - [3.4 Builder 模式](#3.4)
-    - [3.4 原型-克隆模式](#3.4)
-    - [3.4 对象池模式](#3.4)
-    - [3.5 适配器模式](#3.5)
-    - [3.6 装饰器模式](#3.6)
-    - [3.7 代理模式](#3.7)
-    - [3.8 合成模式](#3.8)
-    - [3.9 桥梁模式](#3.9)
-    - [3.10 模板模式](#3.10)
-    - [3.11 策略模式](#3.11)
-    - [3.12 迭代子模式](#3.12)
-    - [3.13 观察者模式](#3.13)
-    - [3.14 责任链模式](#3.14)
+    - [3.5 Builder 模式](#3.5)
+    - [3.6 原型-克隆模式](#3.6)
+    - [3.7 对象池模式](#3.7)
+    - [3.8 适配器模式](#3.8)
+    - [3.9 装饰器模式](#3.9)
+    - [3.10 代理模式](#3.10)
+    - [3.11 合成模式](#3.11) 
+    - [3.12 桥梁模式](#3.12)
+    - [3.13 Facade模式](#3.13)
+    - [3.14 享元模式](#3.14)
+    - [3.15 Private Data Access模式](#3.15)
+    - [3.16 模板模式](#3.16)
+    - [3.17 策略模式](#3.17)
+    - [3.18 迭代子模式](#3.18)
+    - [3.19 观察者模式](#3.19)
+    - [3.20 责任链模式](#3.20)
 - [4 设计模式实践](#4)
     - [4.1 exercise-1](#4.1)
 
@@ -598,7 +601,7 @@ title: 设计模式
 工厂方法模式将工厂抽象，抽象工厂的具体实现对应一个提供的对象，当工厂新增加对象时，只需要新实现抽象工厂即可，符合开不原则。工厂方法模式也有缺点，如果一个对象有多个组件组成，或者说要向创建一系列对象的组合，工厂方法就不适合了，这时候就出现了抽象工厂模式。<br><br>
 抽象工厂模式旨在创建一系列相关的产品，比如说一家餐厅提供的饮食是由开胃菜、主食和甜点组成的，开胃菜、主食和甜点有多重多样，这家餐厅如果要提供一道饮食就适合采用抽象工厂模式，每一种饮食提供一种组合，当新的组合产生时，可以增加工厂的实现，提供新的组合。
 
-<h4 id='3.4'>Builder模式(Builder Pattern, creational)</h4>
+<h4 id='3.5'>Builder模式(Builder Pattern, creational)</h4>
 
 ![Builder Design Pattern](/img/posts/builder-design-pattern.png "Builder模式")
 
@@ -833,7 +836,7 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 抽象工厂模式强调的是生产一系列相关的产品，注重产品的生产结果；Builder模式强调的是按照某一个生产流程，生产出组件不同的产品，注重的产品的生产过程。上述例子中的`AbstractRestaurantOrderFactory`生产的餐厅的订单，订单是由开胃菜、主食和甜点组成的，不同国家的订单，只需要不同的组合即可；`AbstractKFCOrderBuilder`生产的餐厅订单，订单是由主食、果汁和甜点组成，并且订单的生产过程中，这些产品的生产顺序是由要求的，在`KFCDirector#constructKFCOrder()`中可以看到订单的生产顺序。
 
-<h4 id='3.4'>原型-克隆模式(Prototype，creational)</h4>
+<h4 id='3.6'>原型-克隆模式(Prototype，creational)</h4>
 
 ![Prototype Pattern UML](/img/posts/prototype-pattern.png "原型-克隆模式")
 
@@ -913,7 +916,9 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 > `PrototypePatternTest`测试类。通过原型-克隆模式我们能够克隆相似的对象，而不用每次都加载重对象。
 
-<h4 id='3.4'>对象池模式(Object Pool Pattern，structural)</h4>
+---
+
+<h4 id='3.7'>对象池模式(Object Pool Pattern，structural)</h4>
 
 ![对象池模式](/img/posts/object-pool-pattern.png "对象池模式")
 
@@ -1026,7 +1031,7 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 > `Client`客户端。验证数据库连接是否成功。
 
-<h4 id='3.5'>适配器模式(Adapter Pattern，structural)</h4>
+<h4 id='3.8'>适配器模式(Adapter Pattern，structural)</h4>
 
 ![Adapter Pattern UML](/img/posts/adapter.png "适配器模式")
 
@@ -1046,7 +1051,7 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 > 生活中的适配器例子：<br><br>
 当我们用笔记本电脑电源插电时，发现只有双脚插座，这时候是不能用的。用适配器模式就是，我们寻找一个插排(插排上提供三角插头)，插排插入双脚插座，把电脑插入插排上的三角插座，这样电脑就完成了充电。这个插排就是所谓的适配器。
 
-<h4 id='3.6'>装饰器模式(Decorator Pattern, structrual)</h4>
+<h4 id='3.9'>装饰器模式(Decorator Pattern, structural)</h4>
 
 ![Decorator Pattern UML](/img/posts/decorator.png "装饰器模式")
 
@@ -1237,7 +1242,7 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 > `PizzaTest`披萨测试类。通过传入不同的基本披萨，装饰类能够获取不同的装饰组合。
 
-<h4 id='3.7'>代理模式(Proxy Pattern, structural)</h4>
+<h4 id='3.10'>代理模式(Proxy Pattern, structural)</h4>
 
 ![Proxy Pattern UML](/img/posts/proxy.png "代理模式")
 
@@ -1354,7 +1359,7 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 [参考文章-Java动态代理](https://fengmengzhao.github.io/2018/07/20/java-dynamic-proxy.html "Java动态代理")
 
-<h4 id='3.8'>合成模式(Composite Pattern, structural)</h4>
+<h4 id='3.11'>合成模式(Composite Pattern, structural)</h4>
 
 ![Composite Pattern UML](/img/posts/composite.png "合成模式")
 
@@ -1362,7 +1367,7 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/composite)
 
-<h4 id='3.9'>桥梁模式(Bridge Pattern, structural)</h4>
+<h4 id='3.12'>桥梁模式(Bridge Pattern, structural)</h4>
 
 ![Bridge Pattern UML](/img/posts/bridge.png "桥梁模式")
 
@@ -1379,35 +1384,205 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 能够将业务抽象化，分清除抽象层和实现层，进行业务的解耦是一样非常重要的能力。<br><br>
 下面看一看桥梁模式运用之后的设计：
 
-![桥梁模式-解耦合的设计](img/posts/bridge-decoupling.png "桥梁模式-解耦合的设计")
+![桥梁模式-解耦合的设计](/img/posts/bridge-decoupling.png "桥梁模式-解耦合的设计")
 
 > 将原来的设计中的实现图形的背景颜色抽象出来一个`Background`接口，并且从抽象的层次引用实现的层次，而这两个层次都可以独立的进行演变。
 
-<h4 id='3.10'>模板模式(Template Pattern, structural)</h4>
+<h4 id='3.13'>Facade模式(Facade Pattern, structural)</h4>
+
+![Facade模式](/img/posts/facade.png "Facade模式")
+
+*示例代码：*
+
+    package com.fmz.pattern;
+
+    /* Complex parts */
+
+    class CPU {
+        public void freeze() { ... }
+        public void jump(long position) { ... }
+        public void execute() { ... }
+    }
+
+    class Memory {
+        public void load(long position, byte[] data) { ... }
+    }
+
+    class HardDrive {
+        public byte[] read(long lba, int size) { ... }
+    }
+
+    /* Facade */
+
+    class ComputerFacade {
+        private CPU processor;
+        private Memory ram;
+        private HardDrive hd;
+
+        public ComputerFacade() {
+            this.processor = new CPU();
+            this.ram = new Memory();
+            this.hd = new HardDrive();
+        }
+
+        public void start() {
+            processor.freeze();
+            ram.load(BOOT_ADDRESS, hd.read(BOOT_SECTOR, SECTOR_SIZE));
+            processor.jump(BOOT_ADDRESS);
+            processor.execute();
+        }
+    }
+
+    /* Client */
+
+    class You {
+        public static void main(String[] args) {
+            ComputerFacade computer = new ComputerFacade();
+            computer.start();
+        }
+    }
+
+> Facade模式实际上是针对一个复杂的系统，提供一个简单的接口(`simplified view`)，一般使用起来更加方便。Facade模式常常将组成复杂系统的子系统组合在一起，是的使用系统的代码和子系统的实现细节解耦合。
+
+<h4 id='3.14'>享元模式(flyweight Pattern, structural)</h4>
+
+![享元模式](/img/posts/flyweight.png, "享元模式")
+
+> 当我们想要创建非常多的对象时，可能会用到享元模式，用来减少生成对象的数量。享元模式将对象的属性分为内在状态(intrinsic state)和外在状态(extrinsic state)，外在状态交给客户端去设置。
+
+*示例代码：*
+
+    package com.fmz.pattern;
+
+    public interface IShape {
+
+        void draw();
+
+    }
+
+> `IShape`图形，享元接口。
+
+    package com.fmz.pattern;
+
+    public class Circle implements IShape {
+
+        /* intrinsic attributes */
+        private String color;
+
+        /* extrinsic attributes  */
+        private int x;//坐标x
+        private int y;//坐标y
+        private int radius;//半径
+
+        public Circle(String color){
+            this.color = color;
+        }
+
+        @Override
+        public void draw(){
+            System.out.println("Circle: Draw() [Color : " + color + ", x : " + x + ", y :" + y + ", radius :" + radius);     
+        }
+
+        public void setX(int x){
+            this.x = x;
+        }
+
+        public void setY(int y){
+            this.y = y;
+        }
+
+        public void setRadius(int radius){
+            this.radius = radius;
+        }
+    }
+
+> `Circle`圆。享元实现。
+
+    package com.fmz.pattern;
+
+    import java.util.*;
+
+    public class ShapeFactory {
+        private static final HashMap<String, IShape> cache = new HashMap<String, IShape>();
+
+        public IShape getShape(String color){
+
+            Circle c = (Circle)cache.get(color);
+            if(c == null){
+                c = new Circle(color);
+                cache.put(color, c);
+            }
+            return c;
+        }
+    }
+
+> `ShapeFactory`享元工厂。引用一个静态缓存，相同颜色的Circle就从缓存取到。
+
+    package com.fmz.pattern;
+
+    public class Client {
+        private static final String colors[] = { "Red", "Green", "Blue", "White", "Black" };
+
+        public static void main(String[] args) {
+
+            for(int i=0; i < 20; ++i) {
+                Circle circle = (Circle)new ShapeFactory().getShape(getRandomColor());
+                circle.setX(getRandomX());
+                circle.setY(getRandomY());
+                circle.setRadius(100);
+                circle.draw();
+            }
+        }
+        private static String getRandomColor() {
+            return colors[(int)(Math.random()*colors.length)];
+        }
+        private static int getRandomX() {
+            return (int)(Math.random()*100 );
+        }
+        private static int getRandomY() {
+            return (int)(Math.random()*100);
+        }
+    }
+
+> `Client`客户端。
+
+<h4 id='3.15'>Private Data Access模式(Private Data Access Pattern, structural)</h4>
+
+![Private Data Access模式](/img/posts/private-data-access.png "Private Data Access模式")
+
+> 这种模式是将类的私有方法(可能是一部分)封装为一个数据类，原先的类持有这个数据可的引用，从而能到到一些访问的控制。<br><br>
+没大理解这种设计模式...
+
+---
+
+<h4 id='3.16'>模板模式(Template Pattern, behavioral)</h4>
 
 ![Template Pattern UML](/img/posts/template.png "模板模式")
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/template)
 
-<h4 id='3.11'>策略模式(Strategy Pattern, behavioral)</h4>
+> 当我们想实现一个基本的逻辑，这个逻辑当中有一部分是根据不同的实现类而不同的。这时候我们就可以定义模板模式，将基本逻辑定义在基类的实现中，同时定义哪些需要子类来实现的方法为抽象方法。如果我们想让基本的逻辑不能被子类覆写，可以定义基本逻辑方法为`final`方法。<br><br>
+举个例子加以说明：`Heap`数据结构的实现有两种：`MaxHeap`和`MinHeap`，`Heap`的基本操作`add()`和`remove()`是相同的，只是在`add()`操作之后会有`percolate()`操作、`remove()`操作之后会有`sift()`操作，`percolate()`和`sift()`两个操作是根据`MaxHeap`和`MinHeap`不同而不同的，这样我们就可以在`Heap`中定义`percolate()`和`sift()`两个方法为抽象方法。
+
+<h4 id='3.17'>策略模式(Strategy Pattern, behavioral)</h4>
 
 ![Strategy pattern UML](/img/posts/strategy.png "策略模式")
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/strategy)
 
-<h4 id='3.12'>迭代子模式(Iterator Pattern, behavioral)</h4>
+<h4 id='3.18'>迭代子模式(Iterator Pattern, behavioral)</h4>
 
 ![Iterator Pattern UML](/img/posts/iterator.png "迭代子模式")
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/iterator)
 
-<h4 id='3.13'>观察者模式(Observer Pattern, behavioral)</h4>
+<h4 id='3.19'>观察者模式(Observer Pattern, behavioral)</h4>
 
 ![Observer Pattern UML](/img/posts/observer.png "观察者模式")
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/observer)
 
-<h4 id='3.14'>责任链模式(Chain of Responsibility Pattern, behavioral)</h4>
+<h4 id='3.20'>责任链模式(Chain of Responsibility Pattern, behavioral)</h4>
 
 ![Chain of Responsibility Pattern UML](/img/posts/chain_of_responsibility.png "责任链模式")
 
