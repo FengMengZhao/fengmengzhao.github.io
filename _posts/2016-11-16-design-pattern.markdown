@@ -1,6 +1,10 @@
 ---
 layout: post
 title: 设计模式
+subtitle: '不积跬步，无以至千里；不积小流，无以成江海。在平时的编码过程中运用面向对象的设计原则和设计模式，方能掌握其精髓。'
+date: 2018-07-22
+background: '/img/posts/object-oriented-design.jpg'
+comment: true
 ---
 
 ### 目录
@@ -207,6 +211,8 @@ title: 设计模式
 
 > 重对象(对象的实例化耗费较大的资源)采用了延迟初始化(lazy-instance)的方法创建单例对象，所谓的延迟实例化时指：当需要用到单例对象，即访问静态方法`getInstance()`时，进行单例对象的实例化，而不是在类加载的时候就完成了。
 
+---
+
 <h4 id='3.2'>简单工厂模式(Simple Factory Pattern, creational)</h4>
 
 ![Simple Factory Pattern UML](/img/posts/simple_factory.png "简单工厂模式")
@@ -298,6 +304,8 @@ title: 设计模式
 这里存在一个问题：<br><br>
 当工厂新进一中水果`Banana`时，如果想对客户端返回新的水果，则必须修改`FruitFactory`的生产逻辑，这不符合开闭原则(open for extension, closed for modification)，工厂方法模式解决了这个问题。
 
+---
+
 <h4 id='3.3'>工厂方法模式(Factory Method Pattern, creational)</h4>
 
 ![Factory Method Pattern UML](/img/posts/factory_method.png "工厂方法模式")
@@ -383,6 +391,8 @@ title: 设计模式
     }
 
 > 新扩展的工厂类`BananaFactory`用来生产`Banana`。
+
+---
 
 <h4 id='3.4'>抽象工厂模式(Abstract Factory Pattern, creational)</h4>
 
@@ -600,6 +610,8 @@ title: 设计模式
 简单工厂模式最简单，通过客户端的参数不同，返回不同的对象。简单工厂模式的缺点在于：当工厂新增一个提供的对象时，需要需要工厂类，不符合设计原则中的开闭原则，这个缺点在工厂方法模式中能够克服。<br><br>
 工厂方法模式将工厂抽象，抽象工厂的具体实现对应一个提供的对象，当工厂新增加对象时，只需要新实现抽象工厂即可，符合开不原则。工厂方法模式也有缺点，如果一个对象有多个组件组成，或者说要向创建一系列对象的组合，工厂方法就不适合了，这时候就出现了抽象工厂模式。<br><br>
 抽象工厂模式旨在创建一系列相关的产品，比如说一家餐厅提供的饮食是由开胃菜、主食和甜点组成的，开胃菜、主食和甜点有多重多样，这家餐厅如果要提供一道饮食就适合采用抽象工厂模式，每一种饮食提供一种组合，当新的组合产生时，可以增加工厂的实现，提供新的组合。
+
+---
 
 <h4 id='3.5'>Builder模式(Builder Pattern, creational)</h4>
 
@@ -836,6 +848,8 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 抽象工厂模式强调的是生产一系列相关的产品，注重产品的生产结果；Builder模式强调的是按照某一个生产流程，生产出组件不同的产品，注重的产品的生产过程。上述例子中的`AbstractRestaurantOrderFactory`生产的餐厅的订单，订单是由开胃菜、主食和甜点组成的，不同国家的订单，只需要不同的组合即可；`AbstractKFCOrderBuilder`生产的餐厅订单，订单是由主食、果汁和甜点组成，并且订单的生产过程中，这些产品的生产顺序是由要求的，在`KFCDirector#constructKFCOrder()`中可以看到订单的生产顺序。
 
+---
+
 <h4 id='3.6'>原型-克隆模式(Prototype，creational)</h4>
 
 ![Prototype Pattern UML](/img/posts/prototype-pattern.png "原型-克隆模式")
@@ -1031,6 +1045,8 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 > `Client`客户端。验证数据库连接是否成功。
 
+---
+
 <h4 id='3.8'>适配器模式(Adapter Pattern，structural)</h4>
 
 ![Adapter Pattern UML](/img/posts/adapter.png "适配器模式")
@@ -1038,8 +1054,8 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/adapter)
 
 > 适配器模式分为三种：<br><br>
-1). 对象的适配器。这种适配器简单，就是引用一个被适配的对象，把这个对象转换成另一个对象(接口)。例如JDK中`InputStreamReader(InputStream is)`可以将一个`Inputstream`对象转换为一个`Reader`对象。<br><br>
-2). 类的适配器。这种适配器模式一般要求适配器类继承被适配的类，同时实现新的接口。当客户端访问接口时，适配器类会将请求转发给被适配器类(结合自身的一些处理)，从而达到接口兼容的目的。<br><br>
+1). 对象的适配器。这种适配器简单，就是引用一个被适配的对象，把这个对象转换成另一个对象(接口)。例如JDK中`InputStreamReader(InputStream is)`可以将一个`Inputstream`对象转换为一个`Reader`对象。<br>
+2). 类的适配器。这种适配器模式一般要求适配器类继承被适配的类，同时实现新的接口。当客户端访问接口时，适配器类会将请求转发给被适配器类(结合自身的一些处理)，从而达到接口兼容的目的。<br>
 3). 接口的适配器。当一个接口里面有很多方法时，我们要使用这个接口，就要实现接口中的所有方法，这往往是不必要的。我们可以在接口和实现类之间定义一个适配器类，这个适配器类覆写接口中的所有方法(可以是空方法)，这样当继承这个抽象类的时候，我们只需要覆写类本身需要的方法即可。
 
 > 示例说明：<br><br>
@@ -1050,6 +1066,8 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 > 生活中的适配器例子：<br><br>
 当我们用笔记本电脑电源插电时，发现只有双脚插座，这时候是不能用的。用适配器模式就是，我们寻找一个插排(插排上提供三角插头)，插排插入双脚插座，把电脑插入插排上的三角插座，这样电脑就完成了充电。这个插排就是所谓的适配器。
+
+---
 
 <h4 id='3.9'>装饰器模式(Decorator Pattern, structural)</h4>
 
@@ -1242,11 +1260,13 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 > `PizzaTest`披萨测试类。通过传入不同的基本披萨，装饰类能够获取不同的装饰组合。
 
+---
+
 <h4 id='3.10'>代理模式(Proxy Pattern, structural)</h4>
 
 ![Proxy Pattern UML](/img/posts/proxy.png "代理模式")
 
-> *代码：*
+*代码：*
 
     //为了兼容，抽象了一个接口
     package com.fmz.pattern.proxy;
@@ -1359,6 +1379,8 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 [参考文章-Java动态代理](https://fengmengzhao.github.io/2018/07/20/java-dynamic-proxy.html "Java动态代理")
 
+---
+
 <h4 id='3.11'>合成模式(Composite Pattern, structural)</h4>
 
 ![Composite Pattern UML](/img/posts/composite.png "合成模式")
@@ -1366,6 +1388,8 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 > 当我们发现客户端对待一系列对象的组合和单独的一个对象无差别时，就应该使用合成模式。比如说目录中存在文件，每一个文件都有可能是目录。
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/composite)
+
+---
 
 <h4 id='3.12'>桥梁模式(Bridge Pattern, structural)</h4>
 
@@ -1387,6 +1411,8 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 ![桥梁模式-解耦合的设计](/img/posts/bridge-decoupling.png "桥梁模式-解耦合的设计")
 
 > 将原来的设计中的实现图形的背景颜色抽象出来一个`Background`接口，并且从抽象的层次引用实现的层次，而这两个层次都可以独立的进行演变。
+
+---
 
 <h4 id='3.13'>Facade模式(Facade Pattern, structural)</h4>
 
@@ -1444,9 +1470,11 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 > Facade模式实际上是针对一个复杂的系统，提供一个简单的接口(`simplified view`)，一般使用起来更加方便。Facade模式常常将组成复杂系统的子系统组合在一起，是的使用系统的代码和子系统的实现细节解耦合。
 
+---
+
 <h4 id='3.14'>享元模式(flyweight Pattern, structural)</h4>
 
-![享元模式](/img/posts/flyweight.png, "享元模式")
+![享元模式](/img/posts/flyweight.png "享元模式")
 
 > 当我们想要创建非常多的对象时，可能会用到享元模式，用来减少生成对象的数量。享元模式将对象的属性分为内在状态(intrinsic state)和外在状态(extrinsic state)，外在状态交给客户端去设置。
 
@@ -1564,23 +1592,205 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 > 当我们想实现一个基本的逻辑，这个逻辑当中有一部分是根据不同的实现类而不同的。这时候我们就可以定义模板模式，将基本逻辑定义在基类的实现中，同时定义哪些需要子类来实现的方法为抽象方法。如果我们想让基本的逻辑不能被子类覆写，可以定义基本逻辑方法为`final`方法。<br><br>
 举个例子加以说明：`Heap`数据结构的实现有两种：`MaxHeap`和`MinHeap`，`Heap`的基本操作`add()`和`remove()`是相同的，只是在`add()`操作之后会有`percolate()`操作、`remove()`操作之后会有`sift()`操作，`percolate()`和`sift()`两个操作是根据`MaxHeap`和`MinHeap`不同而不同的，这样我们就可以在`Heap`中定义`percolate()`和`sift()`两个方法为抽象方法。
 
+---
+
 <h4 id='3.17'>策略模式(Strategy Pattern, behavioral)</h4>
 
 ![Strategy pattern UML](/img/posts/strategy.png "策略模式")
 
+> 策略模式就是将变化的地方封装起来，作为一个策略对象(抽象)，不同的策略实现对应不同的策略。<br><br>
+举个例子加以理解：<br>
+从客户下订单到客户收到物品基本上要经历三个阶段：1，根据客户的订单，找到并打包商品；2，将打包后的商品通过一定的运输方式(轮船、飞机、或者货车等)运输到配送中心；3，配送中心通过快递，配送到客户手中。在这个过程中，第2步的运输策略可以有不同的选择，我们就可以将第2步的运输封装为一个运输策略，通过引用不同的策略，动态实现不同方式的运输。
+
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/strategy)
+
+---
 
 <h4 id='3.18'>迭代子模式(Iterator Pattern, behavioral)</h4>
 
 ![Iterator Pattern UML](/img/posts/iterator.png "迭代子模式")
 
+> 迭代子模式在集合类当中比较常用。集合类通过引用一个迭代子的具体实现，就可以实现迭代方式的输出了。
+
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/iterator)
+
+---
 
 <h4 id='3.19'>观察者模式(Observer Pattern, behavioral)</h4>
 
 ![Observer Pattern UML](/img/posts/observer.png "观察者模式")
 
+*示例代码：*
+
+    package com.fmz.pattern;
+
+    public interface Subject {
+
+        /* 订阅 */
+        void register(Observer obs);
+
+        /* 取消订阅 */
+        void unRegister(Observer obs);
+
+        /* 通知所有的订阅者 */
+        void notifyObservers();
+
+        /* 从订阅方得到更新 */
+        Object getUpdate(Observer obs);
+        
+    }
+
+> `Subject`主题类。定义了`订阅、取消订阅、通知订阅者、从订阅方得到更新`方法。
+
+    package com.fmz.pattern;
+
+    import java.util.*;
+
+    public class MyTopic implements Subject {
+
+        private List<Observer> observers;
+        private String message;
+        private boolean changed;
+        private final Object MUTEX = new Object();
+
+        public MyTopic(){
+            observers = new ArrayList<Observer>();
+        }
+
+        @Override
+        public void register(Observer obs){
+            if(obs == null){
+                throw new NullPointerException("观察者不能为空！");
+            }
+            synchronized(MUTEX){
+                if(!observers.contains(obs)){
+                    observers.add(obs);
+                }
+            }
+        }
+
+        @Override
+        public void unRegister(Observer obs){
+            /* 默认认为要取消订阅的人一定是存在且在观察者列表(observers)中的 */
+            synchronized(MUTEX) {
+                observers.remove(obs);
+            }
+        }
+
+        @Override
+        public void notifyObservers(){
+            List<Observer> observerLocal = null;
+
+            synchronized(MUTEX){
+                if(!changed){
+                    return;
+                }
+                observerLocal = new ArrayList<Observer>(this.observers);
+                this.changed = false;
+            }
+
+            for(Observer obj : observerLocal){
+                obj.update();
+            }
+        }
+
+        @Override
+        public Object getUpdate(Observer obs){
+            return this.message;
+        }
+
+        public void postMessage(String msg){
+            System.out.println("增加订阅消息：" + msg);
+            this.message = msg;
+            this.changed = true;
+            notifyObservers();
+        }
+
+    }
+
+> `MyTopic`主题的实现类。增加了一个方法`postMessage()`推送消息。
+
+    package com.fmz.pattern;
+
+    public interface Observer {
+
+        /* 更新观察内容 */
+        void update();
+
+        /* 定义观察者观察的主题 */
+        void setSubject(Subject sub);
+
+    }
+
+> `Observe`观察者类。
+
+    package com.fmz.pattern;
+
+    public class MySubscriber implements Observer {
+        
+        private String name;
+        private Subject topic;//订阅主题
+
+        public MySubscriber(String name){
+            this.name = name;
+        }
+
+        @Override 
+        public void setSubject(Subject sub){
+            this.topic = sub;
+        }
+
+        @Override
+        public void update(){
+            String msg = (String)topic.getUpdate(this);
+            if(msg == null){
+                System.out.println(name + ":: 没有新的消息！");
+            }else{
+                System.out.println(name + ":: 获取新消息为：" + msg);
+            }
+        }
+    }
+
+> `MySubscriber`订阅者(观察者的实现类)。
+
+    package com.fmz.pattern;
+
+    public class ObserverPatternTest {
+        
+        public static void main(String[] args) {
+            //create subject
+            MyTopic topic = new MyTopic();
+
+            //create observers
+            Observer obj1 = new MySubscriber("Obj1");
+            Observer obj2 = new MySubscriber("Obj2");
+            Observer obj3 = new MySubscriber("Obj3");
+
+            //register observers to the subject
+            topic.register(obj1);
+            topic.register(obj2);
+            topic.register(obj3);
+
+            //attach observer to subject
+            obj1.setSubject(topic);
+            obj2.setSubject(topic);
+            obj3.setSubject(topic);
+
+            //check if any update is available
+            obj1.update();
+
+            //now send message to subject
+            topic.postMessage("新的消息！");
+        }
+    }
+
+> `ObserverPatternTest`客户端。
+
+> 观察者模式主要由主题和订阅者组成。主题持有所有的订阅者列表，订阅者持有主题的引用。
+
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/observer)
+
+---
 
 <h4 id='3.20'>责任链模式(Chain of Responsibility Pattern, behavioral)</h4>
 
