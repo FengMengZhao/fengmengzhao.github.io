@@ -1796,6 +1796,213 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 
 ![Chain of Responsibility Pattern UML](/img/posts/chain_of_responsibility.png "责任链模式")
 
+*示例代码：*
+
+    package com.fmz.pattern;
+
+    public class Currency {
+
+        private int amount;
+
+        public Currency(int amount){
+            this.amount = amount;
+        }
+
+        public int getAmount(){
+            return this.amount;
+        }
+    }
+
+> `Currency`货币。
+
+    package com.fmz.pattern;
+
+    public interface DispenseChain {
+
+        void setNextChain(DispenseChain nextChain);
+
+        void dispense(Currency cur);
+    }
+
+> `DispenseChain`责任链接口。
+
+    package com.fmz.pattern;
+
+    public class RMB50Dispenser implements DispenseChain {
+
+        private DispenseChain chain;
+
+        @Override
+        public void setNextChain(DispenseChain nextChain){
+            this.chain = nextChain;
+        }
+
+        @Override
+        public void dispense(Currency cur){
+            int amount = cur.getAmount();
+            if(amount >= 50) {
+                int num = amount / 50; 
+                int remainder = amount % 50;
+                System.out.println("包含" + num + "个50元！");
+                if(remainder != 0){
+                    this.chain.dispense(new Currency(remainder));
+                }
+            }else{
+                this.chain.dispense(cur);
+            }
+        }
+    }
+
+> `RMB50Dispenser`大于等于50元人民币怎么处理，责任链的一个实现。
+
+    package com.fmz.pattern;
+
+    public class RMB20Dispenser implements DispenseChain {
+
+        private DispenseChain chain;
+
+        @Override
+        public void setNextChain(DispenseChain nextChain){
+            this.chain = nextChain;
+        }
+
+        @Override
+        public void dispense(Currency cur){
+            int amount = cur.getAmount();
+            if(amount >= 20) {
+                int num = amount / 20; 
+                int remainder = amount % 20;
+                System.out.println("包含" + num + "个20元！");
+                if(remainder != 0){
+                    this.chain.dispense(new Currency(remainder));
+                }
+            }else{
+                this.chain.dispense(cur);
+            }
+        }
+    }
+
+> `RMB20Dispenser`大于等于20元人民币怎么处理，责任链的一个实现。
+
+    package com.fmz.pattern;
+
+    public class RMB10Dispenser implements DispenseChain {
+
+        private DispenseChain chain;
+
+        @Override
+        public void setNextChain(DispenseChain nextChain){
+            this.chain = nextChain;
+        }
+
+        @Override
+        public void dispense(Currency cur){
+            int amount = cur.getAmount();
+            if(amount >= 10) {
+                int num = amount / 10; 
+                int remainder = amount % 10;
+                System.out.println("包含" + num + "个10元！");
+                if(remainder != 0){
+                    this.chain.dispense(new Currency(remainder));
+                }
+            }else{
+                this.chain.dispense(cur);
+            }
+        }
+    }
+
+> `RMB10Dispenser`大于等于10元人民币怎么处理，责任链的一个实现。
+
+    package com.fmz.pattern;
+
+    public class RMB5Dispenser implements DispenseChain {
+
+        private DispenseChain chain;
+
+        @Override
+        public void setNextChain(DispenseChain nextChain){
+            this.chain = nextChain;
+        }
+
+        @Override
+        public void dispense(Currency cur){
+            int amount = cur.getAmount();
+            if(amount >= 5) {
+                int num = amount / 5; 
+                int remainder = amount % 5;
+                System.out.println("包含" + num + "个5元！");
+                if(remainder != 0){
+                    this.chain.dispense(new Currency(remainder));
+                }
+            }else{
+                this.chain.dispense(cur);
+            }
+        }
+    }
+
+> `RMB5Dispenser`大于等于5元人民币怎么处理，责任链的一个实现。
+
+    package com.fmz.pattern;
+
+    public class RMB1Dispenser implements DispenseChain {
+
+        private DispenseChain chain;
+
+        @Override
+        public void setNextChain(DispenseChain nextChain){
+            this.chain = nextChain;
+        }
+
+        @Override
+        public void dispense(Currency cur){
+            int amount = cur.getAmount();
+            System.out.println("包含" + amount + "个1元！");
+        }
+    }
+
+> `RMB1Dispenser`大于等于1元人民币怎么处理，责任链的一个实现。
+
+    package com.fmz.pattern;
+
+    import java.util.*;
+
+    public class ATMDispenseChain {
+        
+        private DispenseChain c1;
+
+        public ATMDispenseChain() {
+            // initialize the chain
+            this.c1 = new RMB50Dispenser();
+            DispenseChain c2 = new RMB20Dispenser();
+            DispenseChain c3 = new RMB10Dispenser();
+            DispenseChain c4 = new RMB5Dispenser();
+            DispenseChain c5 = new RMB1Dispenser();
+
+            // set the chain of responsibility
+            c1.setNextChain(c2);
+            c2.setNextChain(c3);
+            c3.setNextChain(c4);
+            c4.setNextChain(c5);
+        }
+
+        public static void main(String[] args) {
+            ATMDispenseChain atmDispenser = new ATMDispenseChain();
+            while (true) {
+                int amount = 0;
+                System.out.println("请输入你要拆零钱的数量：");
+                Scanner input = new Scanner(System.in);
+                amount = input.nextInt();
+                // process the request
+                atmDispenser.c1.dispense(new Currency(amount));
+            }
+
+        }
+    }
+
+> `ATMDispenseChain`客户端。
+
+> 责任链模式通过定义一个责任链(责任链的每个实现都可以设定(`setNextChain()`)下一个责任链的实现)，当前实现处理不了的请求会交给下一个实现来处理，依次往下走。
+
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/chain_of_responsibility)
 
 ---
