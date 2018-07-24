@@ -38,6 +38,7 @@ comment: true
     - [3.18 迭代子模式](#3.18)
     - [3.19 观察者模式](#3.19)
     - [3.20 责任链模式](#3.20)
+    - [3.21 命令模式](#3.21)
 - [4 设计模式实践](#4)
     - [4.1 exercise-1](#4.1)
 
@@ -2004,6 +2005,118 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
 > 责任链模式通过定义一个责任链(责任链的每个实现都可以设定(`setNextChain()`)下一个责任链的实现)，当前实现处理不了的请求会交给下一个实现来处理，依次往下走。
 
 [示例代码](https://github.com/FengMengZhao/language_learn/tree/master/thinking_in_java/design_pattern/chain_of_responsibility)
+
+---
+
+<h4 id='3.21'>命令模式(Command Pattern, behavioral)</h4>
+
+![命令模式UML](/img/posts/command.png "命令模式UML")
+
+*示例代码：*
+
+    package com.fmz.pattern;
+
+    public class Light {
+        private boolean on;
+
+        public void switchOn(){
+            on = true;
+        }
+
+        public void switchOff(){
+            on = false;    
+        }
+    }
+
+> `Light`命令的实际执行者，接受者。
+
+    package com.fmz.pattern;
+
+    public interface Command {
+
+        void execute();
+    }
+
+> `Command`命令接口，命令的封装。
+
+    package com.fmz.pattern;
+
+    public class LightOnCommand implements Command {
+
+        private Light light;
+
+        public LightOnCommand(Light l){
+            light = l;
+        }
+
+        @Override
+        public void execute(){
+            light.switchOn();
+            System.out.println("灯开了！");
+        }
+    }
+
+> `LightOnCommand`开灯命令实现。
+
+    package com.fmz.pattern;
+
+    public class LightOffCommand implements Command {
+
+        private Light light;
+
+        public LightOffCommand(Light l){
+            light = l;
+        }
+
+        @Override
+        public void execute(){
+            light.switchOff();
+            System.out.println("灯关了！");
+        }
+    }
+
+> `LightOffCommand`关灯命令实现。
+
+    package com.fmz.pattern;
+
+    public class RemoteControl {
+
+        private Command c;
+
+        public void setCommand(Command c){
+            this.c = c;
+        }
+
+        public void pressButton(){
+            c.execute();
+        }
+    }
+
+> `RemoteControl`远程遥控，命令的调用者。
+
+    package com.fmz.pattern;
+
+    public class Client {
+
+        public static void main(String args[]){
+
+            Light l = new Light();
+            LightOnCommand lOn = new LightOnCommand(l);
+            LightOffCommand lOff = new LightOffCommand(l);
+
+            RemoteControl rc = new RemoteControl();
+
+            rc.setCommand(lOn);
+            rc.pressButton();
+                
+            rc.setCommand(lOff);
+            rc.pressButton();
+        }
+    }
+
+> `Client`客户端。
+
+> 命令模式给`Receiver`的所有命令提供了一个命令接口`Command`，接口中只有一个`execute()`方法，`Receiver`知道具体要执行什么样的操作。`Invoker`持有一个`Command`的引用，同时提供一个统一的执行方法。客户端生成一个具体的`Command`实现，同时将这个具体实现传递给`Invoker`。`Command`的具体实现将命令的接受者和命令的调用绑定在一起。
 
 ---
 
