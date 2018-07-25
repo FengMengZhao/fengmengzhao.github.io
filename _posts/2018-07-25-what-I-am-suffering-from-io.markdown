@@ -2,7 +2,7 @@
 layout: post
 title: 'I/O那些事'
 subtitle: 'I/O总是披着一层神秘的面纱，袅袅婷婷，令人心存畏惧，不敢靠近。我们来揭开这层面纱，探一探I/O的那些事！'
-background: 'something-about-io.jpg'
+background: '/img/posts/something-about-io.jpg'
 comment: true
 ---
 
