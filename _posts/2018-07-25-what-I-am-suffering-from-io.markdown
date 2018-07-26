@@ -12,7 +12,8 @@ comment: true
 - [2. NIO](#2)
 - [3. IO杂记](#3)
     - [3.1 字节流(Buffered or Not) vs 字节缓冲流(Buffered or Not)COPY文件比较](#3.1)
-    - [3.2 字节流转字符流编码问题及Windows常见控制台乱码解释](#3.2)
+    - [3.2 字节流 vs 字符流COPY文件比较](#3.2)
+    - [3.3 字节流转字符流编码问题及Windows常见控制台乱码解释](#3.3)
 
 ---
 
@@ -22,7 +23,7 @@ comment: true
 
 > 当我们读取二进制文件的时候会优先选择字节流，有以下几种方式：<br>
 1). 一个字节一个字节的读取(原始流);<br>
-2). 构造一个缓冲区，输入流读取到缓冲区中，再讲缓冲区中的数据写入到输出流中(缓冲区 + 原始流);<br>
+2). 构造一个缓冲区，输入流读取到缓冲区中，再将缓冲区中的数据写入到输出流中(缓冲区 + 原始流);<br>
 3). 使用装饰的缓冲流，一个字节一个字节的读取(缓冲流);<br>
 4). 构造一个缓冲区，使用装饰的缓冲流，在缓冲区中读和写(缓冲区 + 缓冲流).<br><br>
 下面分别用四种方法读取`100M`文件：
@@ -33,7 +34,7 @@ comment: true
 
     public class UseStreamCopyFile{
 
-        /* 缓冲区 + 原始流 */
+        /* 缓冲区 + 原始字节流 */
         private static void copyFileUsingStreamWithBuffer(File source, File dest){
             InputStream is = null;
             OutputStream os = null;
@@ -61,7 +62,7 @@ comment: true
 
         }
 
-        /* 原始流 */
+        /* 原始字节流 */
         private static void copyFileUsingStreamWithoutBuffer(File source, File dest) {
             InputStream is = null;
             OutputStream os = null;
@@ -87,7 +88,7 @@ comment: true
 
         }
 
-        /* 缓冲流 */
+        /* Buffer字节流 */
         private static void copyFileUsingBufferedStream(File source, File dest) {
             InputStream is = null;
             OutputStream os = null;
@@ -113,7 +114,7 @@ comment: true
 
         }
 
-        /* 缓冲区 + 缓冲流 */
+        /* 缓冲区 + Buffer字节流 */
         private static void copyFileUsingBufferedStreamWithBuffer(File source, File dest) {
             InputStream is = null;
             OutputStream os = null;
@@ -140,40 +141,36 @@ comment: true
 
         }
 
-
-
         public static void main(String args[]) throws Exception{
-            String originFile = "fileDemo.txt";
+            String originFile = "fileDemo.txt";//100M Text File
             long start = System.nanoTime();
 
             copyFileUsingStreamWithoutBuffer(new File(originFile), new File("test1.txt"));
             long elapsedTime = System.nanoTime() - start;
-            System.out.println("无Buffer用时：" + elapsedTime);
+            System.out.println("【原始字节流】用时：" + elapsedTime);
 
             start = System.nanoTime();
             copyFileUsingStreamWithBuffer(new File(originFile), new File("test2.txt"));
             elapsedTime = System.nanoTime() - start;
-            //long elapsedTime = System.nanoTime() - start;
-            System.out.println("有Buffer用时：" + elapsedTime);
+            System.out.println("【缓冲区 + 原始字节流】用时：" + elapsedTime);
 
             start = System.nanoTime();
             copyFileUsingBufferedStream(new File(originFile), new File("test3.txt"));
             elapsedTime = System.nanoTime() - start;
-            //long elapsedTime = System.nanoTime() - start;
-            System.out.println("Buffered Stream用时：" + elapsedTime);
+            System.out.println("【Buffer字节流】用时：" + elapsedTime);
 
             start = System.nanoTime();
-            copyFileUsingBufferedStream(new File(originFile), new File("test4.txt"));
+            copyFileUsingBufferedStreamWithBuffer(new File(originFile), new File("test4.txt"));
             elapsedTime = System.nanoTime() - start;
             //long elapsedTime = System.nanoTime() - start;
-            System.out.println("Buffered Stream使用Buffer用时：" + elapsedTime);
+            System.out.println("【缓冲区 + Buffer字节流】用时：" + elapsedTime);
 
         }
     }/*output:
-        无Buffer用时：27,9574,234,330
-        有Buffer用时：152,272,750
-        Buffered Stream用时：1,706,302,578
-        Buffered Stream使用Buffer用时：585,076,498
+        【原始字节流】用时：306087832761
+        【缓冲区 + 原始字节流】用时：125783149
+        【Buffer字节流】用时：3201044157
+        【缓冲区 + Buffer字节流】用时：125480215
     */
 
 > `UseStreamCopyFile`从上述输出结果中可以看出来：当使用字节流COPY文件时，使用`缓冲区 + 原生流`的方式用时最少。<br>
@@ -181,7 +178,163 @@ comment: true
 
 ---
 
-<h4 id="3.2">字节流转字符流编码问题及Windows常见控制台乱码解释</h4>
+<h4 id="3.2">字节流 vs 字符流COPY文件比较</h4>
+
+> 我们知道当使用字节流COPY文件时，最有效率的是使用`缓冲区 + 原生流(字节流)`的方式进行。如果们的文件是Text文档(非二进制文件)，使用字符流读取文件会更快吗？或者我们为什么要使用字符流？<br><br>
+看一看具体的程序：
+
+    package com.fmz.io;
+
+    import java.io.*; 
+
+    public class ByteVsCharacterStreamCopyFile {
+
+        /* 缓冲区 + 原始字节流 */
+        private static void copyFileUsingByteStream(File source, File dest){
+            InputStream is = null;
+            OutputStream os = null;
+            try {
+                is = new FileInputStream(source);
+                os = new FileOutputStream(dest);
+                byte[] buffer = new byte[1024 * 8];//缓冲区
+                int length;
+                while ((length = is.read(buffer)) > 0) {
+                    os.write(buffer, 0, length);
+                
+                }
+            
+            }catch(IOException e){
+                e.printStackTrace();
+            } finally {
+                try{
+                    is.close();
+                    os.close();
+                }catch(IOException e){
+                    e.printStackTrace();
+                }
+            
+            }
+
+        }
+
+        /* 缓冲区 + 原始字符流 */
+        private static void copyFileUsingCharacterStream(File source, File dest){
+            Reader reader = null;
+            Writer writer = null;
+            try {
+                reader = new FileReader(source);
+                writer = new FileWriter(dest);
+                char[] buffer = new char[1024 * 8];//缓冲区
+                int length;
+                while ((length = reader.read(buffer)) > 0) {
+                    writer.write(buffer, 0, length);
+                
+                }
+            
+            }catch(IOException e){
+                e.printStackTrace();
+            } finally {
+                try{
+                    reader.close();
+                    writer.close();
+                }catch(IOException e){
+                    e.printStackTrace();
+                }
+            
+            }
+
+        }
+
+        /* 原始字符流 */
+        private static void copyFileUsingCharacterStreamWithoutBuffer(File source, File dest) {
+            Reader reader = null;
+            Writer writer = null;
+            try {
+                reader = new FileReader(source);
+                writer = new FileWriter(dest);
+                int c;
+
+                while ((c = reader.read()) != -1) {
+                    writer.write(c);
+                }
+            
+            }catch(IOException e){
+                e.printStackTrace();
+            } finally {
+                try{
+                    reader.close();
+                    writer.close();
+                }catch(IOException e){
+                    e.printStackTrace();
+                }
+            }
+
+        }
+
+        /* 缓冲字符流 */
+        private static void copyFileUsingBufferedCharacterStream(File source, File dest) {
+            Reader reader = null;
+            Writer writer = null;
+            try {
+                reader = new BufferedReader(new FileReader(source));
+                writer = new BufferedWriter(new FileWriter(dest));
+                int c;
+
+                while ((c = reader.read()) != -1) {
+                    writer.write(c);
+                }
+            
+            }catch(IOException e){
+                e.printStackTrace();
+            } finally {
+                try{
+                    reader.close();
+                    writer.close();
+                }catch(IOException e){
+                    e.printStackTrace();
+                }
+            }
+
+        }
+
+        public static void main(String args[]) throws Exception{
+            String originFile = "fileDemo.txt";//100M Text File
+            long start = System.nanoTime();
+
+            copyFileUsingByteStream(new File(originFile), new File("test1.txt"));
+            elapsedTime = System.nanoTime() - start;
+            System.out.println("【缓冲区 + 原始字节流】用时：" + elapsedTime);
+
+            start = System.nanoTime();
+            copyFileUsingCharacterStream(new File(originFile), new File("test2.txt"));
+            elapsedTime = System.nanoTime() - start;
+            System.out.println("【缓冲区 + 原始字符流】用时：" + elapsedTime);
+
+            start = System.nanoTime();
+            copyFileUsingCharacterStreamWithoutBuffer(new File(originFile), new File("test3.txt"));
+            elapsedTime = System.nanoTime() - start;
+            System.out.println("【原始字符流】用时：" + elapsedTime);
+
+            start = System.nanoTime();
+            copyFileUsingBufferedCharacterStream(new File(originFile), new File("test4.txt"));
+            elapsedTime = System.nanoTime() - start;
+            System.out.println("【缓冲字符流】用时：" + elapsedTime);
+        }
+    }/*
+        【缓冲区 + 原始字节流】用时：129137192
+        【缓冲区 + 原始字符流】用时：816083110
+        【原始字符流】用时：5057263196
+        【缓冲字符流】用时：1823119012
+    */
+
+> `ByteVsCharacterStreamCopyFile`从输出结果中可以看出：COPY`100M`文件，使用`缓冲区 + 原始字节流`的方式用时最少。<br><br>
+也就是针对COPY文件来说，不论文件是二级制文件还是文本文件，使用字节流的方式读取都是最有效率的(不包含NIO方式)。<br><br>
+我们之所以使用字符流的原因是：我们将字节流转化为字符流，然后需要从字符流中读取字符并进行处理(比如说readLine()等)。<br><br>
+所以，选择使用字节流与字符流时：二级制文件只能使用字节流；文本文件如果需要对字符进行使用，用字符流；文本文件如果只是COPY用字节流更有效率。
+
+---
+
+<h4 id="3.3">字节流转字符流编码问题及Windows常见控制台乱码解释</h4>
 
 > 假设我们在Windows机器上使用字符流(`Reader`)读取一个UTF-8格式的文件，打印输出在Windows控制台上，会出现什么样的状况呢？
 
