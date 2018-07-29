@@ -8,18 +8,89 @@ comment: true
 
 ## 目录
 
-- [1. IO](#1)
-- [2. NIO](#2)
-- [3. IO杂记](#3)
-    - [3.1 字节流(Buffered or Not) vs 字节缓冲流(Buffered or Not)COPY文件比较](#3.1)
-    - [3.2 字节流 vs 字符流COPY文件比较](#3.2)
-    - [3.3 字节流转字符流编码问题及Windows常见控制台乱码解释](#3.3)
+- [1. Blocking I/O VS Non-Blocking I/O](#1)
+    - [1.1 Blocking I/O](#1.1)
+    - [1.2 Non-Blocking I/O](#1.2)
+- [2. IO杂记](#2)
+    - [2.1 字节流(Buffered or Not) vs 字节缓冲流(Buffered or Not)COPY文件比较](#2.1)
+    - [2.2 字节流 vs 字符流COPY文件比较](#2.2)
+    - [2.3 字节流转字符流编码问题及Windows常见控制台乱码解释](#2.3)
 
 ---
 
-<h3 id="3">3. IO杂记</h3>
+<h3 id="1">1. Blocking I/O VS Non-Blocking I/O</h3>
 
-<h4 id="3.1">字节流(Buffered or Not) vs 字节缓冲流(Buffered or Not)COPY文件比较</h4>
+在客户端-服务器端的应用程序中，每当客户端向服务器端请求信息，服务器端会处理请求然后返回处理结果。在这个过程中，客户端和服务器端都需要向对方建立一个连接，这个时候所谓的`Socket`就派上用场了。客户端和服务器端需要将自己绑定到一个连接末端的`Socket`上，并且服务器端监听一个客户端用来发送连接的`Socket`。
+
+![客户端-服务器端Socket连接](/img/posts/client-server-socket.png "客户端-服务器端Socket连接")
+
+当客户端和服务器端建立起来连接之后，双方从连接末端(Endpoint)绑定的`Socket`中读取和发送数据。
+
+<h4 id="1.1">Blocking I/O</h4>
+
+在Blocking I/O中，客户端发送一个请求，服务器端启动一个线程来处理这个请求，如果请求读取没有可读取的数据或者请求写入而写入没有全部完成时，这个线程就会处于`Blocking`状态，直到相关的读操作有可读数据或者写操作全部写入之后，线程才肯定做其他事情。如果是这种模式来实现并发请求，服务器端需要为每个客户端连接申请一个线程。通过代码，我们看看具体是怎么工作的：
+
+`ServerSocket serverSocket = new ServerSocket(portNum);`
+
+![创建服务器端监听Socket](/img/posts/create-server-socket.png "创建服务器端监听Socket")
+
+> 1). 服务器端建立一个监听`ServerSocket`，该`Socket`绑定指定的监听端口。
+
+`Socket clientSocket = ServerSocket.accept();`
+
+![服务器端接受连接并分配新的Socket](/img/posts/server-socket-accept-connection.png "服务器端接受连接并分配新的Socket")
+
+![新的连接建立成功后重新监听](/img/posts/new-connection-establish.png "新的连接建立成功后重新监听")
+
+> 2). 服务器端Socket执行accept方法，该方法为blocking方法(除非有相应的事件发生，否者线程会阻塞在这里)，这时候服务器开始等待客户端的连接请求，如果请求到达，服务器会接受这个请求，并且返回一个新的`Socket`来和客户端Socket进行通信。如果新的连接建立成功，服务器端`ServerSocket#accpet()`方法就会返回，继续监听新的连接。
+
+```
+BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
+```
+
+> 3). 从服务器端连接的`Socket`中获取输入流和输出流。
+
+```
+String request, response;//请求信息和响应信息
+while ((request = in.readLine()) != null) {//获取客户单请求信息
+    response = processRequest(request);//处理请求信息并返回响应信息
+    out.println(response);//写回客户端响应信息
+    if ("Done".equals(request)) {
+        break;
+    }
+}
+```
+
+> 4). 服务器端从连接末端的Socket中获取输入流和输入流和输出流。从输入流中读取数据，处理数据，然后写会到输出流中。
+
+需要注意的是：上述的过程只针对客户单对服务器端的一次连接，如果客户单并发请求服务器，我们需要为每一个客户端创建一个线程来处理请求；
+
+```
+while (listening) {
+    accept a connection;
+    create a thread to deal with the client;
+}
+```
+
+![Blocking I/O客户端服务器端建立连接过程](/img/posts/blocking-io-client-server-connection-process.png "Blocking I/O客户端服务器端建立连接过程")
+
+这种Blocking I/O实现客户端-服务器端通信的方法存在的缺点：
+
+- 每一个客户端对应一个线程，每一个线程需要分配一定的内存空间，当线程量大时，线程之间的切换影响性能。
+- 可能有大量的线程只是为了客户端的请求而处于阻塞状态，这些线程浪费了很多的资源。
+
+所以，Blocking I/O实现方式的client-server应用不适合高并发的场景。还好Java NIO提供了另外的可能性。
+
+<h4 id="1.2">Non-Blocking I/O</h4>
+
+
+
+---
+
+<h3 id="2">2. IO杂记</h3>
+
+<h4 id="2.1">字节流(Buffered or Not) vs 字节缓冲流(Buffered or Not)COPY文件比较</h4>
 
 > 当我们读取二进制文件的时候会优先选择字节流，有以下几种方式：<br>
 1). 一个字节一个字节的读取(原始流);<br>
@@ -178,7 +249,7 @@ comment: true
 
 ---
 
-<h4 id="3.2">字节流 vs 字符流COPY文件比较</h4>
+<h4 id="2.2">字节流 vs 字符流COPY文件比较</h4>
 
 > 我们知道当使用字节流COPY文件时，最有效率的是使用`缓冲区 + 原生流(字节流)`的方式进行。如果们的文件是Text文档(非二进制文件)，使用字符流读取文件会更快吗？或者我们为什么要使用字符流？<br><br>
 看一看具体的程序：
@@ -334,7 +405,7 @@ comment: true
 
 ---
 
-<h4 id="3.3">字节流转字符流编码问题及Windows常见控制台乱码解释</h4>
+<h4 id="2.3">字节流转字符流编码问题及Windows常见控制台乱码解释</h4>
 
 > 假设我们在Windows机器上使用字符流(`Reader`)读取一个UTF-8格式的文件，打印输出在Windows控制台上，会出现什么样的状况呢？
 
