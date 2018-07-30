@@ -364,11 +364,6 @@ Java NIO提供了一个类叫做`Selector`，这个类能够让单个线程监�
     import java.util.Iterator;
     import java.util.Set;
 
-    /**
-     * 
-     * This is a simple NIO based server.
-     *
-     */
     public class EchoNIOServer {
         private Selector selector;
 
@@ -387,11 +382,6 @@ Java NIO提供了一个类叫做`Selector`，这个类能够让单个线程监�
             listenAddress = new InetSocketAddress(address, PORT);
         }
 
-        /**
-         * Start the server
-         * 
-         * @throws IOException
-         */
         private void startServer() throws IOException {
             this.selector = Selector.open();
             ServerSocketChannel serverChannel = ServerSocketChannel.open();
@@ -965,3 +955,9 @@ Java NIO提供了一个类叫做`Selector`，这个类能够让单个线程监�
 
 > 这样就不会出现乱码了。这也是为什么在Git Bash上用Java编码执行命令时为什么总是出现乱码的原因。<br><br>
 记住：有人的地方就有江湖，有IO的地方就有乱码。
+
+---
+
+**参考：**
+
+- [https://medium.com/coderscorner/tale-of-client-server-and-socket-a6ef54a74763](https://medium.com/coderscorner/tale-of-client-server-and-socket-a6ef54a74763 "参考文章")
