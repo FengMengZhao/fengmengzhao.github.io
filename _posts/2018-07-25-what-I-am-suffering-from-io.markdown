@@ -10,7 +10,13 @@ comment: true
 
 - [1. Blocking I/O VS Non-Blocking I/O](#1)
     - [1.1 Blocking I/O](#1.1)
+        - [1.1.1 Blocking IO完整服务端代码](#1.1.1)
+        - [1.1.2 Blocking IO完整客户端代码](#1.1.2)
     - [1.2 Non-Blocking I/O](#1.2)
+        - [1.2.1 服务器端代码解析](#1.2.1)
+        - [1.2.2 客户端代码解析](#1.2.2)
+        - [1.2.3 Blocking IO完整服务端代码](#1.2.3)
+        - [1.2.4 Blocking IO完整客户端代码](#1.2.4)
 - [2. IO杂记](#2)
     - [2.1 字节流(Buffered or Not) vs 字节缓冲流(Buffered or Not)COPY文件比较](#2.1)
     - [2.2 字节流 vs 字符流COPY文件比较](#2.2)
@@ -44,34 +50,28 @@ comment: true
 
 > 2). 服务器端Socket执行accept方法，该方法为blocking方法(除非有相应的事件发生，否者线程会阻塞在这里)，这时候服务器开始等待客户端的连接请求，如果请求到达，服务器会接受这个请求，并且返回一个新的`Socket`来和客户端Socket进行通信。如果新的连接建立成功，服务器端`ServerSocket#accpet()`方法就会返回，继续监听新的连接。
 
-```
-BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
-```
+    BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+    PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
 
 > 3). 从服务器端连接的`Socket`中获取输入流和输出流。
 
-```
-String request, response;//请求信息和响应信息
-while ((request = in.readLine()) != null) {//获取客户单请求信息
-    response = processRequest(request);//处理请求信息并返回响应信息
-    out.println(response);//写回客户端响应信息
-    if ("Done".equals(request)) {
-        break;
+    String request, response;//请求信息和响应信息
+    while ((request = in.readLine()) != null) {//获取客户单请求信息
+        response = processRequest(request);//处理请求信息并返回响应信息
+        out.println(response);//写回客户端响应信息
+        if ("Done".equals(request)) {
+            break;
+        }
     }
-}
-```
 
 > 4). 服务器端从连接末端的Socket中获取输入流和输入流和输出流。从输入流中读取数据，处理数据，然后写会到输出流中。
 
 需要注意的是：上述的过程只针对客户单对服务器端的一次连接，如果客户单并发请求服务器，我们需要为每一个客户端创建一个线程来处理请求；
 
-```
-while (listening) {
-    accept a connection;
-    create a thread to deal with the client;
-}
-```
+    while (listening) {
+        accept a connection;
+        create a thread to deal with the client;
+    }
 
 ![Blocking I/O客户端服务器端建立连接过程](/img/posts/blocking-io-client-server-connection-process.png "Blocking I/O客户端服务器端建立连接过程")
 
@@ -82,9 +82,455 @@ while (listening) {
 
 所以，Blocking I/O实现方式的client-server应用不适合高并发的场景。还好Java NIO提供了另外的可能性。
 
+<h5 id="1.1.1">Blocking IO完整服务端代码</h5>
+
+    package com.fmz.io;
+
+    import java.io.BufferedReader;
+    import java.io.IOException;
+    import java.io.InputStreamReader;
+    import java.io.PrintWriter;
+    import java.net.ServerSocket;
+    import java.net.Socket;
+
+    /**
+     * 
+     * Simple Blocking IO Server
+     *
+     */
+    public class EchoIOServer {
+
+        public static void main(String[] args) throws IOException {
+
+            int portNumber = 4444;
+            System.out.println("Waiting on port : " + portNumber + "...");
+            boolean listening = true;
+            //bind server socket to port
+            ServerSocket serverSocket = new ServerSocket(portNumber);
+            try {
+                while (listening) { //long running server
+                    
+                    /*Wait for the client to make a connection and when it does, create a new socket to handle the request*/
+                    Socket clientSocket = serverSocket.accept();
+
+                    //Handle each connection in a new thread to manage concurrent users
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                //Get input and output stream from the socket
+                                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                                BufferedReader in = new BufferedReader(
+                                        new InputStreamReader(clientSocket.getInputStream()));
+                                
+                                //Process client request and send back response
+                                String request, response;
+                                while ((request = in.readLine()) != null) {
+                                    response = processRequest(request);
+                                    out.println(response);
+                                    if ("Done".equals(request)) {
+                                        break;
+                                    }
+                                }
+                                clientSocket.close();
+                            } catch (IOException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }).start();
+                }
+            } finally {
+                serverSocket.close();
+            }
+
+        }
+
+        public static String processRequest(String request) {
+            System.out.println("Server receive message from > " + request);
+            return request;
+        }
+    }
+
+<h5 id="1.1.2">Blocking IO完整客户端代码</h5>
+
+    package com.fmz.io;
+
+    import java.io.BufferedReader;
+    import java.io.IOException;
+    import java.io.InputStreamReader;
+    import java.io.PrintWriter;
+    import java.io.StringReader;
+    import java.net.Socket;
+    import java.net.UnknownHostException;
+
+    /**
+     * 
+     * Test client for Blocking IO server
+     *
+     */
+    public class TestClient {
+        public static void main(String[] args) throws IOException {
+
+            Runnable client = new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        new TestClient().startClient();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+            //new Thread(client, "client-A").start();
+            new Thread(client, "client-B").start();
+        }
+
+        public void startClient() throws IOException, InterruptedException {
+
+            String hostName = "172.16.193.14";
+            int portNumber = 4444;
+            String threadName = Thread.currentThread().getName();
+            /*
+            String[] messages = new String[] { threadName + " > msg1", threadName + " > msg2", threadName + " > msg3", threadName +
+                    " > Done" };
+            */
+
+            try {
+                Socket echoSocket = new Socket(hostName, portNumber);
+                PrintWriter out = new PrintWriter(echoSocket.getOutputStream(), true);
+                BufferedReader in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
+
+                /*
+                for (int i = 0; i < messages.length; i++) {
+                    BufferedReader stdIn = new BufferedReader(new StringReader(messages[i]));
+                    String userInput;
+                    while ((userInput = stdIn.readLine()) != null) {
+                        out.println(userInput); // write to server
+                        System.out.println("echo: " + in.readLine()); // Wait for the server to
+                                                                        // echo back
+                    }
+                }
+                */
+                System.out.println(threadName + ": 请输入内容");
+                BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+                String userInput;
+                while ((userInput = stdIn.readLine()) != null) {
+                    out.println(userInput); // write to server
+                    System.out.println(threadName + " echo: " + in.readLine()); // Wait for the server to
+                                                                    // echo back
+                }
+            } catch (UnknownHostException e) {
+                System.err.println("Unknown host " + hostName);
+                System.exit(1);
+            } catch (IOException e) {
+                System.err.println("Couldn't get I/O for the connection to " + hostName + ".." + e.toString());
+                System.exit(1);
+            }
+        }
+
+    }
+
 <h4 id="1.2">Non-Blocking I/O</h4>
 
+Non-Blocking I/O能够让我们使用一个线程处理并发的连接。先来了解一下一些基本的概念：
 
+- 基于NIO的应用，与传统IO不同的是：不再直接从`InputStream`中读取数据或者往`OutputStream`中写入数据，而是从`Buffer`中读或者写。`Buffer`可以简单的理解为一个临时的存储，Java NIO有很多`Buffer`相关的类(`ByteBuffer`、`CharBuffer`...)。
+- `Channel`是用来向`Buffer`或者从`Buffer`中运输数据的中间媒介，可以被看做连接的一端(例如，我们使用`SocketChannel`可以往TCP Socket或者从TCP Socket中写入或者读取数据，但是数据必须封装在`ByteBuffer`中)。
+- 我们必须明白`Readiness Selection`这个概念，它表示当读取或者写入数据时，可以选择一个不被阻塞的`Socket`的能力。
+
+Java NIO提供了一个类叫做`Selector`，这个类能够让单个线程监控多个`Channel`的I/O事件。也就是说：`Selector`能够检查`Channel`的I/O操作(例如，读操作或者写操作)是否准备就绪。不同的`Channel`能够注册到同一个`Selector`对象中，你可以给`Channel`定义你感兴趣的IO操作，让`Selector`对象来监控这些操作。每一个`Channel`都会被分配一个`SelectionKey`，这个`SelectionKey`作为指向`Channel`的指针。
+
+![NIO实现的客户端-服务器应用](/img/posts/java-nio-client-and-server.png "NIO实现的客户端-服务器应用")
+
+下面来看一看，用代码如何实现**nio-based**客户端-服务器模拟应用：
+
+<h5 id="1.2.1">服务器端代码解析</h5>
+
+`Selector selector = Selector.open();`
+
+> 1). 创建一个`Selector`来处理多个`Channel`。更重要的是，这个`Selector`能够使得Server找到所有准备发送数据或者接受数据的连接。
+
+    ServerSocketChannel serverChannel = ServerSocketChannel.open();
+    serverChannel.configureBlocking(false);//设置为Non-Blocking状态
+
+> 2). 使用Non-Blocking的方式创建一个`ServerSocketChannel`，这个`ServerSocketChannel`完全负责接受客户端发来的连接。
+
+    InetSocketAddress hostAddress = new InetSocketAddress(hostname, portNumber);
+    serverChannel.bind(hostAddress);
+
+> 3). 将创建的Server Socket Channel绑定到指定的主机和端口上。
+
+`serverChannel.register(selector, SelectionKey.OP_ACCEPT);`
+
+> 4). 我们需要将这个Server Socket Channel注册到Selector上，并且指定感兴趣Channel操作(`SelectionKey.OP_ACCEPT`)。基本上，第二个参数表示Selector需要监控Channel什么样的操作。`SelectionKey.OP_ACCEPT`参数告诉Selector仅仅监控请求来的连接操作。
+
+    while(true){
+        int readyCount = selector.select();
+        if(readyCount == 0){
+            continue;
+        }
+
+        //处理相应已经准备好的Channel
+    }
+
+> 5). 调用`selector.select()`方法，返回的是是否有已经准备好的Channel。`readyCount`表示准备好的Channel的个数，如果没有，继续进行监控。
+
+    //处理相应已经准备好的Channel
+    Set<SelectionKey> readyKeys = selector.selectedKeys();
+    Iterator iterator = readyKeys.iterator();
+    while (iterator.hasNext()) {
+        SelectionKey key = iterator.next();
+        // Remove key from set so we don't process it twice
+        iterator.remove();
+        // operate on the channel...
+    }
+
+> 6). 一旦Selector发现了准备好的Channel，`selector.selectedKeys()`返回`readyKeys`的Set集合，每一个`SelectionKey`代表一个准备好的Channel，我们可以遍历每一个Channel来执行必要的操作。<br><br>
+需要注意的是：仅仅由一个线程(Main Thread)来处理多个并发的连接。
+
+     // 执行Channel操作...
+     // 客户端请求连接
+    if (key.isAcceptable()) {
+        ServerSocketChannel server = (ServerSocketChannel)  key.channel();    
+        // 得到客户端Socket Channel
+        SocketChannel client = server.accept();
+        // 设置为Non-Blocking方式
+        client.configureBlocking(false);
+        // 指定Channel的下一步操作方式 (这里是读操作)
+        client.register(selector, SelectionKey.OP_READ);
+        continue;
+    }
+
+> 7). 如果key是`acceptable`，这意味着客户端想要建立一个连接。
+
+    // 如果 readable，服务器端准备执行读取的操作
+    if (key.isReadable()) {
+        SocketChannel client = (SocketChannel) key.channel();
+        // 从客户端读取数据到Buffer中
+        int BUFFER_SIZE = 1024;
+        ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
+        try {
+            client.read(buffer);
+        }
+        catch (Exception e) {
+            // client is no longer active
+            e.printStackTrace();
+            continue;
+        }
+    }
+
+> 8). 如果是`readable`，这意味着Server将要从客户端读取数据。
+
+    if (key.isWritable()) {
+        SocketChannel client = (SocketChannel) key.channel();
+        // write data to client...
+    }
+
+> 9). 如果是`writeable`，这意味着Server将要向客户端写入数据。
+
+<h5 id="1.2.2">客户端代码解析</h5>
+
+我们创建一个简单的Client Demo来连接到Server。
+
+    InetSocketAddress address = new InetSocketAddress(hostname, portName);
+    SocketChannel client = SocketChannel.open(address);
+
+> 创建一个Socket Channel连接到Server。
+
+    ByteBuffer buffer = ByteBuffer.allocate(1024);//创建一个Buffer用来写入Channel
+    buffer.put(msg.getBytes());
+    buffer.flip();
+    client.write(buffer);
+
+> 客户单要向Socket Channel中写入数据，我们知道要向Channel写入的数据，首先要写入缓冲区中。
+
+<h5 id="1.2.3">Non-Blocking IO完整服务端代码</h5>
+
+    package com.fmz.io;
+
+    import java.io.IOException;
+    import java.net.InetSocketAddress;
+    import java.net.Socket;
+    import java.net.SocketAddress;
+    import java.nio.ByteBuffer;
+    import java.nio.channels.SelectionKey;
+    import java.nio.channels.Selector;
+    import java.nio.channels.ServerSocketChannel;
+    import java.nio.channels.SocketChannel;
+    import java.util.Iterator;
+    import java.util.Set;
+
+    /**
+     * 
+     * This is a simple NIO based server.
+     *
+     */
+    public class EchoNIOServer {
+        private Selector selector;
+
+        private InetSocketAddress listenAddress;
+        private final static int PORT = 9093;
+
+        public static void main(String[] args) throws Exception {
+            try {
+                new EchoNIOServer("172.16.193.14", 9093).startServer();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public EchoNIOServer(String address, int port) throws IOException {
+            listenAddress = new InetSocketAddress(address, PORT);
+        }
+
+        /**
+         * Start the server
+         * 
+         * @throws IOException
+         */
+        private void startServer() throws IOException {
+            this.selector = Selector.open();
+            ServerSocketChannel serverChannel = ServerSocketChannel.open();
+            serverChannel.configureBlocking(false);
+
+            // bind server socket channel to port
+            serverChannel.socket().bind(listenAddress);
+            serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
+
+            System.out.println("Server started on port >> " + PORT);
+
+            while (true) {
+                // wait for events
+                int readyCount = selector.select();
+                if (readyCount == 0) {
+                    continue;
+                }
+
+                // process selected keys...
+                Set<SelectionKey> readyKeys = selector.selectedKeys();
+                Iterator<SelectionKey> iterator = readyKeys.iterator();
+                while (iterator.hasNext()) {
+                    SelectionKey key = (SelectionKey) iterator.next();
+
+                    // Remove key from set so we don't process it twice
+                    iterator.remove();
+
+                    if (!key.isValid()) {
+                        continue;
+                    }
+
+                    if (key.isAcceptable()) { // Accept client connections
+                        this.accept(key);
+                    } else if (key.isReadable()) { // Read from client
+                        this.read(key);
+                    } else if (key.isWritable()) {
+                        // write data to client...
+                    }
+                }
+            }
+        }
+
+        // accept client connection
+        private void accept(SelectionKey key) throws IOException {
+            ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
+            SocketChannel channel = serverChannel.accept();
+            channel.configureBlocking(false);
+            Socket socket = channel.socket();
+            SocketAddress remoteAddr = socket.getRemoteSocketAddress();
+            System.out.println("Connected to: " + remoteAddr);
+
+            /*
+             * Register channel with selector for further IO (record it for read/write
+             * operations, here we have used read operation)
+             */
+            channel.register(this.selector, SelectionKey.OP_READ);
+        }
+
+        // read from the socket channel
+        private void read(SelectionKey key) throws IOException {
+            SocketChannel channel = (SocketChannel) key.channel();
+            ByteBuffer buffer = ByteBuffer.allocate(1024);
+            int numRead = -1;
+            numRead = channel.read(buffer);
+
+            if (numRead == -1) {
+                Socket socket = channel.socket();
+                SocketAddress remoteAddr = socket.getRemoteSocketAddress();
+                System.out.println("Connection closed by client: " + remoteAddr);
+                channel.close();
+                key.cancel();
+                return;
+            }
+
+            byte[] data = new byte[numRead];
+            System.arraycopy(buffer.array(), 0, data, 0, numRead);
+            System.out.println("Got: " + new String(data));
+        }
+    }
+
+<h5 id="1.2.4">Non-Blocking IO完整客户端代码</h5>
+
+    package com.fmz.io;
+
+    import java.io.IOException;
+    import java.net.InetSocketAddress;
+    import java.nio.ByteBuffer;
+    import java.nio.channels.SocketChannel;
+
+    /**
+     * 
+     * Test client for NIO server
+     *
+     */
+    public class TestNIOClient {
+
+        public void startClient() throws IOException, InterruptedException {
+
+            InetSocketAddress hostAddress = new InetSocketAddress("172.16.193.14", 9093);
+            SocketChannel client = SocketChannel.open(hostAddress);
+
+            System.out.println("Client... started");
+
+            String threadName = Thread.currentThread().getName();
+
+            // Send messages to server
+            String[] messages = new String[] { threadName + ": msg1", threadName + ": msg2", threadName + ": msg3" };
+
+            for (int i = 0; i < messages.length; i++) {
+                ByteBuffer buffer = ByteBuffer.allocate(74);
+                buffer.put(messages[i].getBytes());
+                buffer.flip();
+                client.write(buffer);
+                System.out.println(messages[i]);
+                buffer.clear();
+                Thread.sleep(5000);
+            }
+            client.close();
+        }
+
+        public static void main(String[] args) {
+            Runnable client = new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        new TestNIOClient().startClient();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            };
+            new Thread(client, "client-A").start();
+            new Thread(client, "client-B").start();
+        }
+
+    }
 
 ---
 
