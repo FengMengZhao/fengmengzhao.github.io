@@ -433,10 +433,7 @@ Java NIO提供了一个类叫做`Selector`，这个类能够让单个线程监�
             SocketAddress remoteAddr = socket.getRemoteSocketAddress();
             System.out.println("Connected to: " + remoteAddr);
 
-            /*
-             * Register channel with selector for further IO (record it for read/write
-             * operations, here we have used read operation)
-             */
+            //Register channel with selector for further IO 
             channel.register(this.selector, SelectionKey.OP_READ);
         }
 
