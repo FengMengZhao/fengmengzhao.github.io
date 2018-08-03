@@ -52,7 +52,7 @@ Minor GC  VS Major GC VS Full GC：Minor GC是对`Yong Generation`进行回收�
 
 > 下图表示一次Minor GC过程。绿色表示未使用空间，红色表示存活的对象，黄色表示死亡对象。这个示例中假设`Suvivor`有足够的区域来存放活着的对象。
 
-![一次Minor GC过程](young_gc.png "一次Minor GC过程")
+![一次Minor GC过程](/img/posts/young_gc.png "一次Minor GC过程")
 
 总结一下`Yong Generation`中对象的生命历程：对象的创建一定发生在`Enden`区中(除非对象太大，`Enden`区放不下)，接下来生命力顽强的对象会在`Suvivor`去中被复制来复制去，经历了多次GC之后，如果还存活会被复制到`Old Generation`中，当然,过程中可能会被GC回收。
 
