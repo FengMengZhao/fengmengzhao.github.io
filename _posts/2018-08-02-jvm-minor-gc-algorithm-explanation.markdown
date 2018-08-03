@@ -47,6 +47,9 @@ ORACLE HotSpot JVM进了一步将`Yong Generation`分为三个子区域：一个
 3. 接下来会触发多次GC，每一次GC会将`Enden`中存活的对象复制到`To`区域。`From`区域中存活对象会根据其年龄决定其去向：如果年龄没有达到GC规定的年龄，则对象也会被复制到`To`区域中；反之会被复制到`Old Generation`中。这时候`Enden`和`From`区域可以被清空了(因为里面的对象全部是死对象)，只有`To`去中存在存活的对象(这里面的对象有不同的年龄(或者说经历的不同的GC次数))。
 4. 最后，`From`和`To`区域会互换角色，这样再下次GC中同样会从`Enden`和`From`区域中复制对象，`To`区域始终保持为空，等待下次GC时接受存活的对象。
 
+> Minor GC的触发经常是对象没有地方再分配的时候进行，也就是`Enden`满的时候。<br><br>
+Minor GC  VS Major GC VS Full GC：Minor GC是对`Yong Generation`进行回收的算法；Major GC是对`Old Generation`的回收算法，Full GC是对整个`Heap`进行的回收算法。
+
 > 下图表示一次Minor GC过程。绿色表示未使用空间，红色表示存活的对象，黄色表示死亡对象。这个示例中假设`Suvivor`有足够的区域来存放活着的对象。
 
 ![一次Minor GC过程](young_gc.png "一次Minor GC过程")
