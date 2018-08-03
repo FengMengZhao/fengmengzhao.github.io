@@ -28,7 +28,7 @@ comment: true
 
 基于上述两方面的考虑，JVM需要有一个很快速的方法能够获取新生成的对象，比如说一个专门的空间来存这些新的对象。这样，`Heap`分为`Yong Generation`和`Old Generation`，新生成的对象都在`Yong Generation`中，`Old Generation`中存放的是长时间存活的对象，JVM的GC算法就可以在`Yong Generation`中快速回收死亡的对象，而不必要遍历`Heap`上所有对象一遍。
 
-ORACLE HotSpot JVM进了一步将`Yong Generation`分为三个子区域：一个相对较大的`Enden`区域和两个较小的`Suvivor`区域(分别作为`From`和`To`)。
+ORACLE HotSpot JVM进了一步将`Yong Generation`分为三个子区域：一个相对较大的`Eden`区域和两个较小的`Suvivor`区域(分别作为`From`和`To`)。
 
 > 下图是`Heap`区域的整个内存划分：
 
@@ -38,23 +38,23 @@ ORACLE HotSpot JVM进了一步将`Yong Generation`分为三个子区域：一个
 
 <h3 id="2">年轻代Minor GC是如何进行的</h3>
 
-基于上述的`Yong Generation`的内存模型，新创建的对象是在`Enden`上分配内存的(如果新生成的对象足够大，不足以在`Enden`上分配，该对象会被直接分配到`Old Generation`中)，在第一次Minor GC(对`Yong Generation`的GC称为Minor GC)中，`Enden`区存活的对象(Live Object)会被复制到`Suvivor`区域中，这些对象一直存活在那里直到达到一定的年龄(这里所谓的年龄是指在它们被创建后经历了对少次的GC)，然后仍然存活的对象会被复制到`Old Generation`中。`Suvivor`区域的目的是让哪些新生成的对象在第一次GC之后存活的稍微长时间一点，这样以便于在它们死的时候能够被回收。
+基于上述的`Yong Generation`的内存模型，新创建的对象是在`Eden`上分配内存的(如果新生成的对象足够大，不足以在`Eden`上分配，该对象会被直接分配到`Old Generation`中)，在第一次Minor GC(对`Yong Generation`的GC称为Minor GC)中，`Eden`区存活的对象(Live Object)会被复制到`Suvivor`区域中，这些对象一直存活在那里直到达到一定的年龄(这里所谓的年龄是指在它们被创建后经历了对少次的GC)，然后仍然存活的对象会被复制到`Old Generation`中。`Suvivor`区域的目的是让哪些新生成的对象在第一次GC之后存活的稍微长时间一点，这样以便于在它们死的时候能够被回收。
 
 基于大部分的新生对象都会在GC的过程中被回收，JVM对`Yong Generation`区域采取一种COPY策略(复制算法)：
 
-1. 最开始，`Enden`、`From`和`To`区域都是空的，新生成的对象会分配在`Enden`中。
-2. 新生成的对象多了以后，第一次Minor GC会将`Enden`区域中存活的对象复制到`From`区域中，复制到`Suvivor`区域中的对象会记录该对象的经历GC的次数，以便标记该对象存活的年龄。
-3. 接下来会触发多次GC，每一次GC会将`Enden`中存活的对象复制到`To`区域。`From`区域中存活对象会根据其年龄决定其去向：如果年龄没有达到GC规定的年龄，则对象也会被复制到`To`区域中；反之会被复制到`Old Generation`中。这时候`Enden`和`From`区域可以被清空了(因为里面的对象全部是死对象)，只有`To`去中存在存活的对象(这里面的对象有不同的年龄(或者说经历的不同的GC次数))。
-4. 最后，`From`和`To`区域会互换角色，这样再下次GC中同样会从`Enden`和`From`区域中复制对象，`To`区域始终保持为空，等待下次GC时接受存活的对象。
+1. 最开始，`Eden`、`From`和`To`区域都是空的，新生成的对象会分配在`Eden`中。
+2. 新生成的对象多了以后，第一次Minor GC会将`Eden`区域中存活的对象复制到`From`区域中，复制到`Suvivor`区域中的对象会记录该对象的经历GC的次数，以便标记该对象存活的年龄。
+3. 接下来会触发多次GC，每一次GC会将`Eden`中存活的对象复制到`To`区域。`From`区域中存活对象会根据其年龄决定其去向：如果年龄没有达到GC规定的年龄，则对象也会被复制到`To`区域中；反之会被复制到`Old Generation`中。这时候`Eden`和`From`区域可以被清空了(因为里面的对象全部是死对象)，只有`To`去中存在存活的对象(这里面的对象有不同的年龄(或者说经历的不同的GC次数))。
+4. 最后，`From`和`To`区域会互换角色，这样再下次GC中同样会从`Eden`和`From`区域中复制对象，`To`区域始终保持为空，等待下次GC时接受存活的对象。
 
-> Minor GC的触发经常是对象没有地方再分配的时候进行，也就是`Enden`满的时候。<br><br>
+> Minor GC的触发经常是对象没有地方再分配的时候进行，也就是`Eden`满的时候。<br><br>
 Minor GC  VS Major GC VS Full GC：Minor GC是对`Yong Generation`进行回收的算法；Major GC是对`Old Generation`的回收算法，Full GC是对整个`Heap`进行的回收算法。
 
 > 下图表示一次Minor GC过程。绿色表示未使用空间，红色表示存活的对象，黄色表示死亡对象。这个示例中假设`Suvivor`有足够的区域来存放活着的对象。
 
 ![一次Minor GC过程](/img/posts/young_gc.png "一次Minor GC过程")
 
-总结一下`Yong Generation`中对象的生命历程：对象的创建一定发生在`Enden`区中(除非对象太大，`Enden`区放不下)，接下来生命力顽强的对象会在`Suvivor`去中被复制来复制去，经历了多次GC之后，如果还存活会被复制到`Old Generation`中，当然,过程中可能会被GC回收。
+总结一下`Yong Generation`中对象的生命历程：对象的创建一定发生在`Eden`区中(除非对象太大，`Eden`区放不下)，接下来生命力顽强的对象会在`Suvivor`去中被复制来复制去，经历了多次GC之后，如果还存活会被复制到`Old Generation`中，当然,过程中可能会被GC回收。
 
 ---
 
@@ -80,7 +80,7 @@ Minor GC  VS Major GC VS Full GC：Minor GC是对`Yong Generation`进行回收�
 
 **-XX:SuvivorRatio**
 
-`-XX:SuvivorRatio`可以设定`Enden`和`From`或者`To`的比例。例如`-XX:SuvivorRatio=10`表示`Enden`占`Yong Generation`的10/12，`From`和`To`都占`Yong Generation`的1/12。
+`-XX:SuvivorRatio`可以设定`Eden`和`From`或者`To`的比例。例如`-XX:SuvivorRatio=10`表示`Eden`占`Yong Generation`的10/12，`From`和`To`都占`Yong Generation`的1/12。
 
 **-XX:+PrintTenuringDistibution**
 
