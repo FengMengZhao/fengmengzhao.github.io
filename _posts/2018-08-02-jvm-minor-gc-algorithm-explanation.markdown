@@ -58,7 +58,7 @@ Minor GC  VS Major GC VS Full GC：Minor GC是对`Yong Generation`进行回收�
 
 ---
 
-<h3 id="2">年轻代相关的JVM性能调优参数</h3>
+<h3 id="3">年轻代相关的JVM性能调优参数</h3>
 
 通过上述内容，我们知道`Yong Generation`的大小对于JVM性能来说是至关重要的：如果`Yong Generation`过小，新生成的对象很容易就进入到`Old Generation`中，需要更大的成本来进行GC回收；如果`Yong Generation`过大，新生成的对象会再`Suvivor`区域中被复制来复制去，同样会影响JVM的性能。很不幸的是，没有一个固定的标准是最优的，最优策略需要根据Java应用的特点进行不同的测试得出来，这个时候JVM参数就很有用处了。
 
