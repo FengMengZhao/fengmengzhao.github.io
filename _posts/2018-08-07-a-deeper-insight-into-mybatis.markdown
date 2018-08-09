@@ -9,6 +9,10 @@ comment: true
 # 目录
 
 - [1. Mybatis概要](#1)
+- [2. Mybatis3使用](#2)
+    - [2.1 Mybatis3基本Maven工程(集成LOG4J日志)](#2.1)
+    - [2.2 DAO接口方式使用Mybatis3](#2.2)
+    - [2.3 Mapper代理的方式使用Mybatis3](#2.3)
 
 ---
 
@@ -49,3 +53,318 @@ comment: true
 - `SqlSessionFactory`应该是单例的;
 - `SqlSession`是线程不安全的，其作用域应该是方法级的.
 
+---
+
+<h3 id="2">Mybatis3使用</h3>
+
+Mybatis3的使用方式有两种：
+
+1. 原始的`Dao`接口开发;
+2. `mapper`代理的方式.
+
+首先，建立一个Mybatis工程(Maven)，集成`LOG4j`日志，使用`JUNIT4`进行单元测试。然后分别介绍`Dao`接口方法和`Mapper`代理方法。
+
+<h3 id="2.1">Mybatis3基本Maven工程(集成LOG4J日志)</h3>
+
+> Maven工程的核心`POM.xml`依赖：
+
+    <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>5.1.37</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mybatis</groupId>
+      <artifactId>mybatis</artifactId>
+      <version>3.2.3</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.17</version>
+    </dependency>
+    </dependencies>
+
+> Mybatis的SQL、SQL参数和对象映射关系都是在`Mapper`文件中配置的。`Mapper`文件如下：
+
+    <?xml version="1.0" encoding="UTF-8" ?>
+    <!DOCTYPE mapper
+            PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+            "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+        <select>...</select>
+        <insert>...</insert>
+        <update>...</update>
+        <delete>...</delete>
+
+    </mapper>
+
+> Mybatis3支持多种日志框架的实现，只需要将日志实现的`Jar`文件放到`CLASSPATH`下并且定义好配置文件即可。这里使用`LOG4J`日志输出(`log4j.properties`)：
+
+    # Global logging configuration
+    #日志要输出的级别和输出的位置
+    log4j.rootLogger=DEBUG, stdout
+    # Console output...
+    log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+    log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+    log4j.appender.stdout.layout.ConversionPattern=%5p [%t] - %m%n
+
+> Mybatis3配置文件(`mybatis-conf.xml`，名称可以任意)，配置数据源、事务、Mapper依赖等:
+
+    <?xml version="1.0" encoding="UTF-8" ?>
+    <!DOCTYPE configuration
+            PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+            "http://mybatis.org/dtd/mybatis-3-config.dtd">
+    <configuration>
+
+        <!-- 如果CLASSPATH中多种LogImpl，可以在这里指定使用的日志类型 -->
+        <!--<settings>
+            <setting name="logImpl" value="LOG4J"/>
+        </settings>-->
+
+        <!-- 和spring整合后 environments配置将废除-->
+        <environments default="development">
+            <environment id="development">
+                <!-- 使用jdbc事务管理，事务控制由mybatis-->
+                <transactionManager type="JDBC" />
+                <!-- 数据库连接池,由mybatis管理-->
+                <dataSource type="POOLED">
+                    <property name="driver" value="com.mysql.jdbc.Driver" />
+                    <property name="url" value="jdbc:mysql://172.16.193.14:3306/mybatis?characterEncoding=utf-8" />
+                    <property name="username" value="root" />
+                    <property name="password" value="root" />
+                </dataSource>
+            </environment>
+        </environments>
+        
+
+        <mappers>
+            <mapper resource="sqlmap/UserMapper.xml"></mapper>
+        </mappers>
+
+    </configuration>
+
+<h3 id="2.2">DAO接口方式使用Mybatis3</h3>
+
+> 首先建一个要映射的数据库(Mysql)表，表主键ID采用自增的模式:
+
+    CREATE TABLE `user` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `username` varchar(255) DEFAULT NULL,
+      `sex` varchar(255) DEFAULT NULL,
+      `birthday` date DEFAULT NULL,
+      `address` varchar(255) DEFAULT NULL,
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+> 有表了，既然是映射肯定需要一个类与表相对应(`User.java`)：
+
+    package com.fmz.mybatis.pojo;
+
+    import java.util.Date;
+
+    public class User {
+
+        private int id;
+        private String username;
+        private String sex;
+        private Date birthday;
+        private String address;
+
+        //setter & getter method omit
+    }
+
+> 建最核心的`Mapper`文件:
+
+    <?xml version="1.0" encoding="UTF-8" ?>
+    <!DOCTYPE mapper
+            PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+            "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <!-- namespace 命名空间，作用就是对sql进行分类化管理,理解为sql隔离
+     注意：使用mapper代理方法开发，namespace有特殊重要的作用
+     -->
+    <mapper namespace="test">
+        <!-- 在映射文件中配置很多sql语句 -->
+        <!--需求:通过id查询用户表的记录 -->
+        <!-- 通过select执行数据库查询
+         id:标识映射文件中的sql，称为statement的id
+         将sql语句封装到mappedStatement对象中，所以将id称为statement的id
+         parameterType:指定输入参数的类型
+         #{}标示一个占位符,
+         #{value}其中value表示接收输入参数的名称，如果输入参数是简单类型，那么#{}中的值可以任意。
+
+         resultType：指定sql输出结果的映射的java对象类型，select指定resultType表示将单条记录映射成java对象
+         -->
+        <select id="findUserById" parameterType="int" resultType="com.fmz.mybatis.pojo.User">
+            SELECT * FROM  user  WHERE id=#{value}
+        </select>
+
+        <!-- 根据用户名称模糊查询用户信息，可能返回多条
+            resultType：指定就是单条记录所映射的java对象类型
+            ${}:表示拼接sql串，将接收到参数的内容不加任何修饰拼接在sql中。
+            使用${}拼接sql，引起 sql注入
+            ${value}：接收输入参数的内容，如果传入类型是简单类型，${}中只能使用value
+         -->
+        <select id="findUserByName" parameterType="java.lang.String" resultType="com.fmz.mybatis.pojo.User">
+            SELECT * FROM user WHERE username LIKE '%${value}%'
+        </select>
+
+
+        <!-- 添加用户
+               parameterType：指定输入 参数类型是pojo（包括 用户信息）
+               #{}中指定pojo的属性名，接收到pojo对象的属性值，mybatis通过OGNL获取对象的属性值
+               -->
+        <insert id="insertUser" parameterType="com.fmz.mybatis.pojo.User">
+            <!--
+             将插入数据的主键返回，返回到user对象中
+
+             SELECT LAST_INSERT_ID()：得到刚insert进去记录的主键值，只适用与自增主键
+
+             keyProperty：将查询到主键值设置到parameterType指定的对象的哪个属性(自已获取自增主键id并赋值给USer#id)
+             order：SELECT LAST_INSERT_ID()执行顺序，相对于insert语句来说它的执行顺序
+             resultType：指定SELECT LAST_INSERT_ID()的结果类型
+              -->
+            <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+                SELECT LAST_INSERT_ID()
+            </selectKey>
+            INSERT INTO user (username,birthday,sex,address)values (#{username},#{birthday},#{sex},#{address})
+            <!--
+                使用mysql的uuid（）生成主键
+                执行过程：
+                首先通过uuid()得到主键，将主键设置到user对象的id属性中
+                其次在insert执行时，从user对象中取出id属性值
+                 -->
+            <!--  <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.String">
+                SELECT uuid()
+            </selectKey>
+            insert into user(id,username,birthday,sex,address) value(#{id},#{username},#{birthday},#{sex},#{address}) -->
+
+        </insert>
+
+        <!-- 删除 用户
+            根据id删除用户，需要输入 id值
+             -->
+        <delete id="deleteUser" parameterType="java.lang.Integer">
+            delete from user where id=#{id}
+        </delete>
+
+        <!-- 根据id更新用户
+        分析：
+        需要传入用户的id
+        需要传入用户的更新信息
+        parameterType指定user对象，包括 id和更新信息，注意：id必须存在
+        #{id}：从输入 user对象中获取id属性值
+         -->
+        <update id="updateUser" parameterType="com.fmz.mybatis.pojo.User">
+            update user set username=#{username},birthday=#{birthday},sex=#{sex},address=#{address}
+            where id=#{id}
+        </update>
+
+    </mapper>
+
+> 为了方便起见，不建`Dao`接口，直接使用`DaoImpl`:
+
+    package com.fmz.mybatis.dao;
+
+    import com.fmz.mybatis.pojo.User;
+    import org.apache.ibatis.session.SqlSession;
+    import org.apache.ibatis.session.SqlSessionFactory;
+    import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+
+    import java.io.InputStream;
+    import java.sql.Date;
+    import java.util.List;
+
+    public class UserDao{
+
+        public void findUserById() throws Exception {
+
+            String conf = "mybatis-conf.xml";
+            InputStream is = this.getClass().getClassLoader().getResourceAsStream(conf);
+            SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(is);
+            SqlSession sqlSession = sqlSessionFactory.openSession();
+            User u = sqlSession.selectOne("test.findUserById", 2);
+            System.out.println(u);
+        
+        }
+
+        public void findUserByName() throws Exception {
+
+            String conf = "mybatis-conf.xml";
+            InputStream is = this.getClass().getClassLoader().getResourceAsStream(conf);
+            SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(is);
+            SqlSession sqlSession = sqlSessionFactory.openSession();
+            List<User> u = sqlSession.selectList("test.findUserByName", "王小军");
+            System.out.println(u);
+        
+        }
+
+        public void insertUser() throws Exception {
+
+            String conf = "mybatis-conf.xml";
+            InputStream is = this.getClass().getClassLoader().getResourceAsStream(conf);
+            SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(is);
+            SqlSession sqlSession = sqlSessionFactory.openSession(true);
+
+            User user = new User();
+            user.setUsername("fmz");
+            user.setSex("28");
+            user.setBirthday(Date.valueOf("1990-07-19"));
+            user.setAddress("海淀区-中关村");
+            sqlSession.insert("test.insertUser", user);
+            System.out.println(user);
+        
+        }
+
+    }
+
+> 总结：<br><br>
+- `Dao`接口的方式使用Mybatis3实际上是：`Dao` + `DaoImpl` + `Mapper.xml`;
+- `DaoImpl`中每一个方法需要获取`SqlSession`，通过`SqlSession`和`Mapper.xml`的配置进行相应的映射，这种方法的`Mapper.xml`中的`namespace`只是起到了隔离文件的目的(两个不同的文件同时定义了`id=adduser`，能够通过`namespace`将二者区分开来);
+
+<h3 id="2.3">Mapper代理的方式使用Mybatis3</h3>
+
+> 在`2.2`部分中数据库表和对应的pojo已经建成功了，由于使用的是`Mapper`动态代理的方法，所以`Mapper.xml`中的`namespace`不仅仅作为隔离sql文件使用，而且还要与对用的`Mapper.java`接口类路径一致：<br><br>
+除此之外，`Mapper.xml`和`Mapper.java`中定义的`id`与方法名称、`parameterType`与方法参数类型、`resultType`与方法参数返回值类型要保持一致:
+
+    <!-- namespace要和响应的Mapper接口类路径保持一致 -->
+    <mapper namespace="com.fmz.mybatis.dao.UserMapper">
+    <!-- id、parameterType、resultType要和对应的Mapper接口对应的类型保持一致 -->
+    <select id="findUserById" parameterType="int" resultType="com.fmz.mybatis.pojo.User">
+        SELECT * FROM  user  WHERE id=#{value}
+    </select>
+
+> 定义Mapper接口`UserMapper.java`:
+
+    package com.fmz.mybatis.dao;
+
+    import com.fmz.mybatis.pojo.User;
+
+    import java.util.List;
+
+    public interface UserMapper {
+
+        public User findUserById(int id);
+
+        public List<User> findUserByName(String name);
+
+        public void insertUser(User user);
+
+        public void deleteUser(int id);
+
+        public int updateUser(User user);
+
+    }
+
+> 总结：<br><br>
+- `Mapper`接口的方式使用Mybatis3实际上是：`*Mapper.java` + `*Mapper.xml`(二者的文件名不一定要保持一致);
+- `Mapper`代理接口的方式采用动态代理的方法动态生成实现的接口，使得开发更加灵活。
+
+---
