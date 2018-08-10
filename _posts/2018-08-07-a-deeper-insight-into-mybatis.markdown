@@ -298,6 +298,7 @@ Mybatis3的使用方式有两种：
         public void findUserByName() throws Exception {
 
             String conf = "mybatis-conf.xml";
+            //InputStream is = this.getClass().getResourceAsStream("/mybatis-conf.xml");
             InputStream is = this.getClass().getClassLoader().getResourceAsStream(conf);
             SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(is);
             SqlSession sqlSession = sqlSessionFactory.openSession();
@@ -325,13 +326,18 @@ Mybatis3的使用方式有两种：
 
     }
 
+> 注意：`Class.getResourceAsStream(String path)` vs `ClassLoader.getResourceAsStream(String path)`是有区别的：<br>
+- `Class.getResourceAsStream(String path)`中的`path`可以是相对路径(相对于当前包的路径)或者是绝对路径;
+- `ClassLoader.getResourceAsStream(String path)`中的`path`是相对于`CLASSPATH`根目录的路径;
+- 因此上述读取配置文件的路径也可以写为：`InputStream is = this.get().getResourceAsStream("/mybatis-conf.xml");`.
+
 > 总结：<br><br>
 - `Dao`接口的方式使用Mybatis3实际上是：`Dao` + `DaoImpl` + `Mapper.xml`;
 - `DaoImpl`中每一个方法需要获取`SqlSession`，通过`SqlSession`和`Mapper.xml`的配置进行相应的映射，这种方法的`Mapper.xml`中的`namespace`只是起到了隔离文件的目的(两个不同的文件同时定义了`id=adduser`，能够通过`namespace`将二者区分开来);
 
 <h3 id="2.3">Mapper代理的方式使用Mybatis3</h3>
 
-> 在`2.2`部分中数据库表和对应的pojo已经建成功了，由于使用的是`Mapper`动态代理的方法，所以`Mapper.xml`中的`namespace`不仅仅作为隔离sql文件使用，而且还要与对用的`Mapper.java`接口类路径一致：<br><br>
+> 在`2.2`部分中数据库表和对应的pojo已经建成功了，由于使用的是`Mapper`动态代理的方法，所以`Mapper.xml`中的`namespace`不仅仅作为隔离sql文件使用，而且还要与对用的`Mapper.java`接口类路径一致;<br>
 除此之外，`Mapper.xml`和`Mapper.java`中定义的`id`与方法名称、`parameterType`与方法参数类型、`resultType`与方法参数返回值类型要保持一致:
 
     <!-- namespace要和响应的Mapper接口类路径保持一致 -->
