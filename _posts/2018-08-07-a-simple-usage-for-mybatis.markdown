@@ -379,7 +379,7 @@ Mybatis3的使用方式有两种：
 
 <h3 id="3">Mybatis使用问题收集</h3>
 
-<h4 id="3.1">动态SQL Where条件中使用<if test='xxx == "abc"' />报错: There is no getter for property named 'xxx' in 'class java.lang.String'</h4>
+<h4 id="3.1">动态SQL Where条件中使用test判断报错: There is no getter for property named 'xxx' in 'class java.lang.String'</h4>
 
 场景是：在`Mapper.xml`中where里想动态生成SQL：
 
