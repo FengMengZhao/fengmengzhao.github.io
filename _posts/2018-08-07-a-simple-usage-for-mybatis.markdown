@@ -13,6 +13,8 @@ comment: true
     - [2.1 Mybatis3基本Maven工程(集成LOG4J日志)](#2.1)
     - [2.2 DAO接口方式使用Mybatis3](#2.2)
     - [2.3 Mapper代理的方式使用Mybatis3](#2.3)
+- [3. Mybatis使用问题收集](#3)
+    - [3.1 动态SQL Where条件中使用`<if test='xxx == "abc"' />`报错: `There is no getter for property named 'xxx' in 'class java.lang.String'`](#3.1)
 
 ---
 
@@ -372,5 +374,35 @@ Mybatis3的使用方式有两种：
 > 总结：<br><br>
 - `Mapper`接口的方式使用Mybatis3实际上是：`*Mapper.java` + `*Mapper.xml`(二者的文件名不一定要保持一致);
 - `Mapper`代理接口的方式采用动态代理的方法动态生成实现的接口，使得开发更加灵活。
+
+---
+
+<h3 id="3">Mybatis使用问题收集</h3>
+
+<h4 id="3.1">动态SQL Where条件中使用`<if test='xxx == "abc"' />`报错: `There is no getter for property named 'xxx' in 'class java.lang.String'`</h4>
+
+场景是：在`Mapper.xml`中where里想动态生成SQL：
+
+    ...
+
+    <!-- 判断netId不为空时 -->
+    <if test="netId == ''">
+        AND table.column = #{netId}
+    </if>
+
+    ...
+
+> 其中`parameterType='String'`，这样就会报错：`There is no getter for property named 'xxx' in 'class java.lang.String`。
+
+解决办法：
+
+    ...
+
+    <!-- 判断netId不为空时 -->
+    <if test="_parameter == ''">
+        AND table.column = #{netId}
+    </if>
+
+    ...
 
 ---
