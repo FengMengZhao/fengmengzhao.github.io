@@ -1,7 +1,7 @@
 ---
 layout: post
-title: '深入理解Mybatis'
-subtitle: 'Mybatis作为一个ORM框架将SQL与Java对象映射起来大大提高开发效率，其配置和使用相对简单，本文从使用出发试图在源码级别窥探其背后的工作原理。'
+title: 'Mybatis简单使用'
+subtitle: 'Mybatis作为一个ORM框架将SQL与Java对象映射起来大大提高开发效率，其配置使用虽为简单，也经常概念混淆并且搜素资料耗时。本文旨在提供清晰的Mybatis配置和使用方式。'
 background: '/img/posts/insight-into-mybatis.jpg'
 comment: true
 ---
