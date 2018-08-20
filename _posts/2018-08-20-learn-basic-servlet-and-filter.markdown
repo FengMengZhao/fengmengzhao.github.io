@@ -54,7 +54,7 @@ comment: true
         <welcome-file-list>
             <welcome-file>login.jsp</welcome-file>
             <welcome-file>login.html</welcome-file>
-        </welcome-file-list>"
+        </welcome-file-list>
         
         ...
 
@@ -438,6 +438,14 @@ comment: true
 
         }
     }
+
+> 在`web.xml`中定义`filter-mapping`:
+
+    <filter-mapping>
+        <filter-name>filter3</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
 
 > 说明：<br><br>
 1). 认证的逻辑是：如果session是null且不是获取静态资源(`*.html`)且请求路径不是(`*/LoginServlet`)，直接跳转到登录页(login.html);反之，交给`LoginServlet`进行用户名密码认证;<br>
