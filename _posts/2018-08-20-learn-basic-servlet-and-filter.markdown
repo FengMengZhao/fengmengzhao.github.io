@@ -265,6 +265,11 @@ comment: true
 
 `String user = new String(request.getParameter("user").getBytes("ISO-8859-1"), "UTF-8")`
 
+> 设置编码说明：<br>
+- 如果对JVM设置文件编码格式使用：`-Dfile.encoding=UTF-8`;
+- 如果对`HTTP GET`请求的URL设置编码格式(tomcat server.xml设置)：`URIEncoding=UTF-8`;
+- 如果`HTTP POST`请求的请求体设置编码格式(上述乱码情况)：`request.setCharacterEncoding("UTF-8")`.
+
 ---
 
 <h3 id="3">使用Filter增强应用的功能</h3>
@@ -443,7 +448,7 @@ comment: true
 
 **RequestDispatcher#include(request, response)到login.jsp乱码问题：**
 
-![include JSP页面乱码](/img/posts/include-jsp-decode-fault.png include "JSP页面乱码")
+![include JSP页面乱码](/img/posts/include-jsp-decode-fault.png "include JSP页面乱码")
 
 乱码问题的原因一定是：编码(encode)和解码(decode)所使用的字符编码不一致。
 
