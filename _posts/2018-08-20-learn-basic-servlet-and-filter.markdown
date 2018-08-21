@@ -499,6 +499,28 @@ Servlet Container作为Web Server的扩展总是和Web Server一起工作，Web 
 
 **总结：**
 
-- 
+- `ServletContext`的生命周期和web应用相同，在所有的`HttpServletRequest`和`HttpSession`中共享;
+- `HttpSession`和与之相交互的浏览器实例相同，并且session对象不会再服务器端失效，在同一个session中所有`HttpServletRequest`中共享;
+- `HttpServletRequest`和`HttpServletResponse`的生命周期和Http请求发出到Http响应返回到客户端(web page)相同，它不在任何地方共享;
+- 所有的`servlet`、`filter`和`listener`从应用启动开始存活直到应用关闭，它们在所有的`HttpServletRequest`和`HttpSession`中共享;
+- 任何定义在`ServletContext`、`HttpServletRequest`和`HttpSession`中的`attribute`和该对象的生命周期相同。在Bean管理框架(例如JSP,CDI,Spring等)中的Bean通过Scope代表着这个对象的生命周期;
+
+**Servlet的线程安全性:**
+
+`servlet`和`filter`在所有的请求(Http request)中共享，这样多线程可以使用同一个对象。相反，如果每一个请求都生成一个servlet或者filter对象，都要执行`init()`和`destroy()`方法，代价相对会比较大。
+
+同样应该注意：不应该赋值任何`request`或者`session`作用域的数据作为`servlet`或者`filter`实例数据(`instance data`)，它们将会被其他Session的request共享，这样是线程非安全的。例如：
+
+    public class ExampleServlet extends HttpServlet {
+
+        private Object thisIsNOTThreadSafe;
+
+        protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+            Object thisIsThreadSafe;
+
+            thisIsNOTThreadSafe = request.getParameter("foo"); // 线程非安全，这个参数在所有的request中共享
+            thisIsThreadSafe = request.getParameter("foo"); // OK, this is thread safe.
+        } 
+    }
 
 ---
