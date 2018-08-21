@@ -14,6 +14,7 @@ comment: true
     - [3.1 Request设置字符编码Filter](#3.1)
     - [3.2 请求日志输出Filter](#3.2)
     - [3.3 用户认证(Authentication)Filter](#3.3)
+- [Servlet核心相关对象解读](#4)
 
 ---
 
@@ -461,5 +462,43 @@ comment: true
 乱码问题的原因一定是：编码(encode)和解码(decode)所使用的字符编码不一致。
 
 可以通过：`response.setContentType("text/html; charset=UTF-8")`设置解码格式。
+
+---
+
+<h3 id="4">Servlet核心相关对象解读</h3>
+
+Servlet的核心对象有：`ServletContext`、`HttpServletRequest`、`HttpServletResponse`、`HttpSession`。
+
+**ServletContext**
+
+当Servlet容器(例如Apache Tomcat)启动的时候，它将会部署并且加载所有web应用(webapp目录下)。当一个web应用被加载时，Servlet容器将会创建一个`ServletContext`(仅仅创建一次)并且将它保存在内存中。该web应用的`web.xml`会被解析，每一个`<servlet>`、`<filter>`和`<listener>`标签(或者是每一个带有`@WebServlet`、`@WebFilter`和`@WebListener`注解的类)对应的`servlet`、`filter`和`listenre`会被初始化(仅仅初始化一次)并且保存在内存中。对于每一个`filter`对象，它的`init()`方法会随着一个`filterConfig`对象被调用。
+
+当Servlet容器关闭时，它会卸载掉所有的web应用。调用所有初始化后的`servlet`和`filter`的`destroy()`方法。所有的`ServletContext`、`servlet`、`filter`和`listener`对象都会回收掉。
+
+当一个Servlet有标签`<servlet><load-on-startup>`或者`@WebServlet(loadonStartUp)`的值大于0时，该Servlet的`init()`会在Servlet容器启动时伴随着一个`ServletConfig`对象而初始化(调用`init()`方法)。这些Servlet会根据`load-on-startup`的值(`1-->1st,2-->2nd,etc`)的大小顺序初始化。如果多个Servlet配置了同一个`load-on-startup`的值，它们的初始化顺序会根据`web.xml`中配置的顺序或者注解(`@WebFilter`)类加载的顺序进行初始化。如果Servlet没有配置`load-on-startup`的值，则相应的初始化工作会在Http请求第一个到达该Servlet时发生。
+
+**HttpServletRequest、HttpServletResponse**
+
+Servlet Container作为Web Server的扩展总是和Web Server一起工作，Web Server监听某一个端口(开发环境一般是8080，生产环境一般是80)。当客户端通过浏览器发送一个HTTP请求时，Servlet Container会创建一个`HttpServletRequest`和`HttpServletResponse`对象，并且将它们传递给任何定义的`filter`链，最终到达Servlet实例。
+
+当请求到达`filter`时，`doFilter()`方法会被调用。当执行代码`chain.doFilter(request, response)`时，request和response对象会被继续传递给filter链中的下一个filter，直到filter链到头就会进入Servlet实例。
+
+当请求到达`servlet`时，`service()`方法会被调用，该方法会根据`request.getMethod()`来决定调用相应的`doXxx()`方法，如果相应的`doXxx()`方法没有被覆写(override)，则会返回HTTP 405错误码。
+
+`HttpServletRequest`提供了一切HTTP请求的相关信息(请求头和请求体)。`HttpServletResponse`对象提供了控制和以想要的方式发送Http response的入口，例如，允许你设置response的头信息和body信息(通常通过一个JSP文件生成HTML)。当HTTP response提交完成后，request和response对象都会被回收再利用。
+
+**HttpSession**
+
+当客户端第一次访问web应用时，Servlet Container通过`request.getSession()`获取`HttpSession`对象，产生一个长的唯一的ID(可以通过`session.getId()`得到)并且将它保存在内存中。Servlet Container同时在response头中设置`Set-Cookie`项，把`JSESSIONID`作为该项的名称，唯一的长ID作为该项的值。
+
+根据[Http Cookie specification](http://www.faqs.org/rfcs/rfc2965.html)(一个web浏览器和web服务器必须遵守的规范)，客户端(浏览器)必须在该域和路径下的请求中将没有过期Cookie信息返回。Servlet Container会读每一个Http请求的头检查`Cookie`信息，通过`JSESSIONID`名获取长的唯一值，并且根据这个值获取与之相关联的内存中的`HttpSession`。
+
+在Server端，`HttpSession`将会一直存活着直到超过了`web.xml`中定义的`<session-timeout>`时间(默认只是30分钟)。因此，如果30分钟之内没有客户端向服务器端发出请求，`HttpSession`就会被回收，回收之后如果Http request到达，Servlet Container会创建一个新的`HttpSession`。
+
+在客户端，Session Cookie一直存活着直到浏览器关闭(所有的TAP都关闭)，在一个新的浏览器实例中，Session Cookie就不存在了，从这里发送的Http请求就会在服务器端生成新的`HttpSession`，全新的session coolie会被客户端使用。
+
+**总结：**
+
+- 
 
 ---
