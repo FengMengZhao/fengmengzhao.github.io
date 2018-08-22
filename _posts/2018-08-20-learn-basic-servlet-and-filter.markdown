@@ -32,7 +32,8 @@ comment: true
 
 > 说明：<br><br>
 1). 使用Maven自带的archetype：`maven-archetype-webapp`;<br>
-2). IDEA集成开发环境下载存在问题，需要增加参数：`{archetypeCatalog: internal}`
+2). IDEA集成开发环境下载存在问题，需要增加参数：`{archetypeCatalog: internal}`<br>
+3). 如果IDEA下载依赖jar包的source文件，需要执行：`mvn dependency:sources`;如果是下载java-doc使用：`mvn dependency:resolve -Dclassifier=javadoc`.
 
 > 整个项目的目录结构：
 
