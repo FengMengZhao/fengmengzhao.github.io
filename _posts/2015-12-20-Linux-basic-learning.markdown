@@ -136,6 +136,8 @@ title: Linux 基础
 
 `rsync -azv /path/to/some_source_dir /path/to/some_destination_dir`，`-a`表示保留文件的时间戳；`-z`表示可以进行压缩；`-v`表示显示进度(verbose)
 
+> 例如：`rsync -azv /path/to/some_source_dir $USERNAME@$HOST:/path/to/some_destination_dir`
+
 ##### 查看目录文件占用磁盘的大小
 
 `du -hs /path/to/some_dir`，`-h`表示human readable；`-s`表示不深入到目录的子目录(separate)
