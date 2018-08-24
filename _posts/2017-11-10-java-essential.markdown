@@ -1436,7 +1436,7 @@ Tomcat的类加载和正常Java App的类加载机制(双亲委派模型)不太�
 
 看看Tomcat的类加载树图：
 
-![Tomcat类加载树](tomcat-class-loading-tree.png)
+![Tomcat类加载树](/img/posts/tomcat-class-loading-tree.png)
 
 正常的类加载顺序是：
 
