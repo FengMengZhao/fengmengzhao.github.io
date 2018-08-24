@@ -30,6 +30,7 @@ title: Java Essential
     - [5.1 JVM内存模型](#5.1)
     - [5.2 Java垃圾回收](#5.2)
     - [5.3 Java类加载](#5.3)
+        - [5.3.1 Tomcat类加载](#5.3.1)
 - [6. Heap dump Anylysis](#6)
     - [6.1 内存溢出实例](#6.1)
     - [6.2 通过工具进行Heap dump](#6.2)
@@ -1428,6 +1429,42 @@ Java当中的绑定指的是，将一个方法的调用与一个方法的主题�
 在这一个阶段真正的执行类中定义的Java程序代码
 
 `加载 --> 验证 --> 准备 --> 解析(没有严格顺序) --> 类初始化 --> 对象实例化`
+
+<h3 id="5.3.1">5.3.1 Tomcat类加载</h3>
+
+Tomcat的类加载和正常Java App的类加载机制(双亲委派模型)不太一样。
+
+看看Tomcat的类加载树图：
+
+![Tomcat类加载树](tomcat-class-loading-tree.png)
+
+正常的类加载顺序是：
+
+- Bootstrap classes of your JVM
+    - 加载JDK`lib/rt.jar`和`ext/*.jar`
+- `/WEB-INF/classes` of your web application
+- `/WEB-INF/lib/*.jar` of your web application
+- System class loader classes
+    - 加载`$CATALINA_HOME/bin/bootstrap.jar`和`$CATALINA_HOME/bin/tomcat-juli.jar`
+- Common class loader classes
+    - 加载`$CATALINA_HOME/lib/*.jar`
+
+如果设置了代理`<Loader delegate="true" />`
+
+- Bootstrap classes of your JVM
+    - 加载JDK`lib/rt.jar`和`ext/*.jar`
+- System class loader classes
+    - 加载`$CATALINA_HOME/bin/bootstrap.jar`和`$CATALINA_HOME/bin/tomcat-juli.jar`
+- Common class loader classes
+    - 加载`$CATALINA_HOME/lib/*.jar`
+- `/WEB-INF/classes` of your web application
+- `/WEB-INF/lib/*.jar` of your web application
+
+**可以通过java命令启动Tomcat**
+
+> 在`$CATALINA_HOME/bin`路径下进行:
+
+`java -cp ./* org.apache.catalina.startup.Bootstrap start`
 
 ---
 
