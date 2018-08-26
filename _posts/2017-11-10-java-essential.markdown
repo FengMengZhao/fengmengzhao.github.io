@@ -443,20 +443,32 @@ Thread主要方法:
                 */
             }
 
-            //让主线程等待其他线程执行
-            for(Thread thread : threads){
-                try{
-                    thread.join();
-                }catch(InterruptedException e){
-                    e.printStackTrace();
+            /*
+                这个是统计线程，等待
+                0 1 2 3线程执行完毕后执行
+            */
+            new Thread(new Runnable(){
+                @Override
+                public void run(){
+                    for(Thread thread : threads){
+                        try{
+                            thread.join();
+                        }catch(InterruptedException e){
+                            e.printStackTrace();
+                        }
+                    }
+                    System.out.println("0 1 2 3 线程执行完毕后执行统计线程!");
+                    //执行一些统计工作
+                    // compute()
                 }
-            }
-            //所有线程执行完毕后执行 
-            System.out.println("所有线程休息完毕！");
+            }, "统计线程").start();
+
+            //main不会受到统计线程等待的影响，正常执行
+            System.out.println("这是main线程在运行！");
         }
     }
 
-> `main`线程等待其他线程完成后再往下执行。
+> 统计线程等待0 1 2 3线程完成后执行统计工作,main不受此等待的影响,正常执行。
 
 **线程的状态**
 
