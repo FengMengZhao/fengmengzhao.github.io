@@ -411,6 +411,53 @@ Thread主要方法:
         }
     }
 
+**join让一个线程等待过个线程执行完成后执行**
+
+    package com.fmz.thread;
+
+    public class ThreadJoinWaitOneThread {
+
+        public static void main(String args[]){
+            Thread[] threads = new Thread[4];
+            for(int i = 0; i < 4; i++){
+                threads[i] = new Thread(new Runnable(){
+                    
+                    @Override
+                    public void run(){
+                        System.out.println(Thread.currentThread().getName() + "will sleep for:: 3 secodes");
+                        try{
+                            Thread.sleep(3000L);
+                        }catch(InterruptedException e){
+                            e.printStackTrace();
+                        }
+                    }
+                }, "thead::" + i);
+                threads[i].start();
+                // 如果在这里让线程等待，则会变为线程顺序执行
+                /*
+                try{
+                    threads[i].join();
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+                */
+            }
+
+            //让主线程等待其他线程执行
+            for(Thread thread : threads){
+                try{
+                    thread.join();
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+            //所有线程执行完毕后执行 
+            System.out.println("所有线程休息完毕！");
+        }
+    }
+
+> `main`线程等待其他线程完成后再往下执行。
+
 **线程的状态**
 
 先上一个图：
