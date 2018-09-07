@@ -13,9 +13,11 @@ comment: true
     - [2.1 Mybatis3基本Maven工程(集成LOG4J日志)](#2.1)
     - [2.2 DAO接口方式使用Mybatis3](#2.2)
     - [2.3 Mapper代理的方式使用Mybatis3](#2.3)
+        - [2.3.1 Mapper代理注解SQL(@select)的方式使用Mybatis3](#2.3.1)
 - [3. Mybatis使用问题收集](#3)
     - [3.1 动态SQL Where条件中使用`<if test='xxx == "abc"' />`报错: `There is no getter for property named 'xxx' in 'class java.lang.String'`](#3.1)
     - [3.2 使用$和使用#来占位变量的区别](#3.2)
+    - [3.3 需要从SQL的执行结果封装为Map集合返回](#3.3)
 
 ---
 
@@ -376,6 +378,50 @@ Mybatis3的使用方式有两种：
 - `Mapper`接口的方式使用Mybatis3实际上是：`*Mapper.java` + `*Mapper.xml`(二者的文件名不一定要保持一致);
 - `Mapper`代理接口的方式采用动态代理的方法动态生成实现的接口，使得开发更加灵活。
 
+<h5 id="2.3.1">Mapper代理注解SQL(@select)的方式使用Mybatis3</h5>
+
+> Mapper类：
+
+    package com.fmz.mybatis.dao;
+
+    import com.fmz.mybatis.pojo.User;
+    import org.apache.ibatis.annotations.Delete;
+    import org.apache.ibatis.annotations.MapKey;
+    import org.apache.ibatis.annotations.Select;
+    import org.apache.ibatis.annotations.Update;
+
+    import java.util.HashMap;
+    import java.util.List;
+
+    public interface UserMapperAnnotation {
+
+        @Select("SELECT * FROM  user  WHERE id=#{id}")
+        public User findUserById(int id);
+
+        @Select("SELECT * FROM user WHERE username LIKE '%${value}%'")
+        public List<User> findUserByName(String name);
+
+        //public void insertUser(User user);
+
+        @Delete("delete from user where id=#{id}")
+        public void deleteUser(int id);
+
+        @Update("update user set username=#{username},birthday=#{birthday},sex=#{sex},address=#{address} where id=#{id}")
+        public int updateUser(User user);
+
+        @Select("select id, username from user")
+        @MapKey("id")
+        public HashMap<Integer, User> idNameMap();
+    }
+
+> 需要将这个类(`UserMapperAnnotation`)注册到`MapperRegister`中(在`mybatis-conf.xml`中进行配置)：
+
+    <mappers>
+        <mapper class="com.fmz.mybatis.dao.UserMapperAnnotation"></mapper>
+    </mappers>
+
+> 这种方式直接将SQL语句写在了Java类中，如果SQL语句发生变化需要重新编译，并且功能上有限制。
+
 ---
 
 <h3 id="3">Mybatis使用问题收集</h3>
@@ -422,5 +468,74 @@ Mybatis3的使用方式有两种：
 如果要得到字符串`'张三'`，需要使用`'${name}'`
 
 原因是:`#{}`会对SQL进行预编译，转化为`PreparedStatement`的占位符(?)的形式并进行数据类型的匹配；而`${}`只是进行简单的字符串拼接。
+
+
+<h4 id='3.3'>需要从SQL的执行结果封装为Map集合返回</h4>
+
+比如说一张表中有`code`和`name`两个字段，希望通过将表中的`code`作为key、`name`作为value封装为一个Map返回。
+
+有两种方法，第一种方法可以通过`Mapper + 注解(@MapKey)`的方式实现，另一种方式是写一个`ResultHandler`的实现。
+
+**Mapper + 注解(@MapKey)的方式:**
+
+> Mapper接口中的方法：
+
+    @Select("select id, username from user")
+    @MapKey("id")
+    public HashMap<Integer, User> idNameMap();
+
+这中方法必须通过一个字段(`id`)和pojo(`User`)映射起来，放回的结果是:`{"id1": "1232@User", "id2": "1234@User",...}`
+
+**实现ResultHandler的方式:**
+
+> `ResultHandler的实现类：`
+
+    package com.fmz.mybatis.util;
+
+    import org.apache.ibatis.session.ResultContext;
+    import org.apache.ibatis.session.ResultHandler;
+
+    import java.util.HashMap;
+    import java.util.Map;
+
+    public class UserResultHandler implements ResultHandler{
+
+        Map<Integer, String> idNameMap= new HashMap<Integer, String>();
+
+        public Map<Integer, String> getIdNameMap() {
+            return idNameMap;
+        }
+
+        @Override
+        public void handleResult(ResultContext resultContext) {
+
+            Map<String, Object> m = (Map<String, Object>)resultContext.getResultObject();
+            idNameMap.put((Integer)getFromMap(m, "id"), (String)getFromMap(m, "username"));
+        }
+
+        private Object getFromMap(Map<String, Object> map, String key){
+            if(map.containsKey(key.toLowerCase())){
+                return map.get(key.toLowerCase());
+            }else{
+                return map.get(key.toUpperCase());
+            }
+        }
+    }
+
+> 使用dao接口的方式进行调用：
+
+    public void getIdNameMap() throws Exception {
+        String conf = "mybatis-conf.xml";
+        InputStream is = this.getClass().getClassLoader().getResourceAsStream(conf);
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(is);
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+
+        UserResultHandler userResultHandler = new UserResultHandler();
+        sqlSession.select("com.fmz.mybatis.dao.UserMapper.idNameMap", userResultHandler);
+        Map<Integer, String> result = userResultHandler.getIdNameMap();
+        System.out.println(result);
+    }
+
+这个方式可以将两个字段中的一个作为key，另一个作为value来返回Map，返回的格式是：`{"id1": "name1", "id2": "name2",...}`
 
 ---
