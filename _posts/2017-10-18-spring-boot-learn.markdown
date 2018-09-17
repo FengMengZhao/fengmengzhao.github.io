@@ -93,7 +93,7 @@ Spring Boot使用注解`@EnableAutoConfiguration`来自动配置应用.自动配
       xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
       <modelVersion>4.0.0</modelVersion>
 
-      <groupId>com.thunisoft</groupId>
+      <groupId>com.*****</groupId>
       <artifactId>springbootdemo</artifactId>
       <version>0.0.1-SNAPSHOT</version>
       <packaging>jar</packaging>
@@ -132,7 +132,7 @@ Spring Boot使用注解`@EnableAutoConfiguration`来自动配置应用.自动配
 
 **修改main()文件**
 
-    package com.thunisoft.springbootdemo;
+    package com.*****.springbootdemo;
 
     import org.springframework.boot.SpringApplication;
     import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -151,7 +151,7 @@ Spring Boot使用注解`@EnableAutoConfiguration`来自动配置应用.自动配
 
 **编写HelloWorld文件**
 
-    package com.thunisoft.springbootdemo.controller;
+    package com.*****.springbootdemo.controller;
 
     import org.springframework.web.bind.annotation.RequestMapping;
     import org.springframework.web.bind.annotation.RestController;
@@ -185,7 +185,7 @@ Spring Boot使用注解`@EnableAutoConfiguration`来自动配置应用.自动配
 <h3 id="3">参考资料</h3>
 
 - [原文](https://www.ibm.com/developerworks/library/j-spring-boot-basics-perry/)
-- [项目源码](http://gitlab.thunisoft.com/ZHSPDCSJ/spring-boot-practice)
+- [项目源码](http://gitlab.*****.com/ZHSPDCSJ/spring-boot-practice)
 - [spring vs springMVC vs springboot](https://dzone.com/articles/spring-boot-vs-spring-mvc-vs-spring-how-do-they-compare)
 
 ---
