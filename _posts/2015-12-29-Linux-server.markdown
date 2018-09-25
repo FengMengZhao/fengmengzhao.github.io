@@ -1870,9 +1870,9 @@ linux的bootloader
 
 >使用加密的方式进行加密需要使用密令：`grub-md5-crypt`，输入密码就能生成加密的密码
 
-***
+---
 
-*** 
+--- 
 
 ## Linxu 的一些常见的问题补充
 
@@ -1883,7 +1883,8 @@ linux的bootloader
 3. 将wheel用户改为具有所有权限：`vim /etc/sudoers`找到其中的一个entry，将注释去掉 --> `%wheel ALL=(ALL) NOPASSWD: ALL`，
 4. 将用户cll添加一个附属组wheel：`usermod -a -G wheel cll`
 
-> 这样用户cll不用输入密码的情况下可以实现sudo开完成一些需要管理员才能完成的指令
+> 这样用户cll不用输入密码的情况下可以实现sudo开完成一些需要管理员才能完成的指令;<br>
+默认`/etc/sudoers`是只读权限，写入设置后要设置为原始的只读权限才能正常使用`sudo`命令(阿里云ECS中遇到这样的状况).
 
 ### 如何定义一个自动完成的周期任务
 
