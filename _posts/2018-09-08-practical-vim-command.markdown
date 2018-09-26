@@ -1,7 +1,7 @@
 ---
 layout: post
-title: '实用VIM命令大全'
-subtitle: ''
+title: '实用vim命令大全'
+subtitle: 'vim神器命令大全。工具虽酷，不要深陷其中。'
 background: '/img/posts/vim-command-summary.jpg'
 comment: true
 ---
