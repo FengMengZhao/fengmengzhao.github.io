@@ -107,8 +107,23 @@ comment: true
 | `:%s/old/new/g` | 替换所有出现的old为new |
 | `:%s/old/new/gi` | 替换所有出现的old为new(大小写不敏感) |
 | `:%s/old/new/gc` | 替换所有出现的old为new(提示确认) |
+| `:s/Bill/Steve/` | 替换当前行第一次出现的Bill为Steve |
+| `:s/Bill/Steve/g` | 替换当前行出现的所有Bill为Steve |
+| `:s/Bill/Steve/g` | 替换当前行出现的所有Bill为Steve |
 | `:2,35s/old/new/g` | 替换所有出现的old为new(从2行到35行) |
 | `:5,$s/old/new/g` | 替换所有出现的old为new(从5行到末行) |
-| `%s/^/new/g` | 替换行头为new |
-| `%s/$/new/g` | 替换行未为new |
-| `%s/ *$//g` | 删除所有的空白字符 |
+| `:%s/^/new/g` | 替换行头为new |
+| `:%s/$/new/g` | 替换行未为new |
+| `:g/string/d` | 删除所有包含string的行 |
+| `:v/string/d` | 删除所有不包含string的行 |
+| `:%s/^M//g` | 删除DOS的carrage returns(^M) |
+| `:%s/^M//g` | 删除DOS的carrage returns(^M) |
+| `:%s#<[^>]\+>##g` | 删除html标签保留文本 |
+| `:%s/^.*\n\1$/\1/` | 删除出现两次的行 |
+| `ctrl+a` | 增加光标下数字大小 |
+| `ctrl+x` | 减小光标下数字大小 |
+| `ggvGg?` | 改变文本为Rot13 |
+
+---
+
+<h3 id="3">大小写</h3>
