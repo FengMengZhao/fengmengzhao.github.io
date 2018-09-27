@@ -90,6 +90,25 @@ comment: true
 | `/\<the` | 搜索the,theatre或者then(以the开头) |
 | `/the\>` | 搜索the或者breathe(以the结尾) |
 | `/\<the\>` | 搜索the |
-| `/\<|.\` | 搜索所有包含4个字符的word |
-| `/\/` |  |
+| `/\/` | 搜索字符`/` |
+| `/fred\|joe` | 搜索fred或者joe |
+| `/\<\d\d\d\d\>` | 搜索四个数字 |
+| `/^\n\{3}` | 搜索3个空行 |
+| `:bufdo /searchstr` | 在所有打开的文件中搜索 |
+| `:bufdo %s/something/somethingelse/g` | 在所有打开的文件中搜索并替换 |
 
+---
+
+<h3 id="3">替换</h3>
+
+| 命令 | 说明 |
+| :--:| :--: |
+| `:%s/old/new/g` | 替换所有出现的old为new |
+| `:%s/old/new/g` | 替换所有出现的old为new |
+| `:%s/old/new/gi` | 替换所有出现的old为new(大小写不敏感) |
+| `:%s/old/new/gc` | 替换所有出现的old为new(提示确认) |
+| `:2,35s/old/new/g` | 替换所有出现的old为new(从2行到35行) |
+| `:5,$s/old/new/g` | 替换所有出现的old为new(从5行到末行) |
+| `%s/^/new/g` | 替换行头为new |
+| `%s/$/new/g` | 替换行未为new |
+| `%s/ *$//g` | 删除所有的空白字符 |
