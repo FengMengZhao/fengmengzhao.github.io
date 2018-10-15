@@ -42,24 +42,24 @@ comment: true
 **必要配置：**
 
 - `web.xml`：配置前端控制器Servlet(`DispatcherServlet`)
-    - 配置`<context-param>`指定spring上下文的配置文件(`applicationContext-\*.xml`)
+    - 配置`<context-param>`指定spring上下文的配置文件(`applicationContext-*.xml`)
     - 配置`<init-param>`指定SpringMVC的配置文件(`springmvc.xml`)的位置
 - `springmvc.xml`：配置相应的控制器映射器、控制器适配器和视图解析器
     - 配置控制器映射器(`HandlerMapping`)
     - 配置控制器适配器(`HandlerAdapter`)
     - 配置视图解析器(`ViewResolver`)
-- `applicationContext-\*.xml`：配置spring上下文的Bean
+- `applicationContext-*.xml`：配置spring上下文的Bean
     - `applicationContext-dao.xml`：数据源、SqlSessionFactory和Mybatis包扫描(`MapperScannerConfigurer`)
     - `applicationContext-service.xml`：Service层的Bean(如果开启注解包扫描，可以直接用注解，不需要这个配置文件)
     - `applicationContext-transaction.xml`：事务相关
 - `mybatis-config.xml`：Mybatis本身的一些配置
-- `\*.properties`：日志和数据源placeholder配置
+- `*.properties`：日志和数据源placeholder配置
 
 ---
 
 <h3 id="2">相关配置文件</h3>
 
-<h4 id="2.1">web.xml</h4>
+<h4 id="2.1">pom.xml</h4>
 
     <?xml version="1.0" encoding="UTF-8"?>
 
@@ -710,4 +710,4 @@ comment: true
 
 <h3 id="4">项目结构图</h3>
 
-![项目结构图](/img/posts/pring-mybatis-basic-config-project-structure.png)
+![项目结构图](/img/posts/spring-mybatis-basic-config-project-structure.png)
