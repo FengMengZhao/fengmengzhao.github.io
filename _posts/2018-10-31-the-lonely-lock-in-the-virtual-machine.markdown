@@ -36,7 +36,7 @@ comment: true
 
 简单看一下Java对象在JVM堆内存中的数据结构：
 
-![java-object-structure-in-heap](java-object-structure-in-heap.png "Java对象在堆内存中的数据表示")
+![java-object-structure-in-heap](/img/posts/java-object-structure-in-heap.png "Java对象在堆内存中的数据表示")
 
 上图只是某一个特定的JVM实现对堆中对象数据结构的表示，不同的JVM实现会不尽相同。
 
