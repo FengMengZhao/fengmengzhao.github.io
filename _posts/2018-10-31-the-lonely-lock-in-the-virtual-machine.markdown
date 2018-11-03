@@ -10,7 +10,6 @@ comment: true
 
 - [1. 锁的概念](#1)
 - [2. 锁在JVM内部的实现](#2)
-- [3. Wait/Notify Demo](#5)
 
 ---
 
@@ -30,7 +29,7 @@ comment: true
 
 ---
 
-<h3 id="1">锁在JVM内部的实现</h3>
+<h3 id="2">锁在JVM内部的实现</h3>
 
 简单看一下Java对象在JVM堆内存中的数据结构：
 
@@ -76,4 +75,16 @@ comment: true
 
 如果活跃线程在退出Monitor之前没有执行`notify()`方法，则只会有`entry set`中的线程参与新一轮Monitor的竞争；如果该线程在退出Monitor之前执行了`notify()`方法，则`entry set`和`wait set`中的线程都会参与新一轮Monitor的竞争。在新一轮的Monitor竞争中，如果`entry set`中的线程获取到了Monitor，该线程会穿过`"门2"`进而拥有Monitor；如果是`wait set`中线程获取到了Monitor，该线程会退出`wait set`并穿过`"门4"`拥有Monitor。`"门3"`和`"门4"`是线程进入或者退出`entry set`仅有的途径，如果当前线程拥有Monitor，它可以通过执行`wait()`方法进入`wait set`，进入`wait set`之后，也只有相同Monitor的对象执行了`notify()`方法之后，该线程带可能退出`wait set`。
 
-总结来说，锁可以理解为Java对象数据的一部分，分为两种：1，`entry set`；2，`wait set`。这两部分数据都是当线程获取`锁`或者执行`wait()`、`notify()`方法时在堆中创建的一份必要的数据来表示，逻辑上属于Java对象数据的一部分。Monitor可以理解为一个逻辑概念，与锁数据相对应，也分为两种：1，互斥Monitor；2，写作Monitor。表示多线程之间互斥访问和写作方访问的一种管理机制。
+总结来说，锁可以理解为Java对象数据的一部分，分为两种：1，`entry set`；2，`wait set`。这两部分数据都是当线程获取`锁`或者执行`wait()`、`notify()`方法时在堆中创建的一份必要的数据来表示，逻辑上属于Java对象数据的一部分。Monitor可以理解为一个逻辑概念，与锁数据相对应，也分为两种：1，`互斥Monitor`；2，`协作Monitor`。表示多线程之间互斥访问和写作方访问的一种管理机制。
+
+---
+
+**参考文章:**
+
+- [https://www.artima.com/insidejvm/ed2/threadsynch.html](https://www.artima.com/insidejvm/ed2/threadsynch.html "Inside the Java Virtual Machine by Bill Venners")
+- [https://www.artima.com/insidejvm/ed2/jvm.html](https://www.artima.com/insidejvm/ed2/jvm.html "Inside the Java Virtual Machine by Bill Venners")
+
+**了解更多:**
+
+- [https://fengmengzhao.github.io/2017/11/10/java-essential.html#4.5](https://fengmengzhao.github.io/2017/11/10/java-essential.html#4.5 "冯兄话吉-java-essential")
+- [https://fengmengzhao.github.io/](https://fengmengzhao.github.io/ "冯兄话吉-博客")
