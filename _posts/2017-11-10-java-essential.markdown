@@ -25,7 +25,8 @@ title: Java Essential
     - [4.6 不可更改(Immutable)对象](#4.6)
     - [4.7 并发进阶](#4.7)
     - [4.8 并发安全策略](#4.8)
-    - [4.9 Java并发实践(干货-读取并入库large-size XML文件)](#4.9)
+    - [4.9 Java的线程调度模型](#4.9)
+    - [4.10 Java并发实践(干货-读取并入库large-size XML文件)](#4.10)
 - [5. JVM内存模型](#5)
     - [5.1 JVM内存模型](#5.1)
     - [5.2 Java垃圾回收](#5.2)
@@ -1376,7 +1377,15 @@ Synchronized同步方法能够阻止线程干扰和内存一致性的问题.
 - concurrent包中并发类集很多依赖于atomic包,atomic包提供的CAS并发机制有很好的扩展性
 - 基本数据类型的操作都是相对简单的,适合与CAS方式的并发机制
 
-<h4 id="4.9">4.9 Java并发实践(读取并入库large-size XML文件)</h4>
+<h4 id="4.9">4.9 Java的线程调度模型(thread schedule)</h4>
+
+线程的调用一般分为两种模式：协作式(Cooperative Mode)的和抢占式(Preemptive Mode)。在协作式模型中，一个线程一旦占有CPU就会一直运行直到执行`yield`或者处于`block`状态。而在抢占式的模型中，线程之间的调度允许虚拟机的参与。这两种模式有各自的优缺点。
+
+Java的线程调度模式是基于线程优先级的抢占式。高优先级的线程会优先执行，如果高优先级的线程`sleep`或者`block`，低优先级的线程就会执行。然而，一旦高优先级的线程转化为`runnable`状态，低优先级的线程会被JVM中断，高优先级的线程接着之前的执行。
+
+Java虚拟机规范中并没有规定相同优先级的线程间是怎么调度执行的，这个会根据不同的OS有不同的实现，在一些OS上可能采用时间片(`time-sliced`)的方式，而有些OS可能采用协作式线程调度。
+
+<h4 id="4.10">4.10 Java并发实践(读取并入库large-size XML文件)</h4>
 
 **参考博文：**[Java多线程解析并入库large-size XML 文件](https://fengmengzhao.github.io/2018/05/09/java-concurrent-parse-and-store-large-size-XML.html)
 
