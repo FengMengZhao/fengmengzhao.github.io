@@ -1,6 +1,7 @@
 ---
 layout: post
 title: 理解SQL的join用法
+background: '/img/posts/sql-join.jpg'
 comment: true
 ---
 
