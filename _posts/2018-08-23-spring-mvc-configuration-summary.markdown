@@ -11,6 +11,7 @@ comment: true
 - [1. Spring MVC的总体工作流程及必要配置](#1)
 - [2. 非注解相关配置](#2)
 - [3. 注解相关配置](#3)
+- [4. 项目示例-spring-mvc-based-xml-and-java-configuration项目](#4)
 
 ---
 
@@ -453,5 +454,22 @@ comment: true
             return mv;
         }
     }
+
+---
+
+<h3 id="4">项目示例-spring-mvc-based-xml-and-java-configuration项目</h3>
+
+基本的Spring MVC Maven项目，基于xml配置和基于Java配置。
+
+- 访问`http://localhost:8080/springmvc-based-xml-and-java-configuration/welcomePage`
+    - `SimpleUrlHandlerMapping` --> `SimpleControllerDemo` --> `SimpleControllerHandlerAdapter`
+- 访问`http://localhost:8080/springmvc-based-xml-and-java-configuration/welcomePage2`
+    - `BeanNameUrlHandlerMapping` --> `HttpRequestControllerDemo` --> `HttpRequestHandlerAdapter`
+- 访问`http://localhost:8080/springmvc-based-xml-and-java-configuration/welcomePage3`
+    - `BeanNameUrlHandlerMapping` --> `SimpleServletController` --> `SimpleServletHandlerAdapter`
+- 访问`http://localhost:8080/springmvc-based-xml-and-java-configuration/welcomePage4`
+    - `RequestMappingHandlerMapping` --> `AnnotationController` --> `RequestMappingHandlerAdapter`
+
+[项目地址](https://github.com/FengMengZhao/spring-learn/tree/master/spring-mvc-based-xml-and-java-configuration "spring-mvc-based-xml-and-java-configuration项目")
 
 ---
