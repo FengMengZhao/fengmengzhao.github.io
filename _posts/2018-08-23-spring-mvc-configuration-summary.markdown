@@ -485,4 +485,6 @@ Spring MVC项目使用编程的方式而非`web.xml`的方式作为web整合Spri
     - `AnnotationConfigWebApplicationContext` --> `#register()`(Java BASED 配置)
 - 访问：`http://localhost:8080/springmvc-mywebinitializer`
 
+[项目地址](https://github.com/FengMengZhao/spring-learn/tree/master/springmvc-mywebinitializer "springmvc-mywebinitializer项目")
+
 ---
