@@ -11,7 +11,9 @@ comment: true
 - [1. Spring MVC的总体工作流程及必要配置](#1)
 - [2. 非注解相关配置](#2)
 - [3. 注解相关配置](#3)
-- [4. 项目示例-spring-mvc-based-xml-and-java-configuration项目](#4)
+- [4. 项目示例](#4)
+    - [4.1 spring-mvc-based-xml-and-java-configuration项目](#4.1)
+    - [4.2 springmvc-mywebinitializer项目](#4.2)
 
 ---
 
@@ -457,7 +459,9 @@ comment: true
 
 ---
 
-<h3 id="4">项目示例-spring-mvc-based-xml-and-java-configuration项目</h3>
+<h3 id="4">项目示例</h3>
+
+<h4 id="4.1">spring-mvc-based-xml-and-java-configuration项目</h4>
 
 基本的Spring MVC Maven项目，基于xml配置和基于Java配置。
 
@@ -471,5 +475,14 @@ comment: true
     - `RequestMappingHandlerMapping` --> `AnnotationController` --> `RequestMappingHandlerAdapter`
 
 [项目地址](https://github.com/FengMengZhao/spring-learn/tree/master/spring-mvc-based-xml-and-java-configuration "spring-mvc-based-xml-and-java-configuration项目")
+
+<h4 id="4.2">springmvc-mywebinitializer项目</h4>
+
+Spring MVC项目使用编程的方式而非`web.xml`的方式作为web整合Spring MVC的入口。
+
+- `MyWebInitializer`Java类注册`DispatcherServlet`
+    - `XmlWebApplicationContext` --> `#setConfigLocations()`(XML BASED 配置)
+    - `AnnotationConfigWebApplicationContext` --> `#register()`(Java BASED 配置)
+- 访问：`http://localhost:8080/springmvc-mywebinitializer`
 
 ---
