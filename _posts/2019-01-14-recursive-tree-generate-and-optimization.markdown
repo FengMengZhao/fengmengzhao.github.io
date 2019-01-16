@@ -32,8 +32,8 @@ comment: true
       "parent_id" varchar(300) DEFAULT NULL
     ) 
 
-    INSERT INTO "sys_dept" VALUES ('1', '华宇软件', '0', '-1');
-    INSERT INTO "sys_dept" VALUES ('2', '华宇信息', '0', '-1');
+    INSERT INTO "sys_dept" VALUES ('1', '**软件', '0', '-1');
+    INSERT INTO "sys_dept" VALUES ('2', '**信息', '0', '-1');
     INSERT INTO "sys_dept" VALUES ('3', '经理', '0', '1');
     INSERT INTO "sys_dept" VALUES ('4', '审计办公室', '0', '1');
     INSERT INTO "sys_dept" VALUES ('5', '北京研发中心', '0', '2');
@@ -46,7 +46,7 @@ comment: true
 
     [{
         "id": "1",
-        "name": "华宇软件",
+        "name": "**软件",
         "childrenList": [{
             "id": "3",
             "name": "经理"
@@ -58,7 +58,7 @@ comment: true
     },
     {
         "id": "2",
-        "name": "华宇信息",
+        "name": "**信息",
         "childrenList": [{
             "id": "5",
             "name": "北京研发中心",
