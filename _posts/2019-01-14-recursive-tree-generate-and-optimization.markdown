@@ -19,7 +19,7 @@ comment: true
 
 数据库中的数据如下图：
 
-![数据](/img/posts/recursive-tree-generate-and-optimization "数据")
+![数据](/img/posts/recursive-tree-generate-and-optimization_1.png "数据")
 
 建表语句：
 
