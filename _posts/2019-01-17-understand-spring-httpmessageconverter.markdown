@@ -47,9 +47,9 @@ Http Message Converter负责将Java Object序列化为JSON/XML数据表示和将
 
 <h3 id="2">Http Message Converter是怎么工作的？</h3>
 
-当服务器需要相应客户端的一个请求时，Spring会根据请求头(`Header`)的`Accept`参数值的媒体类型(media type)来决定要返回的数据类型。接着，Spring会尝试找到一个合适的注册converter来处理这种媒体类型，利用这个converter来进行类型转换并返回给客户端。
+当服务器需要响应客户端的一个请求时，Spring会根据请求头(`Header`)的`Accept`参数值的媒体类型(media type)来决定要返回的数据类型。接着，Spring会尝试找到一个合适的注册converter来处理这种媒体类型，利用这个converter来进行类型转换并返回给客户端。
 
-> Spring在`@ResponseBody`时，有content negotiation策略，策略当中的最后一个是根据请求Header中的`Accept`媒体类型来决定返回值类型。该策略是可配置的。
+> Spring在`@ResponseBody`时，有content negotiation策略，策略当中的最后一个是根据请求Header中的`Accept`媒体类型来决定返回值类型。该策略是可配置的，下文有讲解。
 
 当服务器接收到客户端的一个请求时，Spring会根据请求头(`Header`)的`Content-Type`参数值的媒体类型类决定请求消息体的数据类型，接着，Spring会尝试找到一个合适的注册converter来将消息体中的数据转化为Java Object。
 
@@ -60,7 +60,7 @@ Http Message Converter负责将Java Object序列化为JSON/XML数据表示和将
 - 将请求数据反序列化为Java Object(仅需要)
 - 获取请求参数和路径变量(Path Variable)
 - 业务逻辑
-- 判断`Accept` header(默认是`application/json`)(如果content negotiation是该策略)
+- 判断`Accept` header(根据content negotiation策略，下文有讲解)
 - 根据`Accept` header找到合适的`HttpMessageConverter`
 - 返回响应到客户端
 
@@ -84,7 +84,7 @@ Spring定义了默认的内容协商策略：
 - 第二是URL参数`format`(可以自定义)(`Parameter Strategy`)。例如：`http://myserver/myapp/accounts/list?format=xls`，Spring会根据format的定义来决定返回数据的格式。默认这种方式关闭的。
 - 最后一个是`Accept` header(`Header Strategy`)。这个是真正HTTP工作的方式。默认这种方式是开启的。
 
-这三种方式Spring会按照先后顺序来检查是否开启，如果开启了就使用该方式，不会继续往下检查。这些方式在类`ContentNegotiationConfigurer`中定义。
+这三种方式Spring会按照先后顺序来检查是否开启，如果开启了就使用该方式，不会继续往下检查。这些方式在类`ContentNegotiationConfigurer.java`中定义。
 
 <h4 id="3.3">Spring Content Negotiation自定义配置</h4>
 
