@@ -15,7 +15,7 @@ comment: true
     - [4.1 spring-mvc-based-xml-and-java-configuration项目](#4.1)
     - [4.2 springmvc-mywebinitializer项目](#4.2)
     - [4.3 springmvc-mybatis-lightweight项目](#4.3)
-- [5. <context:annotation-config /> VS <context:component-scan /> VS <mvc:annotation-dirven />](#5)
+- [5. context:annotation-config VS context:component-scan VS mvc:annotation-dirven](#5)
 
 ---
 
@@ -500,7 +500,7 @@ Spring MVC项目和Mybatis框架的简单整合。
 
 ---
 
-<h3 id="5"><context:annotation-config /> VS <context:component-scan /> VS <mvc:annotation-dirven /></h3>
+<h3 id="5">context:annotation-config VS context:component-scan VS mvc:annotation-dirven</h3>
 
 - `<context:annotation-config />`会激活针对已经在应用注册的Bean的注解，例如：`@Autowired`，`@Required`和`@Qualifier`
 - `<context:component-scan />`除了上述`<context:annotation-config />`的功能之外，还能够进行包扫描，识别注解的Bean，例如：`@Controller`，`@Component`，`@Service`和`@Dao`
