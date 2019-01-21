@@ -15,6 +15,7 @@ comment: true
     - [4.1 spring-mvc-based-xml-and-java-configuration项目](#4.1)
     - [4.2 springmvc-mywebinitializer项目](#4.2)
     - [4.3 springmvc-mybatis-lightweight项目](#4.3)
+- [5. <context:annotation-config /> VS <context:component-scan /> VS <mvc:annotation-dirven />](#5)
 
 ---
 
@@ -496,5 +497,24 @@ Spring MVC项目和Mybatis框架的简单整合。
     - 返回数据：`{"id":"1","name":"hyxx"}`
 
 [项目地址](https://github.com/FengMengZhao/spring-learn/tree/master/springmvc-mybatis-lightweight "springmvc-mybatis-lightweight项目")
+
+---
+
+<h3 id="5"><context:annotation-config /> VS <context:component-scan /> VS <mvc:annotation-dirven /></h3>
+
+- `<context:annotation-config />`会激活针对已经在应用注册的Bean的注解，例如：`@Autowired`，`@Required`和`@Qualifier`
+- `<context:component-scan />`除了上述`<context:annotation-config />`的功能之外，还能够进行包扫描，识别注解的Bean，例如：`@Controller`，`@Component`，`@Service`和`@Dao`
+- `<mvc:annotation-driven />`支持注解驱动的MVC Controller(例如，`@RequestMapping`，`@Controller`等)
+
+注意：如果只使用`<context:component-scan />`而不增加`<mvc:annotation-driven />`这样MVC框架运能工作，返回前端视图(JSP)也能正常展示，但是没有了`<mvc:annotation-driven />`就会少了它支持的许多默认功能，这些功能包括：
+
+- Using the Spring 3 Type ConversionService as a simpler and more robust alternative to JavaBeans PropertyEditors
+- Support for formatting Number fields with @NumberFormat
+- Support for formatting Date, Calendar, and Joda Time fields with @DateTimeFormat, if Joda Time is on the classpath
+- Support for validating @Controller inputs with @Valid, if a JSR-303 Provider is on the classpath
+- Support for reading and writing XML, if JAXB is on the classpath
+- Support for reading and writing JSON, if Jackson is on the classpath
+
+> 例如，当不使用`<mvc:annotation-driven />`时，即使在CLASSPATH下面有相应的HTTPMessageConverter Lib包，使用`@ResponseBody`返回JSON数据就会报错，就是因为没有把相应的功能开启。
 
 ---
