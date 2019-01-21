@@ -506,7 +506,7 @@ Spring MVC项目和Mybatis框架的简单整合。
 - `<context:component-scan />`除了上述`<context:annotation-config />`的功能之外，还能够进行包扫描，识别注解的Bean，例如：`@Controller`，`@Component`，`@Service`和`@Dao`
 - `<mvc:annotation-driven />`支持注解驱动的MVC Controller(例如，`@RequestMapping`，`@Controller`等)
 
-注意：如果只使用`<context:component-scan />`而不增加`<mvc:annotation-driven />`这样MVC框架运能工作，返回前端视图(JSP)也能正常展示，但是没有了`<mvc:annotation-driven />`就会少了它支持的许多默认功能，这些功能包括：
+注意：如果只使用`<context:component-scan />`而不增加`<mvc:annotation-driven />`这样MVC框架也能工作，返回前端视图(JSP)也能正常展示，但是没有了`<mvc:annotation-driven />`就会少了它支持的许多默认功能，这些功能包括：
 
 - Using the Spring 3 Type ConversionService as a simpler and more robust alternative to JavaBeans PropertyEditors
 - Support for formatting Number fields with @NumberFormat
