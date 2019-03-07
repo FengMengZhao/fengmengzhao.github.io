@@ -317,7 +317,7 @@ Java支持多线程环境是必要的.如果你认为内存管理和信号处理
 
 先上一图：
 
-![concurrent vs parallel](concurrent-vs-parallel.png "concurrent vs parallel")
+![concurrent vs parallel](/img/posts/concurrent-vs-parallel.png "concurrent vs parallel")
 
 解释：并发就是说，允许一个或者多个队列；并行是说将原来的队列分成两个或者多个比之前更小的队列。
 
