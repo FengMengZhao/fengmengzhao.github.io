@@ -174,4 +174,14 @@ git push --force [remote] master
 
 > `<your-file-name>`可以是文件名，也可以是目录名
 
+**git 打标签**
+
+```
+git tag -a <tag-name> -m"描述信息" #git打标签并增加描述信息
+git tag #展示tag
+git push origin <tag-name> #推送tag到远程
+git push --delete origin <tag-name> #删除远程tag
+git tag --delete <tag-name> #删除本地tag
+```
+
 ---
