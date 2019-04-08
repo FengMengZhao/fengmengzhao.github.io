@@ -184,4 +184,17 @@ git push --delete origin <tag-name> #删除远程tag
 git tag --delete <tag-name> #删除本地tag
 ```
 
+**git 删除分支**
+
+```
+git branch -a #查看项目的所有分支(远程和本地)
+git branch -r #展示远程分支
+git branch -d <branch_name> #删除本地分支
+git branch -D <branch_name> #强制删除本地分支
+
+#删除远程分支
+git branch -r -d origin/<branch_name>
+git push origin :<branch_name>
+```
+
 ---
