@@ -197,4 +197,12 @@ git branch -r -d origin/<branch_name>
 git push origin :<branch_name>
 ```
 
+**git rebase**
+
+```
+git checkout <feature_branch> #切换到feature分支
+git rebase dev #在feature分支上rebase dev分支
+git push --force-with-lease origin feature #如果是自己使用一个分支，强制更新提交
+```
+
 ---
