@@ -131,11 +131,11 @@ comment: true
 
 前端需要做两件事：
 
-1. 在异步请求中带上跨域请求的信息
-    1.1. `withCredentials: true`: 异步请求携带目标域的cookie
-    1.2. `crossDomain: true`: 表明是跨域请求
-    1.3. `headers: {'X-Requested-With': 'XMLHttpRequest'},`: 表明是Ajax请求
-2. 拦截器，拦截`401`状态接口并重定向到后端登录页
+- 在异步请求中带上跨域请求的信息
+    - `withCredentials: true`: 异步请求携带目标域的cookie
+    - `crossDomain: true`: 表明是跨域请求
+    - `headers: {'X-Requested-With': 'XMLHttpRequest'},`: 表明是Ajax请求
+- 拦截器，拦截`401`状态接口并重定向到后端登录页
     
 不同的框架有不同的实现，这里展示一个Ajax处理`401`状态码的方法：
 
