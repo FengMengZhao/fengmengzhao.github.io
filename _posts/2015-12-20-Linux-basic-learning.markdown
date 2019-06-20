@@ -245,6 +245,15 @@ title: Linux 基础
 
     iptables -L -n --line-number
     iptables -D [INPUT|OUTPUT] ${num}
+	
+**Centos7**关闭防火墙：
+
+- `firewall-cmd --state`：查看防火墙运行状态
+- `firewall-cmd --list-all`：查看所有开放的端口
+- `systemctl [stop|start|restart] firewalld.service`：停运|启动|重启防火墙
+- `systemctl disable firewalld.service`：禁止防火墙开机启动
+- `firewall-cmd --zone=public --[add|remove]-port=1025/tcp --permanent`：永久开启|移除1025端口
+- `firewall-cmd --reload`：重载配置(不用重启重启防火墙)
 
 #### Linux ftp配置
 
@@ -262,6 +271,25 @@ title: Linux 基础
     port_enable=YES #(active模式开启)
     connect_from_port_20=YES #(默认Active Mode情况下server端数据传输通过20端口)
 
+#### ftp映射本地目录
+
+- 安装curlftpfs
+    - yum -y install epel-release
+    - yum -y install curlftpfs
+- 挂卸载
+    - 挂载：`curlftpfs -o codepage=utf8 ftp://${ftp_username}:${ftp_password}@${ftp_if}:${ftp_port} ${local_path}`
+    - 卸载：`unmount ${local_path}`
+
+### lftp下载ftp数据
+
+```
+#!/bin/bash
+
+# -e引号内是命令
+# /dev/null 吃掉stdout日志
+# 2>nohup 错误日志输出到nohup中
+nohup lftp -u drspInner,123456 -e"mirror -e -n -v /home/drspInner/test ./" 172.16.30.57 >/dev/null 2>nohup &
+```
 
 ##### selinux
 
@@ -290,6 +318,8 @@ title: Linux 基础
 查看PID：`tasklist |findstr ${PID}`
 
 强制结束进程：`taskkill /pid ${PID} -t -f`
+
+在目录中查找包含字符串的文件：`findstr /s /i '匹配字符串' *.*`；linux中的命令是：`grep -rn '匹配字符串' *.*`
 
 ---
 
@@ -529,5 +559,11 @@ Linux环境中如果没有gcc,安装group: `Development Tools`
 
     ./configure --enable-shared --enable-pthread --prefix=/usr/local/ruby
     make && make install
+
+---
+
+### 日常小技巧
+
+密码输入框中的隐藏密码在控制台显示：`$0.value`
 
 ---
