@@ -241,6 +241,41 @@ title: Linux 基础
     iptables -A INPUT -p tcp --dport 20 -j [ACCEPT|DROP]
     iptables -A OUTPUT -p tcp --sport 20 -j [ACCEPT|DROP]
 
+常用的规则配置：
+
+```
+#允许对外请求的返回包
+iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+#允许icmp包通过
+iptables -A INPUT -p icmp --icmp-type any -j ACCEPT
+#允许来自于lo接口的数据包，如果没有此规则，将不能通过127.0.0.1访问本地服务
+iptables -A INPUT -i lo -j ACCEPT
+
+#常用端口
+iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 21 -j ACCEPT
+iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 23 -j ACCEPT
+iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
+iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
+iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 3306 -j ACCEPT
+iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 8080 -j ACCEPT
+
+#过滤所有非以上规则的请求
+iptables -P INPUT DROP
+
+#如果要添加内网ip信任（接受其所有TCP请求）
+#注：(**.**.**.**)为IP,下同
+iptables -A INPUT -p tcp -s **.**.**.** -j ACCEPT
+
+#要封停一个IP，使用下面这条命令
+iptables -I INPUT -s **.**.**.** -j DROP
+#要解封一个IP，使用下面这条命令
+iptables -D INPUT -s **.**.**.** -j DROP
+
+#开放多个端口
+iptables -A INPUT -p tcp --match multiport --dports 1024:65535 -j ACCEPT
+```
+
 删除规则：
 
     iptables -L -n --line-number
