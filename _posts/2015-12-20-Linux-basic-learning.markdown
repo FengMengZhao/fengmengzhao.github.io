@@ -255,6 +255,41 @@ title: Linux 基础
 - `firewall-cmd --zone=public --[add|remove]-port=1025/tcp --permanent`：永久开启|移除1025端口
 - `firewall-cmd --reload`：重载配置(不用重启重启防火墙)
 
+**Centos7设置静态网络**：
+
+> `ip addr`查看网络名称，打开`/etc/sysconfig/network-scripts/ifcfg-${ip addr文件名}`
+
+修改配置为：
+
+```
+TYPE=Ethernet
+BOOTPROTO=none #修改
+DEFROUTE=yes
+PEERDNS=yes
+PEERROUTES=yes
+IPV4_FAILURE_FATAL=no
+IPV6INIT=yes
+IPV6_AUTOCONF=yes
+IPV6_DEFROUTE=yes
+IPV6_PEERDNS=yes
+IPV6_PEERROUTES=yes
+IPV6_FAILURE_FATAL=no
+IPV6_ADDR_GEN_MODE=stable-privacy
+NAME=ens33
+UUID=0ff4f0d2-641f-4080-9e24-3feb02de5542
+DEVICE=ens33
+HWADDR=00:0C:29:82:F8:C8
+ONBOOT=yes #修改
+IPADDR=192.168.20.27 #修改
+PREFIX=24 #修改
+GATEWAY=192.168.20.254 #修改
+DNS1=192.168.8.3 #修改 会自动在/etc/resolve.conf中增加
+```
+
+查看网络地址：`ip addr`
+
+重启网络：`systemctl restart network`
+
 #### Linux ftp配置
 
 客户端连接ftp server分两种模式：主动模式(Active)和被动模式(Passive)。
