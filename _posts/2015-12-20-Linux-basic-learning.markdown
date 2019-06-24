@@ -361,6 +361,10 @@ DNS1=192.168.8.3 #修改 会自动在/etc/resolve.conf中增加
 nohup lftp -u drspInner,123456 -e"mirror -e -n -v /home/drspInner/test ./" 172.16.30.57 >/dev/null 2>nohup &
 ```
 
+### 监控某个端口的数据
+
+`tcpdump -i eth1 port 514` #eth1是网卡的名称
+
 ##### selinux
 
 `vi /etc/selinux/config`，设置：`SELINUX=disabled`
@@ -383,7 +387,9 @@ nohup lftp -u drspInner,123456 -e"mirror -e -n -v /home/drspInner/test ./" 172.1
 
 **Windows CMD技巧**
 
-查看端口号-PID：`netstat -nao | findstr ${PORT}`
+查看端口号-PID：`netstat -nao | findstr ${PORT}`；Linux中使用：`netstat -natp |grep ${PID OR PROCESS_NAME}`
+
+> -n：代表显示数字；-a：表示显示所有状态；-l：表示只显示LISTENING状态；-t：表示tcp协议；-u：表示udp协议；-p：表示显示程序的名字；-o：表示显示timer
 
 查看PID：`tasklist |findstr ${PID}`
 
