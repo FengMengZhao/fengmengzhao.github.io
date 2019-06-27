@@ -397,6 +397,60 @@ nohup lftp -u drspInner,123456 -e"mirror -e -n -v /home/drspInner/test ./" 172.1
 
 在目录中查找包含字符串的文件：`findstr /s /i '匹配字符串' *.*`；linux中的命令是：`grep -rn '匹配字符串' *.*`
 
+### Centos中下载rpm包及包的依赖
+
+第一种方法：
+
+```
+yum install yum-plugin-downloadonly #下载工具
+yum install --downloadonly --downloaddir=<directory> <package-name>
+```
+
+第二种方法：
+
+```
+yum install yum-utils #下载工具
+yumdownloader --resolve --destdir=<directory> <package-name>
+```
+
+### Linux挂载的理解
+
+所谓的挂载就是将Linux的某个目录(逻辑分区)执行磁盘的某个物理分区上，这样在访问该目录的时候实际上是读取所挂载的物理磁盘。
+
+如果一个应用需要的磁盘空间很大，一般情况下是数据越来越大，我们可以通过将数据目录挂载到一个新的磁盘的方法来实现扩容。如果挂载前要挂载的目录中存在数据，则挂载以后该数据还存在但是不能被读取，需要将原来目录的数据迁移到新的要挂载的磁盘上。
+
+### Linux中yum仓库的问题
+
+Linux的默认yum源是在`/etc/yum.repos.d/*.repo`中定义的，会定义仓库的地址。
+
+当Linux处在内网无法连上公共仓库地址的时候，要安装一些工具包是比较麻烦的，解决的思路有三个：
+
+1. 从和内网处于同一个状态的虚拟机中下载该工具的rpm包以及其所有的依赖(使用yumdownloader和createrepo命令)，将rpm包拷贝到内网环境中安装；
+2. 使用源代码编译的方式：`./configure make make install`
+3. 挂载本地yum仓库，可以挂载Linux ISO安装包
+
+使用本地yum仓库的配置命令：
+
+```
+# 将原来的yum源备份
+mkdir -p /etc/yum.repo.d/bak
+mv /etc/yum.repo.d/*.repo /etc/yum.repo.d/bak
+
+# 打开文件
+vi local.repo
+
+# local.repo的内容
+[local]
+name=local
+baseurl=file:///repo #可以挂载到ISO文件上，也可以将ISO文件解压放在/repo目录中
+enabled=1
+gpgcheck=0
+
+# 更新yum的缓存
+yum clean all 
+yum makecache
+```
+
 ---
 
 ---
