@@ -205,4 +205,10 @@ git rebase dev #在feature分支上rebase dev分支
 git push --force-with-lease origin feature #如果是自己使用一个分支，强制更新提交
 ```
 
+**git 修改客户端显示中文字符**
+
+```
+git config --global core.quotepath off
+```
+
 ---
