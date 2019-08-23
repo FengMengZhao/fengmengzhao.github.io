@@ -72,6 +72,8 @@ title: Linux 基础
 
 `[root@localhost home]#`：命令提示符 [当前用户名@主机名 当前目录]#
 
+`sed -n '<line_num_start>, <line_num_end>p' filename`：显示文档的第start行到end行
+
 > 用鼠标划着就是复制，点右键就是粘贴
 
 #### 根目录规划
@@ -325,6 +327,12 @@ DNS1=192.168.8.3 #修改 会自动在/etc/resolve.conf中增加
 
 重启网络：`systemctl restart network`
 
+**Centos7修改hostname**
+
+```
+hostnamectl set-hostname <new-host-name>
+```
+
 #### Linux ftp配置
 
 客户端连接ftp server分两种模式：主动模式(Active)和被动模式(Passive)。
@@ -395,7 +403,7 @@ nohup lftp -u drspInner,123456 -e"mirror -e -n -v /home/drspInner/test ./" 172.1
 
 强制结束进程：`taskkill /pid ${PID} -t -f`
 
-在目录中查找包含字符串的文件：`findstr /s /i '匹配字符串' *.*`；linux中的命令是：`grep -rn '匹配字符串' *.*`
+在目录中查找包含字符串的文件：`findstr /s /i "匹配字符串" *.*`(注意这里要寻找的字符串用双引号引起来)；linux中的命令是：`grep -rn '匹配字符串' *.*`
 
 ### Centos中下载rpm包及包的依赖
 
