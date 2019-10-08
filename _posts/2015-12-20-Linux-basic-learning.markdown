@@ -283,7 +283,7 @@ iptables -A INPUT -p tcp --match multiport --dports 1024:65535 -j ACCEPT
     iptables -L -n --line-number
     iptables -D [INPUT|OUTPUT] ${num}
 	
-**Centos7**关闭防火墙：
+**Centos7**防火墙：
 
 - `firewall-cmd --state`：查看防火墙运行状态
 - `firewall-cmd --list-all`：查看所有开放的端口
@@ -291,6 +291,9 @@ iptables -A INPUT -p tcp --match multiport --dports 1024:65535 -j ACCEPT
 - `systemctl disable firewalld.service`：禁止防火墙开机启动
 - `firewall-cmd --zone=public --[add|remove]-port=1025/tcp --permanent`：永久开启|移除1025端口
 - `firewall-cmd --reload`：重载配置(不用重启重启防火墙)
+- `firewall-cmd --zone=public --add-port=1080/tcp --permanent`：开启1080端口
+- `firewall-cmd --list-ports`：查看已经开发的端口
+
 
 **Centos7设置静态网络**：
 
