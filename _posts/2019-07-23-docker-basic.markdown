@@ -1,0 +1,151 @@
+---
+layout: post
+title: 'docker基本概念及常用命令'
+subtitle: '什么是镜像，什么是容器；容器技术和虚拟化技术有什么不同；怎么启动一个镜像，进入镜像，映射镜像的端口到主机；主机和镜像之间怎么共享数据...记录一下！'
+background: '/img/posts/docker-basic.png'
+comment: true
+---
+
+# 目录
+
+- [1. 什么是Docker?](#1)
+    - [1.1 Docker的基本概念和术语](#1.1)
+    - [1.2 容器技术与虚拟化技术的区别](#1.2)
+    - [1.3 Docker镜像的分层架构](#1.3)
+- [2. Docker的基本操作、命令](#2)
+    - [2.1 镜像相关](#2.1)
+    - [2.2 容器相关](#2.2)
+    - [2.3 制作镜像相关](#2.3)
+- [3. Docker实战](#3)
+    - [3.1 启动一个Nginx镜像](#3.1)
+    - [3.2 启动一个Mysql镜像](#3.1)
+    - [3.3 制作一个应用镜像](#3.3)
+- [4. ArteryDocker应用制作](#4)
+    - [4.1 应用服务](#4.1)
+    - [4.2 数据库服务](#4.1)
+
+---
+
+<h3 id="1">1. 什么是Docker?</h3>
+
+`Build Ship and Run`：构建 -- 发送 -- 运行。
+
+`Build once, Run anywhere`：一次构建，到处运行。
+
+<h4 id="1.1">1.1 Docker的基本概念和术语</h4>
+
+**镜像**
+
+Docker镜像是一个具有分层结构的文件，其中具有一切应用用以容器的形式运行所需的依赖。主要包括：
+
+- 代码
+- 运行环境
+- 依赖类库
+- 环境变量
+- 配置文件等
+
+镜像可以ship到任何Docker平台上，并且作为容器的形式运行。
+
+**容器**
+
+容器是镜像运行时的一个实例。基于同一个镜像可以在一个或者多个Docker平台上启动多个容器。
+
+在同一宿主机上，容器与容器之间的隔离是通过不同的进程区分的，这些进程隔离了容器运行需要资源(例如内存等)。
+
+> 类比：`程序` --> `进程`；`jar文件` --> `jvm实例`
+
+**仓库**
+
+存放Docker镜像的地方。分为私有仓库和公共仓库。
+
+> 类比：`maven`、`yum`、`npm`等
+
+**镜像标签(tag)**
+
+标签是给镜像起的别名，一个镜像可以打多个标签。
+
+**Volume(卷)**
+
+Docker Volume可以将容器读写层(read-write layer)的数据持久化。这样：
+
+- 宿主机和docker容器之间可以共享数据
+- 容器删除之后，有价值的数据仍然能够存在
+- 容器和容器之间可以共享数据
+
+<h4 id="1.2">1.2 容器技术与虚拟化技术的区别</h4>
+
+|          | Docker                  | Virtualization         |
+| -------- | ----------------------- | ---------------------- |
+| 底层技术 | Libcontainer            | Hypervisor             |
+| 运行实例 | 容器                    | 虚拟机                 |
+| 启动时间 | 秒级                    | 分钟级                 |
+| 移植性   | 平台无关                | Hypervisor相关         |
+| 体量     | GB级                    | 轻量级(lightweight)    |
+| 隔离性   | 硬件级别(machine-level) | 操作系统级别(OS-level) |
+
+Docker：管理和部署linux容器的工具。
+
+Hyersivor(虚拟机管理程序)：将操作系统和应用从一个主机的底层硬件中抽象分离出来的一个程序。
+
+虚拟机(VMs)相比较容器来说，占用更过的系统资源。每一个虚拟机不仅复制了整个操作系统，而且还有提供操作系统运行的硬件的虚拟环境。而对于容器来说，它仅仅需要一个操作系统和支持指定应用运行的资源和类库。
+
+如果说虚拟化技术从硬件级别提供了虚拟机之间的隔离，那么容器技术提供了操作系统级别的隔离。也就是说虚拟化技术共享的是底层的硬件，而容器技术共享的是操作系统的内核。
+
+<h4 id="1.3">1.3 Docker镜像的分层架构</h4>
+
+**Docker镜像的分层是什么？**
+
+Docker的镜像是由一系列只读(read-only)镜像加上最上面可读写(readable/writeable)的镜像组成的。
+
+```dockerfile
+FROM registry.thunisoft.com:5000/base/tomcat:8-jdk8-9
+
+ADD master.war /opt/tomcat/webapps/
+
+LABEL acloud.env.appconfigServerUrl=""
+
+LABEL acloud.env.EUREKA.URL=""
+
+VOLUME ["/opt/tomcat/webapps"]
+```
+
+日志输出：
+
+```
+Step 1/5 : FROM registry.thunisoft.com:5000/base/tomcat:8-jdk8-9
+ ---> a08a48b5703a
+Step 2/5 : ADD master.war /opt/tomcat/webapps/
+ ---> 072dc6b0e2f0
+Step 3/5 : LABEL acloud.env.appconfigServerUrl=""
+ ---> Running in 9ca0e3f1babc
+Removing intermediate container 9ca0e3f1babc
+ ---> d29d7689e2e7
+Step 4/5 : LABEL acloud.env.EUREKA.URL=""
+ ---> Running in 09738f555fcb
+Removing intermediate container 09738f555fcb
+ ---> 49fa8b2ce399
+Step 5/5 : VOLUME ["/opt/tomcat/webapps"]
+ ---> Running in 705adeb8812b
+Removing intermediate container 705adeb8812b
+ ---> 974758b70d87
+Successfully built 974758b70d87
+```
+
+**Docker镜像为什么要分层？**
+
+- 节省磁盘空间
+- 复用中间层，快速启动
+
+**Docker镜像怎么做到的分层？**
+
+`Union Mont`：将众多目录组合起来挂载到一个目录上，就好像是这个目录包含了众多目录的所有内容。
+
+`AUFS`： Advanced multi-layered unification filesystem。AUFS是`Union Mount`在Linux操作系统中的一种实现。
+
+通过这种Union文件系统，Docker镜像能够将不同Layer的文件映射组合在一起，对外提供为一个只读的目录，如果上层Layer的文件和下层Layer的文件相同，则覆盖下层Layer的文件。
+
+---
+
+<h3 id="2">2 Docker的基本操作、命令</h4>
+
+---
