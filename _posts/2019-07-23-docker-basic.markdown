@@ -27,13 +27,11 @@ comment: true
 ---
 
 <h3 id="1">1. 什么是Docker?</h3>
-
-`Build Ship and Run`：构建 --> 发送 --> 运行。
+`Build Ship and Run`：构建 -- 发送 -- 运行。
 
 `Build once, Run anywhere`：一次构建，到处运行。
 
 <h4 id="1.1">1.1 Docker的基本概念和术语</h4>
-
 **镜像**
 
 Docker镜像是一个具有分层结构的文件，其中具有一切应用用以容器的形式运行所需的依赖。主要包括：
@@ -73,7 +71,6 @@ Docker Volume可以将容器读写层(read-write layer)的数据持久化。这�
 - 容器和容器之间可以共享数据
 
 <h4 id="1.2">1.2 容器技术与虚拟化技术的区别</h4>
-
 |          | Docker                  | Virtualization         |
 | -------- | ----------------------- | ---------------------- |
 | 底层技术 | Libcontainer            | Hypervisor             |
@@ -92,7 +89,6 @@ Hyersivor(虚拟机管理程序)：将操作系统和应用从一个主机的底
 如果说虚拟化技术从硬件级别提供了虚拟机之间的隔离，那么容器技术提供了操作系统级别的隔离。也就是说虚拟化技术共享的是底层的硬件，而容器技术共享的是操作系统的内核。
 
 <h4 id="1.3">1.3 Docker镜像的分层架构</h4>
-
 **Docker镜像的分层是什么？**
 
 Docker的镜像是由一系列只读(read-only)镜像加上最上面可读写(readable/writeable)的镜像组成的。
@@ -147,5 +143,4 @@ Successfully built 974758b70d87
 ---
 
 <h3 id="2">2 Docker的基本操作、命令</h4>
-
 ---
