@@ -204,10 +204,10 @@ Github Pages默认支持Jekyll作为静态站点生成器。如果你写的Jekyl
 
 **Jekyll本地开发遇到的问题**
 
-**Reference：**
-
-> 2019年10月22日发现新增的文章在github-page上构建失败，最后用docker环境将代码在本地运行，其中更改了一个编码的问题，代码在本地能够运行成功，但是在github-pages仍然失败。<br>
+> 2019年10月22日发现新增的文章在github-page上构建失败，最后用docker环境将代码在本地运行，其中更改了一个编码的问题，代码在本地能够运行成功，但是在github-pages仍然失败。<br><br>
 编码问题的报错是：`非US-ASCII字符`，修改了ruby的一个文件：`engine.rb`在`require`语句后加入`Encoding.default_external = Encoding.find('utf-8')`本地不会报错，运行成功！
+
+**Reference：**
 
 - [startbootstrap-clean-blog](https://github.com/BlackrockDigital/startbootstrap-clean-blog "startbootstrap-clean-blog")
 

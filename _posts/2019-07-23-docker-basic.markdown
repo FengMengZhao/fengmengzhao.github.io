@@ -148,4 +148,73 @@ Successfully built 974758b70d87
 
 <h3 id="2">2 Docker的基本操作、命令</h3>
 
----
+Docker在我们的日常工作中就像是git一样，是一个工具。如果有很浓厚的兴趣，可以做深入的研究。这些命令没必要一一记住，使用的时候查询并能够运用好就可以了。
+
+<h4 id="2.1">2.1 镜像相关</h4>
+
+```
+# 查看本地镜像
+docker image ls
+
+# 拉取一个镜像
+# Docker官方的仓库的镜像分为三种：官方维护的镜像、社区镜像和私人镜像
+# <image-name>的命名一般格式为：${repository}/${user}/${name}
+# 例如：registry.thunisoft.com:5000/jcdsj/eureka、hub.c.163.com/library/nginx
+# 如果是想从指定的仓库拉取镜像，只要镜像名称是符合${repository}/${user}/${name}这个规范，就能拉取
+# 默认是从官方的镜像拉取，如docker pull mysql
+docker pull IMAGE[:TAG]
+
+# 删除本地镜像
+docker rmi IMAGE_NAME[:TAG]
+
+# 给镜像起一个别名
+# 每一个镜像的名字都是有TAG,默认的TAG是:latest
+docker tag SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]
+
+# 推送镜像到指定repository
+# 镜像的名字已经决定了要推送的地址
+# 从一个仓库中拉取再推送到另一个仓库需要起别名(tag)
+docker push IMAGE[:TAG]
+
+# 将镜像保存为一个文件
+docker save -o <path for generated tar file> IMAGE[:TAG]
+
+# 导入镜像
+docker load -i <path to image tar file>
+```
+
+<h4 id="2.2">2.2 容器相关</h4>
+
+```
+# 查看容器
+# 容器的状态可以是运行中(running),也可以是已退出(exited)
+# 容器退出的时候容器内修改的状态会保存,不会丢失
+docker ps [-a]
+
+# 停止运行中的容器
+# 发送信号停止进程(./stop.sh)
+# 停止容器后,容器处在exited的状态
+docker stop CONTAINER_ID|CONTAINER_NAME
+# 直接杀死进程(kill -9)
+docker kill CONTAINER_ID|CONTAINER_NAME
+
+# 启动退出的容器
+docker start CONTAINER_ID|CONTAINER_NAME
+
+# 从某个镜像创建一个容器
+docker run IMAGE[:TAG]
+# docker run常用参数
+--name="CONTAINER_NAME" #指定容器的名字
+-d, --detach #以后台的方式运行
+-i #以交互模式运行容器，通常与 -t 同时使用
+-t #为容器重新分配一个伪输入终端，通常与 -i 同时使用
+--rm #删除退出的容器
+-p, --publish #宿主机的端口与容器内部端口做映射
+--restart=always|on-failure... #容器退出后可以指定重启的策略
+{-v, --volume}:CONTAINER_DES_PATH #将容器内部PATH绑定一个逻辑卷
+
+# 进入容器内部
+docker exec -it CONTAINER_ID|CONTAINER_NAME /bin/bash
+```
+
+<h4 id="2.3">2.3 制作镜像相关</h4>
