@@ -152,7 +152,7 @@ Docker在我们的日常工作中就像是git一样，是一个工具。如果�
 
 <h4 id="2.1">2.1 镜像相关</h4>
 
-```
+```shell
 # 查看本地镜像
 docker image ls
 
@@ -185,7 +185,7 @@ docker load -i <path to image tar file>
 
 <h4 id="2.2">2.2 容器相关</h4>
 
-```
+```shell
 # 查看容器
 # 容器的状态可以是运行中(running),也可以是已退出(exited)
 # 容器退出的时候容器内修改的状态会保存,不会丢失
@@ -211,7 +211,7 @@ docker run IMAGE[:TAG]
 --rm #删除退出的容器
 -p, --publish #宿主机的端口与容器内部端口做映射
 --restart=always|on-failure... #容器退出后可以指定重启的策略
-{-v, --volume}:CONTAINER_DES_PATH #将容器内部PATH绑定一个逻辑卷
+{-v|--volume "source:detination"}:CONTAINER_DES_PATH #将容器内部PATH绑定一个逻辑卷,如果source是绝对路径就是bind模式,如果不是默认创建一个volume
 
 # 进入容器内部
 docker exec -it CONTAINER_ID|CONTAINER_NAME /bin/bash
@@ -219,7 +219,7 @@ docker exec -it CONTAINER_ID|CONTAINER_NAME /bin/bash
 
 <h4 id="2.3">2.3 制作镜像相关</h4>
 
-```
+```shell
 # 通过Dockerfile构建镜像
 
 # Dockerfile是构建一个Docker镜像的源代码
@@ -298,6 +298,68 @@ Shell and Exec格式：Shell格式运行实际上是调用了`/bin/sh -c <comman
 - volume由Docker统一管理，方便备份和迁移
 - Docker Volume可以由Docker CLI和Docker API调用
 
+**使用Docker命令**
+
+```shell
+# 查看容器、镜像或者逻辑卷
+Docker inspect IMAGE_NAME|CONTAINER_NAME|VOLUME_NAME
+
+# 查看容器日志
+docker logs CONTAINER_NAME|CONTAINER_ID
+```
+
 ---
 
 <h3 id="3">3. Docker实战</h3>
+
+<h4 id="3.1">3.1 启动一个Nginx镜像</h4>
+
+```
+docker run -d --name=nginx-demo -v "nginx-demo-vol:/usr/share/nginx/html" -p 80:80 nginx
+```
+
+<h4 id="3.2">3.2 启动一个Mysql镜像</h4>
+
+```
+# 创建一个容器
+docker run -d --name=mysql-comments-demo --env="MYSQL_ROOT_PASSWORD=root" --publish 13306:3306 mysql/mysql-server:5.7 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+# 进入容器修改访问限制
+docker exec -it mysql-comments /bin/bash
+mysql -uroot -proot
+update mysql.user set host = '%' where user = 'root'
+
+# 重启容器
+docker restart mysql-comments-demo
+
+# 访问
+mysql -uroot -proot -h 192.168.20.45 -P 13306
+```
+
+<h4 id="3.3">3.3 制作一个应用镜像</h4>
+
+```
+# build.sh
+docker run -d --name dbfybcw -p 8080:8080 --env "DATASOURCE_URL=jdbc:mysql://192.168.20.45:3306/comments" --env "MAIL_TO=fengmengzhao@thunisoft.com" --env "SERVER_PORT=8080" registry.thunisoft.com:5000/dbfybcw/dbfybcw:1.0
+
+# Dockfile
+from pluribuslabs/centos7-oracle-jdk-8
+
+RUN mkdir /opt/dbfybcw
+
+ADD comments-0.0.1-SNAPSHOT.jar /opt/dbfybcw
+
+WORKDIR /opt/dbfybcw
+
+ENTRYPOINT java -jar comments-0.0.1-SNAPSHOT.jar --spring.datasource.url=${DATASOURCE_URL} --mail.to=${MAIL_TO} --server.port=${SERVER_PORT}
+```
+
+---
+
+<h3 id="4">4. ArteryDocker应用制作</h3>
+
+3.2制作并修改的mysql的镜像通过commit生成新的镜像,上传到ArteryDocker,制作应用.
+
+3.3制作的应用上传ArteryDocker,制作应用.
+
+启动这两个服务.
