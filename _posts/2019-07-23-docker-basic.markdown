@@ -80,8 +80,8 @@ Docker Volume可以将容器读写层(read-write layer)的数据持久化。这�
 | 运行实例 | 容器                    | 虚拟机                 |
 | 启动时间 | 秒级                    | 分钟级                 |
 | 移植性   | 平台无关                | Hypervisor相关         |
-| 体量     | GB级                    | 轻量级(lightweight)    |
-| 隔离性   | 硬件级别(machine-level) | 操作系统级别(OS-level) |
+| 体量     | 轻量级(lightweight)     | GB级                   |
+| 隔离性   | 操作系统级别(OS-level)  | 硬件级别(machine-level)|
 
 Docker：管理和部署linux容器的工具。
 
@@ -340,7 +340,7 @@ mysql -uroot -proot -h 192.168.20.45 -P 13306
 
 ```
 # build.sh
-docker run -d --name dbfybcw -p 8080:8080 --env "DATASOURCE_URL=jdbc:mysql://192.168.20.45:3306/comments" --env "MAIL_TO=fengmengzhao@thunisoft.com" --env "SERVER_PORT=8080" registry.thunisoft.com:5000/dbfybcw/dbfybcw:1.0
+docker build -f Dockerfile --no-cache --force-rm -t registry.thunisoft.com:5000/dbfybcw/dbfybcw:1.0 .
 
 # Dockfile
 from pluribuslabs/centos7-oracle-jdk-8
@@ -352,6 +352,7 @@ ADD comments-0.0.1-SNAPSHOT.jar /opt/dbfybcw
 WORKDIR /opt/dbfybcw
 
 ENTRYPOINT java -jar comments-0.0.1-SNAPSHOT.jar --spring.datasource.url=${DATASOURCE_URL} --mail.to=${MAIL_TO} --server.port=${SERVER_PORT}
+
 ```
 
 ---
@@ -363,3 +364,5 @@ ENTRYPOINT java -jar comments-0.0.1-SNAPSHOT.jar --spring.datasource.url=${DATAS
 3.3制作的应用上传ArteryDocker,制作应用.
 
 启动这两个服务.
+
+---
