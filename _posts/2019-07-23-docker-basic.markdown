@@ -20,9 +20,6 @@ comment: true
     - [3.1 启动一个Nginx镜像](#3.1)
     - [3.2 启动一个Mysql镜像](#3.1)
     - [3.3 制作一个应用镜像](#3.3)
-- [4. ArteryDocker应用制作](#4)
-    - [4.1 应用服务](#4.1)
-    - [4.2 数据库服务](#4.1)
 
 ---
 
@@ -354,15 +351,3 @@ WORKDIR /opt/dbfybcw
 ENTRYPOINT java -jar comments-0.0.1-SNAPSHOT.jar --spring.datasource.url=${DATASOURCE_URL} --mail.to=${MAIL_TO} --server.port=${SERVER_PORT}
 
 ```
-
----
-
-<h3 id="4">4. ArteryDocker应用制作</h3>
-
-3.2制作并修改的mysql的镜像通过commit生成新的镜像,上传到ArteryDocker,制作应用.
-
-3.3制作的应用上传ArteryDocker,制作应用.
-
-启动这两个服务.
-
----
