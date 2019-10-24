@@ -218,3 +218,86 @@ docker exec -it CONTAINER_ID|CONTAINER_NAME /bin/bash
 ```
 
 <h4 id="2.3">2.3 制作镜像相关</h4>
+
+```
+# 通过Dockerfile构建镜像
+
+# Dockerfile是构建一个Docker镜像的源代码
+# Dockerfile里面包含了需要构建一个镜像的所有命令
+# Dockerfile命令
+FROM registry.thunisoft.com:5000/bdasp/jdk8u151 #基于一个BASE镜像
+LABEL maintainer="yanpengyu@thunisoft.com" #指定作者
+RUN mkdir /bdmp/apps #创建一个目录
+EXPOSE 8080 #暴露一个端口被其他linked container使用
+ADD easytransfer.jar /bdmp/apps/easytransfer.jar #copy文件
+WORKDIR /bdmp/apps # 指定工作目录
+ENTRYPOINT ["java","-jar","easytransfer.jar"] #容器启动后执行
+CMD ["npm", "start"] # 容器启动后执行
+LABEL acloud.env.HADOOP_USER_NAME="hdfs" #环境变量
+VOLUME /bdmp/apps #为容器内的目录创建一个卷
+
+# docker 构建镜像
+docker build -f Dockerfile --no-cache --force-rm -t registry.thunisoft.com:5000/jcdsj.3.4.2/master:3.4.2 .
+# 参数 
+--no-cache #不使用缓存
+--force-rm #总是删除中间临时容器
+
+# docker commit容器提交为一个镜像
+docker commit CONTAINER_NAME|CONTAINER_ID IMAGE_NAME[:TAG]
+```
+
+**Dockerfile RUN CMD VS ENTRYPOINT**
+
+三种指令都可以使用Shell或者Exec的形式来运行。
+
+Shell and Exec格式：Shell格式运行实际上是调用了`/bin/sh -c <command>`,Exec格式运行直接调用的可执行的目录，不会进行shell的处理。
+
+- Shell格式
+    - <instruction> <command>
+        - RUN apt-get install python3
+        - CMD echo "Hello world"
+        - ENTRYPOINT echo "Hello world"
+- Exec格式
+    - <instruction> ["executable", "param1", "param2", ...]
+        - RUN ["apt-get", "install", "python3"]
+        - CMD ["/bin/echo", "Hello world"]
+        - ENTRYPOINT ["/bin/echo", "Hello world"]
+
+三种指令的区别：
+
+- RUN
+    - 执行命名,并创建一个新的镜像Layer.常用来安装软件包
+    - 命令格式
+        - RUN <command> (shell form)
+        - RUN ["executable", "param1", "param2"] (exec form)
+- CMD
+    - 设置默认的命令或者参数.该命令或者参数能够被Docker容器启动命令给覆盖
+    - 命令格式
+        - CMD ["executable","param1","param2"] (exec form, preferred)
+        - CMD ["param1","param2"] (sets additional default parameters for ENTRYPOINT in exec form)
+        - CMD command param1 param2 (shell form)
+- ENTRYPOINT
+    - 配置容器为一个可执行的容器
+    - 命令格式
+        - ENTRYPOINT ["executable", "param1", "param2"] (exec form, preferred)
+        - ENTRYPOINT command param1 param2 (shell form)
+
+
+**Dockerfile EXPOSE VS Docker RUN --publish**
+
+- 既没有在Dockerfile中使用EXPOSE指令,也没有在Docker RUN中使用--publish参数
+    - 容器的服务只能在容器内访问
+- 仅仅在Dockerfile中使用EXPOSE指令
+    - 容器的服务能在容器内访问,服务外除了链接(linked)容器外都不能访问
+- 既在Dockerfile中使用EXPOSE指令,也在Docker RUN中使用--publish参数
+    - 容器的服务在容器内和容器外都可以访问
+
+**Docker volume VS BIND**
+
+- volume不依赖宿主机的绝对路径，而是由Docker的Storage目录管理
+- volume由Docker统一管理，方便备份和迁移
+- Docker Volume可以由Docker CLI和Docker API调用
+
+---
+
+<h3 id="3">3. Docker实战</h3>
