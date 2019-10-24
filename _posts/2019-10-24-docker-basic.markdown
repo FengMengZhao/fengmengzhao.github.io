@@ -351,3 +351,22 @@ WORKDIR /opt/dbfybcw
 ENTRYPOINT java -jar comments-0.0.1-SNAPSHOT.jar --spring.datasource.url=${DATASOURCE_URL} --mail.to=${MAIL_TO} --server.port=${SERVER_PORT}
 
 ```
+
+---
+
+**Reference**
+
+- [https://www.edureka.co/blog/what-is-docker-container](https://www.edureka.co/blog/what-is-docker-container)
+- [https://blog.hipolabs.com/understanding-docker-without-losing-your-shit-cf2b30307c63](https://blog.hipolabs.com/understanding-docker-without-losing-your-shit-cf2b30307c63)
+- [https://medium.com/@jessgreb01/digging-into-docker-layers-c22f948ed612](https://medium.com/@jessgreb01/digging-into-docker-layers-c22f948ed612)
+- [https://jingsam.github.io/2017/08/26/docker-save-and-docker-export.html](https://jingsam.github.io/2017/08/26/docker-save-and-docker-export.html)
+- [https://medium.com/docker-captain/docker-volumes-d55d18aafbc0](https://medium.com/docker-captain/docker-volumes-d55d18aafbc0)
+- [https://docs.docker.com/storage/volumes/](https://docs.docker.com/storage/volumes/)
+- [https://medium.com/codingthesmartway-com-blog/docker-beginners-guide-part-1-images-containers-6f3507fffc98](https://medium.com/codingthesmartway-com-blog/docker-beginners-guide-part-1-images-containers-6f3507fffc98)
+- [https://searchitoperations.techtarget.com/definition/Docker-image](https://searchitoperations.techtarget.com/definition/Docker-image)
+- [https://www.freecodecamp.org/news/an-introduction-to-docker-tags-9b5395636c2a/](https://www.freecodecamp.org/news/an-introduction-to-docker-tags-9b5395636c2a/)
+- [https://goinbigdata.com/docker-run-vs-cmd-vs-entrypoint/](https://goinbigdata.com/docker-run-vs-cmd-vs-entrypoint/)
+- [https://stackoverflow.com/questions/22111060/what-is-the-difference-between-expose-and-publish-in-docker](https://stackoverflow.com/questions/22111060/what-is-the-difference-between-expose-and-publish-in-docker)
+- [https://stackify.com/docker-build-a-beginners-guide-to-building-docker-images/](https://stackify.com/docker-build-a-beginners-guide-to-building-docker-images/)
+- [https://blog.csdn.net/jiankunking/article/details/71190814](https://blog.csdn.net/jiankunking/article/details/71190814)
+
