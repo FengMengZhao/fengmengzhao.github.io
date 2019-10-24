@@ -3,7 +3,7 @@ layout: post
 title: 'docker基本概念及常用命令'
 subtitle: '什么是镜像，什么是容器；容器技术和虚拟化技术有什么不同；怎么启动一个镜像，进入镜像，映射镜像的端口到主机；主机和镜像之间怎么共享数据...记录一下！'
 background: '/img/posts/docker-basic.png'
-comment: true
+comment: false
 ---
 
 # 目录
