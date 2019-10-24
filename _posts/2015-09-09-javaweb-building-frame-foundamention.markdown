@@ -29,68 +29,74 @@ Struts是Apache基金组织中Jakarta项目组的一个开源项目，主要实�
 
 **2. 配置struts-config.xml文件-WEB-INF/struts-config.xml**
 
-	<?xml version="1.0" encoding="UTF-8"?> 
-	<!DOCTYPE struts-config PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 1.3//EN" "http://struts.apache.org/dtds/struts-config_1_3.dtd"> 
+```
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE struts-config PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 1.3//EN" "http://struts.apache.org/dtds/struts-config_1_3.dtd"> 
 
-	<struts-config> 
+<struts-config> 
 
-		<form-beans /> 	用于配置ActionForm
-		<global-exceptions /> 	用于配置全局异常
-		<global-forwards /> 	用于配置Action
-		<action-mappings /> 	用于配置资源文件路径，资源文件保存在WEB-INF/classes文件夹中，通过parameter指定路径及文件名称，文件名称的后缀是*.properties。
-		<message-resources parameter="org.fmz.struts.ApplicationResources" /> 
+    <form-beans /> 	用于配置ActionForm
+    <global-exceptions /> 	用于配置全局异常
+    <global-forwards /> 	用于配置Action
+    <action-mappings /> 	用于配置资源文件路径，资源文件保存在WEB-INF/classes文件夹中，通过parameter指定路径及文件名称，文件名称的后缀是*.properties。
+    <message-resources parameter="org.fmz.struts.ApplicationResources" /> 
 
-	</struts-config> 
+</struts-config> 
+```
 
 **3. 配置web.xml文件**
 
-	<?xml version="1.0" encoding="UTF-8"?> 
-	<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.0" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee   http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"> 
-	<display-name /> 
-		<servlet> 
-			<servlet-name> action</servlet-name> 
-			<servlet-class> org.apache.struts.action.ActionServlet</servlet-class> 
-			<init-param> 
-				<param-name> config</param-name> 
-				<param-value> /WEB-INF/struts-config.xml</param-value> 
-			</init-param> 
-			<init-param> 
-				<param-name> debug</param-name> 
-				<param-value> 3</param-value> 
-			</init-param> 
-			<init-param> 
-				<param-name> detail</param-name> 
-				<param-value> 3</param-value> 
-			</init-param> 
-			<load-on-startup> 0</load-on-startup> 
-		</servlet> 
-		<servlet-mapping> 
-			<servlet-name> action</servlet-name> 
-			<url-pattern> *.do</url-pattern> 
-		</servlet-mapping> 
-	<welcome-file-list> 
-	<welcome-file> index.jsp</welcome-file> 
-	</welcome-file-list> 
-	</web-app> 
+```
+<?xml version="1.0" encoding="UTF-8"?> 
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.0" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee   http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"> 
+<display-name /> 
+    <servlet> 
+        <servlet-name> action</servlet-name> 
+        <servlet-class> org.apache.struts.action.ActionServlet</servlet-class> 
+        <init-param> 
+            <param-name> config</param-name> 
+            <param-value> /WEB-INF/struts-config.xml</param-value> 
+        </init-param> 
+        <init-param> 
+            <param-name> debug</param-name> 
+            <param-value> 3</param-value> 
+        </init-param> 
+        <init-param> 
+            <param-name> detail</param-name> 
+            <param-value> 3</param-value> 
+        </init-param> 
+        <load-on-startup> 0</load-on-startup> 
+    </servlet> 
+    <servlet-mapping> 
+        <servlet-name> action</servlet-name> 
+        <url-pattern> *.do</url-pattern> 
+    </servlet-mapping> 
+<welcome-file-list> 
+<welcome-file> index.jsp</welcome-file> 
+</welcome-file-list> 
+</web-app> 
+```
 
 > 在Struts中配置的*.do的映射路径是Struts的一个著名标志。
 
 4. 增加标签库配置，配置web.xml文件
 
-	<jsp-config> 
-		<taglib> 
-			<taglib-uri> http://www.fmz.org/struts/bean</taglib-uri> 
-			<taglib-location> /WEB-INF/struts-bean.tld</taglib-location> 
-		</taglib> 
-		<taglib> 
-			<taglib-uri> http://www.fmz.org/struts/logic</taglib-uri> 
-			<taglib-location> /WEB-INF/struts-logic.tld</taglib-location> 
-		</taglib> 
-		<taglib> 
-			<taglib-uri> http://www.fmz.org/struts/html</taglib-uri> 
-			<taglib-location> /WEB-INF/struts-html.tld</taglib-location> 
-		</taglib> 
-	</jsp-config> 
+```
+<jsp-config> 
+    <taglib> 
+        <taglib-uri> http://www.fmz.org/struts/bean</taglib-uri> 
+        <taglib-location> /WEB-INF/struts-bean.tld</taglib-location> 
+    </taglib> 
+    <taglib> 
+        <taglib-uri> http://www.fmz.org/struts/logic</taglib-uri> 
+        <taglib-location> /WEB-INF/struts-logic.tld</taglib-location> 
+    </taglib> 
+    <taglib> 
+        <taglib-uri> http://www.fmz.org/struts/html</taglib-uri> 
+        <taglib-location> /WEB-INF/struts-html.tld</taglib-location> 
+    </taglib> 
+</jsp-config> 
+```
 
 > Struts一共提供了五大种标签库，即bean、logic、html、nested和tiles，其中重点为前三个标签库。
 
@@ -102,179 +108,187 @@ Struts是Apache基金组织中Jakarta项目组的一个开源项目，主要实�
 
 建立JSP页面-hello.jsp
 
-	<%@ page language="java" pageEncoding="utf-8"%> 
+```
+<%@ page language="java" pageEncoding="utf-8"%> 
 
-	<%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean"%> 
-	<%@ taglib uri="http://struts.apache.org/tags-html" prefix="html"%> 
-	<%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic"%> 
-	<%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles"%> 
-	<html:html lang="true"> 
-	<head> 
-		<html:base /> 
-		<title> hello.jsp</title> 
-	</head> 
-	<body> 
-		<html:errors/> 
-		<html:messages id="error_info" message="true"> 
-			${error_info}
-		</html:messages> 
-		<logic:present name="msg" scope="request"> 
-			<h2> ${msg}</h2> 
-		</logic:present> 
-		<html:form action="hello.do" method="post"> 
-			请输入信息：<html:text property="info"> </html:text> 
-			<html:submit value="显示"> </html:submit> 
-			<html:reset value="重置"> </html:reset> 
-		</html:form> 
-	</body> 
-	</html:html> 
+<%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean"%> 
+<%@ taglib uri="http://struts.apache.org/tags-html" prefix="html"%> 
+<%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic"%> 
+<%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles"%> 
+<html:html lang="true"> 
+<head> 
+    <html:base /> 
+    <title> hello.jsp</title> 
+</head> 
+<body> 
+    <html:errors/> 
+    <html:messages id="error_info" message="true"> 
+        ${error_info}
+    </html:messages> 
+    <logic:present name="msg" scope="request"> 
+        <h2> ${msg}</h2> 
+    </logic:present> 
+    <html:form action="hello.do" method="post"> 
+        请输入信息：<html:text property="info"> </html:text> 
+        <html:submit value="显示"> </html:submit> 
+        <html:reset value="重置"> </html:reset> 
+    </html:form> 
+</body> 
+</html:html> 
+```
 
 建立ActionForm-HelloForm.java
 
-	package org.fmz.struts.form;
+```
+package org.fmz.struts.form;
 
-	import javax.servlet.http.HttpServletRequest;
-	import org.apache.struts.action.ActionErrors;
-	import org.apache.struts.action.ActionForm;
-	import org.apache.struts.action.ActionMapping;
-	import org.apache.struts.action.ActionMessage;
+import javax.servlet.http.HttpServletRequest;
+import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionMessage;
 
-	/*- 
-	 - MyEclipse Struts
-	 - Creation date: 09-19-2015
-	 - 
-	 - XDoclet definition:
-	 - @struts.form name="helloForm"
-	 */
-	@SuppressWarnings("serial")
-	public class HelloForm extends ActionForm {
-		/*
-		 - Generated fields
-		 */
+/*- 
+ - MyEclipse Struts
+ - Creation date: 09-19-2015
+ - 
+ - XDoclet definition:
+ - @struts.form name="helloForm"
+ */
+@SuppressWarnings("serial")
+public class HelloForm extends ActionForm {
+    /*
+     - Generated fields
+     */
 
-		/*- info property */
-		private String info;
+    /*- info property */
+    private String info;
 
-		/*
-		 - Generated Methods
-		 */
+    /*
+     - Generated Methods
+     */
 
-		/*- 
-		 - Method validate
-		 - @param mapping
-		 - @param request
-		 - @return ActionErrors
-		 */
-		public ActionErrors validate(ActionMapping mapping,
-				HttpServletRequest request) {
-			ActionErrors errors = new ActionErrors();
-			if (this.info == null || "".equals(this.info)) { // info的输入内容为空
-				// 现在应该保存错误信息
-				errors.add("error_info", new ActionMessage("emptyError.info"));
-			}
-			return errors;
-		}
+    /*- 
+     - Method validate
+     - @param mapping
+     - @param request
+     - @return ActionErrors
+     */
+    public ActionErrors validate(ActionMapping mapping,
+            HttpServletRequest request) {
+        ActionErrors errors = new ActionErrors();
+        if (this.info == null || "".equals(this.info)) { // info的输入内容为空
+            // 现在应该保存错误信息
+            errors.add("error_info", new ActionMessage("emptyError.info"));
+        }
+        return errors;
+    }
 
-		/*- 
-		 - Method reset
-		 - @param mapping
-		 - @param request
-		 */
-		public void reset(ActionMapping mapping, HttpServletRequest request) {
-			// TODO Auto-generated method stub
-		}
+    /*- 
+     - Method reset
+     - @param mapping
+     - @param request
+     */
+    public void reset(ActionMapping mapping, HttpServletRequest request) {
+        // TODO Auto-generated method stub
+    }
 
-		/*- 
-		 - Returns the info.
-		 - @return String
-		 */
-		public String getInfo() {
-			return info;
-		}
+    /*- 
+     - Returns the info.
+     - @return String
+     */
+    public String getInfo() {
+        return info;
+    }
 
-		/*- 
-		 - Set the info.
-		 - @param info The info to set
-		 */
-		public void setInfo(String info) {
-			this.info = info;
-		}
-	}
+    /*- 
+     - Set the info.
+     - @param info The info to set
+     */
+    public void setInfo(String info) {
+        this.info = info;
+    }
+}
+```
 
 > HelloForm类的主要功能是验证，此类继承ActionForm类，
 
 定义Action-HelloAction.java
 
-	package org.fmz.struts.action;
+```
+package org.fmz.struts.action;
 
-	import javax.servlet.http.HttpServletRequest;
-	import javax.servlet.http.HttpServletResponse;
-	import org.apache.struts.action.Action;
-	import org.apache.struts.action.ActionForm;
-	import org.apache.struts.action.ActionForward;
-	import org.apache.struts.action.ActionMapping;
-	import org.apache.struts.action.ActionMessage;
-	import org.apache.struts.action.ActionMessages;
-	import org.fmz.struts.form.HelloForm;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.apache.struts.action.Action;
+import org.apache.struts.action.ActionForm;
+import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
+import org.fmz.struts.form.HelloForm;
 
-	public class HelloAction extends Action {
-		/*
-		 - Generated Methods
-		 */
+public class HelloAction extends Action {
+    /*
+     - Generated Methods
+     */
 
-		/*- 
-		 - Method execute
-		 - @param mapping
-		 - @param form
-		 - @param request
-		 - @param response
-		 - @return ActionForward
-		 */
-		public ActionForward execute(ActionMapping mapping, ActionForm form,
-				HttpServletRequest request, HttpServletResponse response) {
-			HelloForm helloForm = (HelloForm) form;// TODO Auto-generated method
-			String info = helloForm.getInfo(); // 所有的输入内容从ActionForm取出
-			if(info.length() >  15){
-				ActionMessages errors = new ActionMessages() ;
-				errors.add("error_info",new ActionMessage("tooLangError.info")) ;//增加一个新的错误
-				super.saveMessages(request,errors) ;//保存错误
-				return mapping.getInputForward() ;//挑战到input指定页面
-			}else{
-				request.setAttribute("msg", info); // 将信息设置在request范围之中
-			}
-			return mapping.findForward("show"); // 此处返回的是一个映射的路径
-		}
-	}
+    /*- 
+     - Method execute
+     - @param mapping
+     - @param form
+     - @param request
+     - @param response
+     - @return ActionForward
+     */
+    public ActionForward execute(ActionMapping mapping, ActionForm form,
+            HttpServletRequest request, HttpServletResponse response) {
+        HelloForm helloForm = (HelloForm) form;// TODO Auto-generated method
+        String info = helloForm.getInfo(); // 所有的输入内容从ActionForm取出
+        if(info.length() >  15){
+            ActionMessages errors = new ActionMessages() ;
+            errors.add("error_info",new ActionMessage("tooLangError.info")) ;//增加一个新的错误
+            super.saveMessages(request,errors) ;//保存错误
+            return mapping.getInputForward() ;//挑战到input指定页面
+        }else{
+            request.setAttribute("msg", info); // 将信息设置在request范围之中
+        }
+        return mapping.findForward("show"); // 此处返回的是一个映射的路径
+    }
+}
+```
 
 > 在Struts中实际上每个Action相当于一个Servlet，HelloAction类要继承Action类，在Action中可以通过ActionForm取得用户输入的参数，并将此参数放在request属性范围中，最后使用ActionMapping中的findForward()方法进行跳转。
 
 配置struts-config.xml
 
-	<?xml version="1.0" encoding="UTF-8"?> 
-	<!DOCTYPE struts-config PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 1.3//EN" "http://struts.apache.org/dtds/struts-config_1_3.dtd"> 
+```
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE struts-config PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 1.3//EN" "http://struts.apache.org/dtds/struts-config_1_3.dtd"> 
 
-	<struts-config> 
-		<form-beans > 
-			<form-bean name="helloForm" type="org.fmz.struts.form.HelloForm" /> 	表示配置的每一个ActionForm
-		</form-beans> 
+<struts-config> 
+    <form-beans > 
+        <form-bean name="helloForm" type="org.fmz.struts.form.HelloForm" /> 	表示配置的每一个ActionForm
+    </form-beans> 
 
-		<global-exceptions /> 
-		<global-forwards /> 
-		<action-mappings > 
-			<action		表示配置的每一个Action
-				attribute="helloForm"	指定此Action要使用的ActionForm名称
-				input="/hello.jsp"	表示当验证出错时要跳转的错误显示页
-				name="helloForm"	指定此Action要使用的ActionForm名称
-				path="/hello"		此Action的对应路径，此处为hello.do
-				scope="request"		表示Action的作用范围，有request和session两种
-				type="org.fmz.struts.action.HelloAction"	此Action对应的包.类名称
-				cancellable="true" > 
-				<forward name="show" path="/hello.jsp"> </forward> 	表示映射的跳转路径，同时可以定义多个<forward> 节点
-			</action> 
-		</action-mappings> 
+    <global-exceptions /> 
+    <global-forwards /> 
+    <action-mappings > 
+        <action		表示配置的每一个Action
+            attribute="helloForm"	指定此Action要使用的ActionForm名称
+            input="/hello.jsp"	表示当验证出错时要跳转的错误显示页
+            name="helloForm"	指定此Action要使用的ActionForm名称
+            path="/hello"		此Action的对应路径，此处为hello.do
+            scope="request"		表示Action的作用范围，有request和session两种
+            type="org.fmz.struts.action.HelloAction"	此Action对应的包.类名称
+            cancellable="true" > 
+            <forward name="show" path="/hello.jsp"> </forward> 	表示映射的跳转路径，同时可以定义多个<forward> 节点
+        </action> 
+    </action-mappings> 
 
-		<message-resources parameter="org.fmz.struts.ApplicationResources" /> 
-	</struts-config> 
+    <message-resources parameter="org.fmz.struts.ApplicationResources" /> 
+</struts-config> 
+```
 
 ---
 
