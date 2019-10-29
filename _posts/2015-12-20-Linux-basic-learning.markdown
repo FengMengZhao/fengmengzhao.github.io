@@ -626,6 +626,8 @@ Chmod权限分配
 
 编辑任务计划：`crontab -e`
 
+> 在Linux可以通过`pgrep cron`查看定时任务是否后台运行。启动cron：`service cron start`
+
 查看任务计划：`crontab -l`
 
 删除任务计划：`crontab -r`
