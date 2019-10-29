@@ -13,6 +13,8 @@ comment: true
     - [2.1 Ajax跨域请求非认证接口](#2.1)
     - [2.2 Ajax跨域请求认证接口](#2.2)
 - [3. 完全前后端分离项目跨域解决方法](#3)
+    - [3.1 Ajax请求携带目标接口cookie的方法](#3.1)
+    - [3.2 Nginx代理到同一域下的方法](#3.2)
 
 ---
 
@@ -119,6 +121,8 @@ comment: true
 
 <h3 id="3">3. 完全前后端分离项目跨域解决方法</h3>
 
+<h4 id="3.1">3.1 Ajax请求携带目标接口cookie的方法</h4>
+
 通过【2.2】部分的验证，我们可以有下面的思路：
 
 1. 访问前端入口
@@ -182,5 +186,11 @@ comment: true
             return new CorsFilter(source);
         }
     }
+
+<h4 id="3.2">3.2 Nginx代理到同一域下的方法</h4>
+
+思路：通过Nginx方向代理，将前端静态文件和后台的接口代理到Nginx的同一个域下。
+
+参考：[nginx反向代理解决前后端分离有权限认证接口调用跨域问题](https://github.com/FengMengZhao/nginx-solve-crossorigin-with-authentication "nginx反向代理解决前后端分离有权限认证接口调用跨域问题")
 
 ---
