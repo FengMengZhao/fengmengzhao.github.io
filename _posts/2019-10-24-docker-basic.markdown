@@ -295,6 +295,16 @@ Shell and Exec格式：Shell格式运行实际上是调用了`/bin/sh -c <comman
 - volume由Docker统一管理，方便备份和迁移
 - Docker Volume可以由Docker CLI和Docker API调用
 
+**volume创建指定path**
+
+```
+docker volume create --driver local \
+  --opt type=none \
+  --opt device=/home/user/test \
+  --opt o=bind \
+  test_vol
+```
+
 **使用Docker命令**
 
 ```shell
