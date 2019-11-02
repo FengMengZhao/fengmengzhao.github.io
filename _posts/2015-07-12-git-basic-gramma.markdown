@@ -211,4 +211,11 @@ git push --force-with-lease origin feature #如果是自己使用一个分支，
 git config --global core.quotepath off
 ```
 
+**Linux中通过crontab定时任务拉取代码**
+
+```
+# 每两分钟进入git仓库，拉取git代码
+*/2 * * * * /bin/bash -c 'cd /opt/git-repo/language_learn && /usr/bin/git pull -q origin master >> /var/log/crontab.log 2>&1'
+```
+
 ---
