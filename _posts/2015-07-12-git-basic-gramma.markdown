@@ -218,4 +218,12 @@ git config --global core.quotepath off
 */2 * * * * /bin/bash -c 'cd /opt/git-repo/language_learn && /usr/bin/git pull -q origin master >> /var/log/crontab.log 2>&1'
 ```
 
+**git拉取所有分支**
+
+```
+git fetch --all
+git branch -a
+git checkout dev/feature*
+```
+
 ---
