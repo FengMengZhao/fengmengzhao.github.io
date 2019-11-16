@@ -129,3 +129,25 @@ layout: post
 如果要还原一个表(表中有schema信息),必须要先建立对应的schema和数据库;如果是要还原一个schema,则要建立数据库(数据库是任意的).<br><br>
 数据库 --> schema --> 表.<br><br>
 备份一个表格时schema名字可缺省,指定schema时要用格式`--schema=schema_name`.
+
+### 造数常用的语句
+
+```
+# 生成从a到b的整数
+FLOOR(random() * (b-a+1) + a)
+
+# 生成从a到b的数
+random() * (b-a+1) + a
+
+# 保留m位小数
+round(NUMERIC_VALUE, m)
+
+# 从数组中任意生成一个
+(array['0712', '0713', '0714', '0715', '0720', '0721'])[floor(random() * (6-1+1)) + 1]
+
+# 把查询结果作为数组任意返回一个
+(array(select colume from table))[floor(random() * (SIZE-1+1)) + 1]
+
+# 从某个时间到某个时间随机日期
+timestamp '2013-01-01 00:00:00' + random() * (timestamp '2019-11-01 00:00:00' - timestamp '2013-01-01 00:00:00')
+```
