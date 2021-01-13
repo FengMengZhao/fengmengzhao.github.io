@@ -715,12 +715,29 @@ Linux环境中如果没有gcc,安装group: `Development Tools`
 
 ```
 # 将匹配到所有字符处理后替换(基于匹配到的字符处理)
-# 正则匹配表达式需要用括号括起来，例如：正则式为：([0-9]{6}\.[0-9]{1,3}\.[0-9]{1,3})；替换为：fmz:"\1"
-\1
+# 正则匹配表达式需要用括号括起来，例如：数据：ABC，正则式为：(.*$)；替换为：insert into '\1'，结果为insert into 'ABC'。原理是用正则表达式匹配字符串，用括号隔开，可以用\1 \2等数字第几组匹配进而替换
+(.*$)
+insert into '\1'
 
 # 删除重复行
 # notepad中选中匹配新行(.matches newline),替换正则为空
 ^(.*?)$\s+?^(?=.*^\1$)
+
+# notepad中使用非贪婪模式的正则表达式
+^(.*?)\t
+```
+
+### maven小技巧
+
+```
+# 清除本地仓库的jar包
+mvn dependency:purge-local-repository -DreResolve=false
+
+# 安装本地jar包到仓库
+mvn install:install-file -Dfile=lib\artery-core-6.1.4.jar -DgroupId=com.thunisoft.artery -DartifactId=artery-core -Dversion=6.1.4 -Dpackaging=jar -DgeneratePom=true
+
+# 查找某一个jar包的依赖关系
+mvn dependency:sources -DincludeArtifactIds=guava
 ```
 
 ---
