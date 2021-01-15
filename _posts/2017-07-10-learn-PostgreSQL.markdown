@@ -169,7 +169,7 @@ FROM information_schema.tables
 WHERE table_schema = 'mySchema'
 ```
 
-**额暴力修改字段的长度postgre**
+**暴力修改字段的长度postgre**
 
 ```
 select * from pg_attribute where attribute = ${表名称}::regclass and attname = ${字段名称}
@@ -216,7 +216,7 @@ select tablename,indexdef from pg_indexes where tablename ='${table_name}'
 **postgre日志开启**
 
 ```
---日志未知：$PG_DATA/logs
+--日志位置：$PG_DATA/logs
 
 --打开慢sql记录 如果sql运行1000ms，则日志该sql
 alter system set log_min_duration_statement=1000
@@ -226,7 +226,7 @@ select pg_reload_conf()
 --用psql登陆数据库，然后开启记录时间 \timing，再然后 copy 导出表数据到本地看看，两边所花费的时间
 ```
 
-**postgre获取所有表自定义函数**
+**postgre获取所有表-自定义函数**
 
 ```
 CREATE 
