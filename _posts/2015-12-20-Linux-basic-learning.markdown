@@ -738,6 +738,9 @@ mvn install:install-file -Dfile=lib\artery-core-6.1.4.jar -DgroupId=com.thunisof
 
 # 查找某一个jar包的依赖关系
 mvn dependency:sources -DincludeArtifactIds=guava
+
+# 查找maven依赖并输出到文件中
+mvn dependency:tree -DoutputType=graphml -DoutputFile=dependency.graphml
 ```
 
 ---
