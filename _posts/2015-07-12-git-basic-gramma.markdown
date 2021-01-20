@@ -226,4 +226,10 @@ git branch -a
 git checkout dev/feature*
 ```
 
+**git clone密码输入错误后重置**
+
+```
+git config --system --unset credential.helper
+```
+
 ---
