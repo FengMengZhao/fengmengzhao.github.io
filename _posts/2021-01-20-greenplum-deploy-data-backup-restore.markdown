@@ -50,7 +50,7 @@ Greenplum数据库也有特有的特征，如优化的PostgreSQL商业智能功�
 Greenplum数据存储和处理大数据量，是通过跨多个服务器和主机分配数据和负载。Greenplum数据库是基于PostgreSQL8.3单个数据库的阵列，这些数据库像单个数据库一样共同工作。master主机是Greenplum数据库系统的入口点，它是客户端连接并提交SQL语句的接口数据库实例。 Master协调系统中其他数据库实例（称为Segment）的工作负载，处理数据和存储。 分段通过互连，Greenplum数据库的网络层互相通信和主控。
 
 <h5 id="1.1.1">1.1.1 集群架构</h5>
-![Greenplum集群架构](/img/posts/Greenplum-architecture.jpg, "Greenplum集群架构")
+![Greenplum集群架构](/img/posts/Greenplum-architecture.jpg "Greenplum集群架构")
 
 <h4 id="1.2">1.2 安装前准备</h4>
 <h5 id="1.2.1">1.2.1 硬件环境要求</h5>
