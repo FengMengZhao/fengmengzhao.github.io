@@ -23,6 +23,10 @@ comment: false
     - [3.2 自定义函数](#3.2)
     - [3.3 区间](#3.3)
     - [3.4 部分索引](#3.4)
+- [4. 联表查询JOIN与索引](#4)
+    - [4.1 Nested Loop Join](#4.1)
+    - [4.2 Hash Join](#4.2)
+    - [4.3 Sorted Merge Join](#4.3)
 
 ---
 
@@ -437,9 +441,73 @@ Execution time: 641.282 ms
 
 ---
 
+<h2 id="4">4. 联表查询JOIN与索引</h2>
+
+两表或者多表联表查询的时候改变了原来以表为单位各个列之间的关系，使得不同的表的列可以出现再同一个关系结果中。
+
+JOIN的方式有三种：Nested Loop Join、Hash Join和Sorted Merge Join。
+
+无论用什么join算法，有一点是肯定的，就是每次只处理两个表的join，然后基于结果集再join其他表。这样join的顺序就很重要，如果两个表join的结果数据集小，这样再和其他表join的时候，中间过程的笛卡尔积就会少。优化器也会计算各种join order的组合来判断出一个最优的顺序。
+
+<h3 id="4.1">4. Nested Loop Join</h3>
+
+```
+#select * from A JOIN B on A.ID < B.ID
+For each tuple r in A
+        For each tuple s in B
+                If (r.ID < s.ID)
+                    Emit output tuple (r,s)
+```
+
+<h3 id="4.2">4.2 Hash Join</h3>
+
+hash join是为了解决nested loop join的缺陷：在inner query中有很多BTree Traverse。Hash JOIN选择一个候选表hash到内存中，和另外一个表join是能快速的获取数据。因此如果只给join表的关联字段加索引在Hash join算法中提高性能。但是，如果where语句中有独立的字段顾虑时，给这个字段加索引是能够提高性能的。
+
+hash join的步骤:
+
+1. 全表扫描（或者有条件过滤）一个表到hashtable中，关联条件作为hash key
+2. 全表扫描另外一个表，同时过滤
+3. 第二个结果集数据从第一个结果集中load数据
+
+This algorithm works in two phases:
+
+- Build Phase: A Hash table is built using the inner relation records. The hash key is calculated based on the join clause key.
+- Probe Phase: An outer relation record is hashed based on the join clause key to find matching entry in the hash table.`kkkk`
+
+```
+#select * from A JOIN B on A.ID = B.ID
+#Build Phase
+For each tuple r in inner relation B
+    Insert r into hash table HashTab with key r.ID
+
+#Probe Phase
+For each tuple s in outer relation A
+    For each tuple r in bucker HashTab[s.ID]
+        If (s.ID = r.ID)
+            Emit output tuple (r,s)
+```
+
+<h3 id="4.3">4.3 Sorted Merge Join</h3>
+
+```
+#select * from A JOIN B on A.ID = B.ID，用这个前提是A、B都是有序的，并且join条件是等于的情况
+For each tuple r in A
+    For each tuple s in B
+         If (r.ID = s.ID)
+              Emit output tuple (r,s)
+              Break;
+         If (r.ID > s.ID)
+              Continue;
+         Else
+              Break;
+```
+
+---
+
 > 参考：
 - [https://use-the-index-luke.com](https://use-the-index-luke.com)
 - [https://severalnines.com/database-blog/overview-various-scan-methods-postgresql](https://severalnines.com/database-blog/overview-various-scan-methods-postgresql)
+- [https://severalnines.com/database-blog/overview-join-methods-postgresql](https://severalnines.com/database-blog/overview-join-methods-postgresql)
 - [https://severalnines.com/database-blog/overview-join-methods-postgresql](https://severalnines.com/database-blog/overview-join-methods-postgresql)
 
 ---
