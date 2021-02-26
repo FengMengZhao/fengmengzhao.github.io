@@ -26,7 +26,7 @@ comment: false
 
 ---
 
-<h2>0 问题</h2>
+<h2 id="0">0 问题</h2>
 
 ```sql
 --创建的索引一定能用上吗？为什么？
@@ -64,9 +64,9 @@ select * from employees where last_name = 'huayu' and date_of_birth = '2009-01-0
 
 ---
 
-<h2>1 索引剖析</h2>
+<h2 id="1">1 索引剖析</h2>
 
-<h3>重要概念</h3>
+<h3 id="1.1">重要概念</h3>
 
 **堆(Heap)**
 
@@ -91,7 +91,7 @@ select ctid from employees where employee_id = 10000;
 select ctid from employees where employee_id < 10000;
 ```
 
-<h3>索引数据结构B-Tree</h3>
+<h3 id="1.2">索引数据结构B-Tree</h3>
 
 索引的数据结构有很多：B-Tree，Hash，GIN，GiST...
 
@@ -126,7 +126,7 @@ B-Tree是在Index Leaf Node之上建立的平衡树，用来能够快速定位�
 2. 基于索引数据页创建Index Leaf Node双向链表数据结构，确保逻辑上整个索引数据有序
 3. 基于Index Leaf  Node数据建立Balance Tree，确保能够快速定位数据在那个索引页
 
-<h3>走索引sql执行阶段</h3>
+<h3 id="1.3">走索引sql执行阶段</h3>
 
 <h4>1. 遍历树(B-Tree Traverse)</h4>
 
@@ -146,7 +146,7 @@ B-Tree是在Index Leaf Node之上建立的平衡树，用来能够快速定位�
 
 根据得到的index数据，从Heap中load数据
 
-<h3>索引对性能可能的影响</h3>
+<h3 id="1.4">索引对性能可能的影响</h3>
 
 1. 遍历树。由于平衡树的数据结构，这部分时间是有上限的，因为数的成长是平衡的，先横向增长再长高
 2. 搜索叶子节点。这部分时间是有一定上限的(相比较整表扫描来说)，对于唯一索引用等于来查询的话，最多在一个页内搜索，成本可以忽略。如果是条件搜索或者非唯一索引，可能在这一步要跨多个index页数据搜索，会有一定的成本
@@ -156,7 +156,7 @@ B-Tree是在Index Leaf Node之上建立的平衡树，用来能够快速定位�
 
 ---
 
-<h2>2 执行计划</h2>
+<h2 id="2">2 执行计划</h2>
 
 - cost-based
 - *rule-based*
@@ -169,7 +169,7 @@ code-base以成本为依据，选择执行计划成本最小的最为最终的�
 >
 > explain vs explain analyze区别：explain只是基于base规则生成执行计划；而explain analyze实际上执行了这个Query
 
-<h3>Mysql数据库工作过程</h3>
+<h3 id="2.1">Mysql数据库工作过程</h3>
 
 ![1612006047074](/img/posts/1612006047074.png)
 
@@ -180,7 +180,7 @@ code-base以成本为依据，选择执行计划成本最小的最为最终的�
    3. 查询优化。**执行计划**的生成
 3. 存储引擎。数据存储和获取通过这个模块的接口
 
-<h3>统计信息对执行计划决策的影响</h3>
+<h3 id="2.2">统计信息对执行计划决策的影响</h3>
 
 统计信息主要存储在表：`pg_class`和`pg_statistics`中。
 
@@ -204,7 +204,7 @@ SELECT attname, null_frac, avg_width, n_distinct, most_common_vals, most_common_
 
 同样，表字段的统计信息也不会在数据插入或者删除的时候自动更新，需要用命令：`ANALYZE ${TABLE_NAME}`
 
-<h3>会看执行计划</h3>
+<h3 id="2.3">会看执行计划</h3>
 
 数据库优化器最终会生成一个树状结构的执行计划，执行计划的叶子节点称为表扫描节点(table scan node)，这个节点标识用什么方式扫描表(是否有索引，什么算法等)，`Postgre支持`的表扫描：
 
@@ -321,9 +321,9 @@ Execution time: 245.297 ms
 
 可以在表中直接查出来某一行数据的TID，TID作为条件查询时，走元组扫描方法
 
-<h2>3 Where语句与索引</h2>
+<h2 id="3">3 Where语句与索引</h2>
 
-<h3>等于/不等于</h3>
+<h3 id="3.1">等于/不等于</h3>
 
 **单字段索引**
 
@@ -366,7 +366,7 @@ postgre官方文档对于联合索引说明，任意的一个索引子集查询�
 
 > 比如a,b,c三个字段作为索引字段，使用使用where a = ? 或者whre a = ? , b = ? 或者where a = ?, b = ?, c = ? 都是很有效率的索引。实际上使用where a = ? and c = ?也能够走索引，只是效率没有left most组合高
 
-<h3>自定义函数</h3>
+<h3 id="3.2">自定义函数</h3>
 
 ```sql
 explain analyze 
@@ -395,7 +395,7 @@ Execution time: 491.250 ms
 
 自定义函数一定是一个确定的函数，也就是说对于同样的输入，一定会返回同样的输出。像年龄这种`getNl(Date)`自定义函数，如果函数中使用了`now()`当前系统时间，这样的函数索引就不正确。因为函数的返回值会随着时间的变化，不是一个确定性的函数
 
-<h3>区间</h3>
+<h3 id="3.3">区间</h3>
 
 <h4>大于小于/Between、Like/全文搜索</h4>
 
@@ -427,7 +427,7 @@ Planning time: 0.231 ms
 Execution time: 641.282 ms
 ```
 
-<h3>部分索引</h3>
+<h3 id="3.4">部分索引</h3>
 
 在Postgresql中所谓的部分索引（partial index）指的是只针对某些特定的行来建索引
 
