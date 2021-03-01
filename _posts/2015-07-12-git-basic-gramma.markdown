@@ -232,4 +232,10 @@ git checkout dev/feature*
 git config --system --unset credential.helper
 ```
 
+**git clone记住密码设置**
+
+```
+git config --global credential.helper store
+```
+
 ---
