@@ -744,3 +744,63 @@ mvn dependency:tree -DoutputType=graphml -DoutputFile=dependency.graphml
 ```
 
 ---
+
+### 将FTP文件映射为本地目录
+
+本文档介绍了如何安装curlftpfs,及使用该工具将ftp中的目录映射成linux本地的目录，以方便solution读取ftp上的文件。
+
+**组件功能说明**
+
+通过该组件可以 将FTP目录 映射为 Linux上的文件目录，这样ETL程序就可以像访问本地文件一样访问FTP上的文件。
+
+本文档介绍了如何安装curlftpfs,及使用该工具将ftp中的目录映射成linux本地的目录，以方便solution读取ftp上的文件。
+
+**组件原理说明**
+
+该功能是通过软件curlftpfs来实现的。
+
+**安装curlftpfs ：**
+
+离线安装：
+
+```shell
+tar -zxvf curlftpfs-0.9.2.tar.gz
+cd  curlftpfs-0.9.2/
+./configure
+make
+make install
+```
+
+在线安装：
+
+```shell
+yum -y install epel-release
+yum -y install curlftpfs
+```
+
+**挂载目录：**
+
+```shell
+#将ftp上的目录通过curlftpfs挂载到指定的 /xxx目录下： 
+curlftpfs ftp://ftpusername:ftppasswd@ftpip:ftpport /xxx
+#如：curlftpfs -o codepage=utf8   ftp://admin:admin@172.16.32.221:2121 /data/bigdata_v/ftpmapdir
+```
+
+**卸载挂载目录：**
+
+```shell
+umount /xxx
+```
+
+**设置开机启动/开机加载：**
+
+```shell
+#当挂载该映射目录的服务器重启后，该映射目录会失效；当ftp服务器重启后，该映射目录不会失效。
+#因此，当挂载该映射目录的服务器重启后，需要手动重新挂载该目录到FTP服务器。或将其挂载命令设置为开机启动/开机加载。
+#开机启动项的设置如下：
+vi /etc/rc.d/rc.local
+#添加挂载命令：
+curlftpfs -o codepage=utf8 ftp://admin:admin@172.16.32.221:2121 /ftp/ftpmapdata
+#确保文件rc.local具有可执行权限：
+chmod a+x /etc/rc.d/rc.local
+```
