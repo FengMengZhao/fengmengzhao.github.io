@@ -804,3 +804,15 @@ curlftpfs -o codepage=utf8 ftp://admin:admin@172.16.32.221:2121 /ftp/ftpmapdata
 #确保文件rc.local具有可执行权限：
 chmod a+x /etc/rc.d/rc.local
 ```
+
+### 增量tar打包文件
+
+```shell
+#tar中指定z参数会压缩，否则生成的只是一个归档文件，没有压缩
+tar --listed-incremental=202103031022.file -czvf backup.tar.gz testincreasetar/
+cp 202103031022.file 202103031025.file.1
+tar --listed-incremental=202103031025.file.1 -czvf backup.tar.gz.1 testincreasetar/
+#增量压缩的时候要创建另外一个tar.gz文件
+```
+
+---
