@@ -538,4 +538,117 @@ Mybatis3的使用方式有两种：
 
 这个方式可以将两个字段中的一个作为key，另一个作为value来返回Map，返回的格式是：`{"id1": "name1", "id2": "name2",...}`
 
+**mybatis自定义typehandler改变字段数据类型**
+
+两种方法：
+
+**1. 自定义`typeHandler`**
+
+```	java
+public class StrToIntTypeHandler implements TypeHandler<String> {
+    @Override
+    public void setParameter(PreparedStatement ps, int i,
+                             String parameter, JdbcType jdbcType) throws SQLException {
+        ps.setInt(i, Integer.parseInt(parameter));
+    }
+
+    @Override
+    public String getResult(ResultSet resultSet, String s) throws SQLException {
+        return resultSet.getString(s);
+    }
+
+    @Override
+    public String getResult(ResultSet resultSet, int i) throws SQLException {
+        return resultSet.getString(i);
+    }
+
+    @Override
+    public String getResult(CallableStatement callableStatement, int i) throws SQLException {
+        return callableStatement.getString(i);
+    }
+}
+```
+
+**2. `OGNL`表达式**
+
+```java
+<bind name="param" value="@java.lang.Integer@valueOf(jobXXX)" />
+  //...
+ where  #{rmi_auftrag_xxx} = #{param}
+或者
+ where #{rmi_auftrag_xxx} = ${@java.lang.Integer@valueOf(jobXXX)}
+```
+
+**mybatis自定typehandler数据库array类型映射为pojo数组**
+
+```java
+// 继承自BaseTypeHandler<Object[]> 使用时传入的参数一定要是Object[]，例如 int[]是 Object, 不是Object[]，所以传入int[] 会报错的
+public class ArrayTypeHandler extends BaseTypeHandler<Object[]> {
+
+    private static final String TYPE_NAME_VARCHAR = "varchar";
+    private static final String TYPE_NAME_INTEGER = "integer";
+    private static final String TYPE_NAME_BOOLEAN = "boolean";
+    private static final String TYPE_NAME_NUMERIC = "numeric";
+    
+    @Override
+    public void setNonNullParameter(PreparedStatement ps, int i, Object[] parameter,
+            JdbcType jdbcType) throws SQLException {
+        
+        String typeName = null;
+        if (parameter instanceof Integer[]) {
+            typeName = TYPE_NAME_INTEGER;
+        } else if (parameter instanceof String[]) {
+            typeName = TYPE_NAME_VARCHAR;
+        } else if (parameter instanceof Boolean[]) {
+            typeName = TYPE_NAME_BOOLEAN;
+        } else if (parameter instanceof Double[]) {
+            typeName = TYPE_NAME_NUMERIC;
+        }
+        
+        if (typeName == null) {
+            throw new TypeException("ArrayTypeHandler parameter typeName error, your type is " + parameter.getClass().getName());
+        }
+        
+        // 这3行是关键的代码，创建Array，然后ps.setArray(i, array)就可以了
+        Connection conn = ps.getConnection();
+        Array array = conn.createArrayOf(typeName, parameter);
+        ps.setArray(i, array);
+    }
+
+    @Override
+    public Object[] getNullableResult(ResultSet rs, String columnName)
+            throws SQLException {
+
+        return getArray(rs.getArray(columnName));
+    }
+
+    @Override
+    public Object[] getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
+
+        return getArray(rs.getArray(columnIndex));
+    }
+
+    @Override
+    public Object[] getNullableResult(CallableStatement cs, int columnIndex)
+            throws SQLException {
+
+        return getArray(cs.getArray(columnIndex));
+    }
+    
+    private Object[] getArray(Array array) {
+        
+        if (array == null) {
+            return null;
+        }
+
+        try {
+            return (Object[]) array.getArray();
+        } catch (Exception e) {
+        }
+        
+        return null;
+    }
+}
+```
+
 ---
