@@ -268,6 +268,19 @@ FROM
 WHERE 
    pg_stat_activity.datname = '${db_name}'
 AND procpid <> pg_backend_pid();
+
+-- 删除IDLE状态的数据库连接
+select pg_terminate_backend(procpid) from pg_stat_activity where current_query='<IDLE>'
 ```
+
+**`postgresql` group by 主键可在SELECT字段选择任意字段**
+
+`select c_bh, c_name, c_address, c_identity_code from t_user group by c_bh`，`c_bh`是表`t_user`的主键，当`group by`主键的时候，其他字段也可以出现在select的列表中
+
+为什么？官方[doc](https://www.postgresql.org/docs/current/sql-select.html#SQL-GROUPBY)：
+
+> *When* `GROUP BY` *is present, or any aggregate functions are present, it is not valid for the* `SELECT` *list expressions to refer to ungrouped columns except within aggregate functions or when the ungrouped column is functionally dependent on the grouped columns, since there would otherwise be more than one possible value to return for an ungrouped column.* **A functional dependency exists if the grouped columns (or a subset thereof) are the primary key of the table containing the ungrouped column***.*
+
+**当我们在`sql`中使用聚合函数的时候，select查询字段正常只能是聚合字段，除非这个字段依赖于聚合字段。如果聚合的字段是这个表的主键，那么其他字段和主键都是依赖关系（1对1），因此上面`sql`非`group by`字段可以出现在select字段中。也可以理解当`group by`主键的时候，相当于`group by`了这个表的所有字段。**
 
 ---
