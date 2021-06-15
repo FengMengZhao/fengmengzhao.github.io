@@ -33,6 +33,8 @@ comment: false
         - [1.5.4 修改配置参数](#1.5.4)
     - [1.6 Greenplum部署注意事项](#1.6)
 - [2. Greenplum数据备份恢复](#2)
+- [3. Greenplum使用技巧](#3)
+    - [3.1 sql查询替换特殊字符](#3.1)
 
 ---
 
@@ -559,7 +561,6 @@ declare -a MIRROR_DATA_DIRECTORY=(/data/gpgdgf/gpdata/mirror /data/gpgdgf/gpdata
 #### Specify the location of the host address file here instead of
 #### with the the -h option of gpinitsystem.
 #MACHINE_LIST_FILE=/home/gpadmin/gpconfigs/hostfile_gpinitsystem
-
 ```
 
 standby在初始化的时候失败，可能服务器是最小安装，没有net-tools依赖包
@@ -578,6 +579,18 @@ gpbackup --dbname db_hybzk --single-data-file --backup-dir /data/thunisoft/gpbac
 
 #恢复
 gprestore --backup-dir /data/gpgdgf/backup/ --timestamp 20201214175326 --redirect-db db_hybzk_20201130
+```
+
+<h3 id="3">3. Greenplum使用技巧</h3>
+
+<h4 id="3.1">3.1 sql查询替换特殊字符</h4>
+
+数据采集的时候sql输出csv文件，用`$`分隔开，然后用`copy`命令导入数据。当数据中存在换行符(line feed)，回车符(carriage return)，或者斜杠(forward slash)、反斜杠(backslash)的时候，导出的数据再进行导入就会存在问题。比如换行符就会造成导出的一条数据分为多行，导入的时候被分成多行的数据导入就会存在问题。这时候就需要替换掉上述的特殊字符，在Greenplum中具体的替换方法为：
+
+```
+replace(replace(replace(column, chr(10), ''), chr(13), ''), chr(92), '')
+
+#其中chr(10)、chr(13)、chr(92)分别代表换行符、回车符和斜杠。用ASCII码值分别代表不同的字符。
 ```
 
 ---
