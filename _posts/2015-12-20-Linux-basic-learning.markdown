@@ -1,11 +1,14 @@
 ---
 layout: post
 title: Linux 基础 
+subtitle: 'Linux的基础命令、操作、技巧等，记录下来，方便使用的时候查阅。'
+background: '/img/posts/linux-basic.jpg'
+comment: false
 ---
 
 ### Linux 系统安装
 
-设置系统计入模式：`vi /etc/inittab`，需改`id:5:inindefault`为`id:3:initdefault`
+设置系统进入模式：`vi /etc/inittab`，需改`id:5:inintdefault:`为`id:3:initdefault:`，这样系统重启就进入了命令行模式。
 
 常用指令：`history -c`：清空历史记录；`ls`：查看当前目录下的文件；`cd`：切换目录
 
@@ -283,8 +286,9 @@ iptables -A INPUT -p tcp --match multiport --dports 1024:65535 -j ACCEPT
     iptables -L -n --line-number
     iptables -D [INPUT|OUTPUT] ${num}
 	
-**Centos7**防火墙：
+**Centos7防火墙：**
 
+```
 - `firewall-cmd --state`：查看防火墙运行状态
 - `firewall-cmd --list-all`：查看所有开放的端口
 - `systemctl [stop|start|restart] firewalld.service`：停运|启动|重启防火墙
@@ -293,9 +297,9 @@ iptables -A INPUT -p tcp --match multiport --dports 1024:65535 -j ACCEPT
 - `firewall-cmd --reload`：重载配置(不用重启重启防火墙)
 - `firewall-cmd --zone=public --add-port=1080/tcp --permanent`：开启1080端口
 - `firewall-cmd --list-ports`：查看已经开发的端口
+```
 
-
-**Centos7设置静态网络**：
+**Centos7设置静态网络：**
 
 > `ip addr`查看网络名称，打开`/etc/sysconfig/network-scripts/ifcfg-${ip addr文件名}`
 
@@ -344,7 +348,7 @@ hostnamectl set-hostname <new-host-name>
 
 被动模式(Passive)工作原理：由客户端发起PASV(passive mode)的数据传输通道连接请求。客户端被动接受，所以称为被动模式。
 
-**Active|Passive配置**
+**Active、Passive配置**
 
     pasv_enable=NO #(passive模式关闭)
     pasv_min_port=3000
@@ -352,7 +356,7 @@ hostnamectl set-hostname <new-host-name>
     port_enable=YES #(active模式开启)
     connect_from_port_20=YES #(默认Active Mode情况下server端数据传输通过20端口)
 
-#### ftp映射本地目录
+#### ftp映射本地Linux目录
 
 - 安装curlftpfs
     - yum -y install epel-release
@@ -360,6 +364,8 @@ hostnamectl set-hostname <new-host-name>
 - 挂卸载
     - 挂载：`curlftpfs -o codepage=utf8 ftp://${ftp_username}:${ftp_password}@${ftp_if}:${ftp_port} ${local_path}`
     - 卸载：`unmount ${local_path}`
+
+#### 
 
 ### lftp下载ftp数据
 
@@ -778,7 +784,7 @@ yum -y install epel-release
 yum -y install curlftpfs
 ```
 
-**挂载目录：**
+**Linux挂载目录：**
 
 ```shell
 #将ftp上的目录通过curlftpfs挂载到指定的 /xxx目录下： 
