@@ -182,6 +182,7 @@ git tag #展示tag
 git push origin <tag-name> #推送tag到远程
 git push --delete origin <tag-name> #删除远程tag
 git tag --delete <tag-name> #删除本地tag
+git push --delete origin <tagname>
 ```
 
 **git 删除分支**
@@ -236,6 +237,15 @@ git config --system --unset credential.helper
 
 ```
 git config --global credential.helper store
+```
+
+**git设置代理**
+
+```
+git config http.proxy http://127.0.0.1:10809 #设置代理
+git config --unset http.proxy #取消设置代理
+git config --global --list #查看全局设置列表
+git config --local --list #查看本仓库设置列表
 ```
 
 ---
