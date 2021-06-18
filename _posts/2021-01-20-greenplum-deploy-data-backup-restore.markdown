@@ -35,6 +35,7 @@ comment: false
 - [2. Greenplum数据备份恢复](#2)
 - [3. Greenplum使用技巧](#3)
     - [3.1 sql查询替换特殊字符](#3.1)
+    - [3.2 Greenplum提示too many clients解决](#3.2)
 
 ---
 
@@ -592,5 +593,16 @@ replace(replace(replace(column, chr(10), ''), chr(13), ''), chr(92), '')
 
 #其中chr(10)、chr(13)、chr(92)分别代表换行符、回车符和斜杠。用ASCII码值分别代表不同的字符。
 ```
+
+<h4 id="3.2">3.2 Greenplum提示too many clients解决</h4>
+
+1. 看是否用Navicat客户端是否能连接到目标GP库
+2. 操作1不能成功，提示太多client，需要在GP库后台手动杀死一个或者多个进程
+  1. `ssh连接GP库主节点服务器`
+  2. `ps -ef |grep db_jcdsj`
+  3. `kill -9 ${PID}`
+3. 重试操作1
+4. 在目标数据库中执行sql，杀死连接：`select pg_terminate_backend(procpid) from pg_stat_activity where current_query='<IDLE>'`
+5. 重试操作1，验证是否成功
 
 ---
