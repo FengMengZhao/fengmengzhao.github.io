@@ -10,7 +10,7 @@ comment: false
 
 - [1. Linux系统安装](#1)
     - [1.1 系统安装和基础设置](#1.1)
-    - [1.2 网络设置](#1.1)
+    - [1.2 网络设置](#1.2)
 - [2. Linux基础知识](#2)
     - [2.1 根目录规划](#2.1)
     - [2.2 文件管理](#2.2)
@@ -83,7 +83,7 @@ comment: false
 
 * NAT网络连接方式可以让虚拟机连接上外网，但是宿主机不能访问虚拟机
 * Host-only网络连接方式能够让宿主机访问虚拟机
-* 虚拟机启用上述两种网络方式，均设置为`DHCP`的连接方式，可以实现宿主机访问虚拟机，也可以方位外网
+* 虚拟机启用上述两种网络方式，均设置为`DHCP`的连接方式，可以实现宿主机访问虚拟机，也可以访问外网
 
 **eth0**
 
@@ -118,13 +118,13 @@ pwd：查看当前路径
 
 ctrl + u：清空当前的命令行
 
-tab：命令不全功能
+tab：命令补全功能
 
 [root@localhost home]#：命令提示符 [当前用户名@主机名 当前目录]#
 
 sed -n '<line_num_start>, <line_num_end>p' filename：显示文档的第start行到end行
 
-#用鼠标划着就是复制，点右键就是粘贴
+#用鼠标划着就是复制，点右键就是粘贴(使用putty客户端)
 
 ```
 
@@ -148,7 +148,7 @@ sed -n '<line_num_start>, <line_num_end>p' filename：显示文档的第start行
 
 `/bin`：所用用户可执行的命令；`/usr/bin`：所用用户可执行的命令
 
-`/sbin`：超级用户root才能执行的命令；`/usr/sbin`：超级用于root才能执行的命令
+`/sbin`：超级用户root才能执行的命令；`/usr/sbin`：超级用户root才能执行的命令
 
 `/var`：日志文件
 
@@ -156,7 +156,7 @@ sed -n '<line_num_start>, <line_num_end>p' filename：显示文档的第start行
 
 <h4 id="2.2">2.2 文件管理</h4>
 
-新建文件：`vi file.txt` `touch file.txt`
+新建文件：`vi file.txt`、`touch file.txt`
 
 删除文件：`rm -rf file.txt`；删除所有文件和目录：`rm -rf *`
 
@@ -180,7 +180,7 @@ sed -n '<line_num_start>, <line_num_end>p' filename：显示文档的第start行
 
 **在文件总过滤查找：**
 
-查找文件中包含root的那些行：`cat /etc/passwd |grep rooot*`；查找文件中以root开头的那些行：`cat /etc/passwd |grep ^root`
+查找文件中包含root的那些行：`cat /etc/passwd |grep *root*`；查找文件中以root开头的那些行：`cat /etc/passwd |grep ^root`；查找文件中以root结尾的那些行：`cat /etc/passwd |grep root$`
 
 **创建隐藏文件夹：**
 
@@ -188,9 +188,13 @@ sed -n '<line_num_start>, <line_num_end>p' filename：显示文档的第start行
 
 **同步目录文件：**
 
-`rsync -azv /path/to/some_source_dir /path/to/some_destination_dir`，`-a`表示保留文件的时间戳；`-z`表示可以进行压缩；`-v`表示显示进度(verbose)
+`rsync -azv /path/to/some_source_dir /path/to/some_destination_dir`，`-a`表示保留文件的时间戳；`-z`表示可以进行压缩；`-v`表示显示进度(verbose)。如果`some_source_dir`是目录并且以斜杠结尾，表示同步该目录内的内容，不包括该目录；如果是目录并且没有以斜杠结尾，表示同步整个目录（包括该目录）。如果`some_destination_dir`是目录并且以斜杠结尾，标识同步内容（无论内容是一个文件或者是一个目录）到该目录中（目录不存在会自动创建）；如果没有以斜杠结尾，同步的内容是文件或者目录，就同步为文件或者目录。
 
 > 例如：`rsync -azv /path/to/some_source_dir $USERNAME@$HOST:/path/to/some_destination_dir`
+
+`rsync`支持OpenSSL不同服务器之间免密传输文件。例如：`rsync -avz -e ssh /data/thunisoft/rel_zip_cs.csv root@146.0.11.60:/home/thunisoft/ --log-file="/data/thunisoft/logs-sb/sync-rel_zip_cs-${sync_date}.log"`
+
+`rsync`支持删除源文件，对目标文件夹可以有不同的同步策略。
 
 **查看目录文件占用磁盘的大小：**
 
