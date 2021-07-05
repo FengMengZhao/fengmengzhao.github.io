@@ -25,6 +25,8 @@ comment: false
     - [7.1 怎样运行一个容器？](#7.1)
     - [7.2 怎样发布一个端口？](#7.2)
     - [7.3 怎样使用后台模式？](#7.3)
+    - [7.4 怎样查看容器？](#7.4)
+    - [7.5 怎样命名或者重命名一个容器？](#7.5)
 
 ---
 
@@ -404,3 +406,51 @@ docker container run --publish 8080:80 fhsinchy/hello-dock
 你可以使用ctrl + c命令停止容器，命令行终端将会停止进程或者关闭整个终端。
 
 <h3 id="7.3">7.3 怎样使用后台模式？</h3>
+
+另外一个`run`命令常用的命令行参数是`--detach`或者`-d`。在上面的操作中，容器如果想保持运行状态，必须要保持命令行窗口打开的状态。关闭命令行窗口，容器就会被停掉。
+
+这是因为，默认容器在前台启动，并且会像其他程序一样绑定在调用方终端上。
+
+我们可以通过`--detach`参数让容器在后台启动，命令如下：
+
+```
+docker container run --detach --publish 8080:80 fhsinchy/hello-dock
+
+# 9f21cb77705810797c4b847dbd330d9c732ffddba14fb435470567a7a3f46cdc
+```
+
+和之前不一样，你的命令行终端上打印出了容器的ID。
+
+参数的顺序先后没有关系，如果你把`--publish`参数放在了`--detach`参数之前，容器依然可以正常启动。对于`docker run`命令，只要记住镜像的名字是放在最后的就可以，如果镜像的名字后面还有内容，会被作为容器entry-point（见[在一个容器中执行命令](https://fengmengzhao.github.io/2021/06/25/docker-handbook-2021.html#executing-commands-inside-a-container)模块）的参数传递，可能会得到意想不到的结果。
+
+<h3 id="7.4">7.4 怎样查看容器？</h3>
+
+`container ls`命令可以展示出正在运行中的容器，命令如下：
+
+```
+docker container ls
+
+# CONTAINER ID        IMAGE                 COMMAND                  CREATED             STATUS              PORTS                  NAMES
+# 9f21cb777058        fhsinchy/hello-dock   "/docker-entrypoint.…"   5 seconds ago       Up 5 seconds        0.0.0.0:8080->80/tcp   gifted_sammet
+```
+
+一个名称为`gifted_sammet`的容器在运行中，它再5秒钟之前被创建，并且已经正常启动了5秒钟。
+
+容器的ID是`9f21cb777058`，这个ID是完整容器ID的前12个字符，完整的ID是`9f21cb77705810797c4b847dbd330d9c732ffddba14fb435470567a7a3f46cdc`，含有64个字符。当前面使用`docker container run`运行容器的时候，完整的容器ID就输出在了控制台。
+
+`port`列表示宿主机8080端口执行容器的80端口。`gifted_sammet`名字是docker生成的，根据平台不同，这个名字可能也不同。
+
+`container ls`命令仅仅展示出了目前正在运行的容器，如果想列出来历史运行过的容器，使用`--all`或者`-a`参数。
+
+```
+docker container ls --all
+
+# CONTAINER ID        IMAGE                 COMMAND                  CREATED             STATUS                     PORTS                  NAMES
+# 9f21cb777058        fhsinchy/hello-dock   "/docker-entrypoint.…"   2 minutes ago       Up 2 minutes               0.0.0.0:8080->80/tcp   gifted_sammet
+# 6cf52771dde1        fhsinchy/hello-dock   "/docker-entrypoint.…"   3 minutes ago       Exited (0) 3 minutes ago                          reverent_torvalds
+# 128ec8ceab71        hello-world           "/hello"                 4 minutes ago       Exited (0) 4 minutes ago                          exciting_chebyshev
+```
+
+可以看出来，第二个名字为`reverent_torvalds`的容器早些时候运行过，退出时候exit code为0，标识容器运行的时候没有产生错误。
+
+<h3 id="7.4">7.4 怎样命名或者重命名一个容器？</h3>
