@@ -129,6 +129,8 @@ Docker能够运行在不同的主流操作系统macOS、Windows和Linux上，在
 
 安装完成后，你可以从桌面或者开始菜单中打开Docker，你的Docker就会出现在任务栏中。
 
+![](/img/posts/docker-handbook-2021-03_1.jpg)
+
 现在，可以打开你从Microsoft Store中安装的Ubuntu或者任何发行版，执行`docker --version`和`docker-compose --version`命令来验证Docker的安装是否成功。
 
 ![](/img/posts/docker-handbook-2021-03.jpg)
@@ -163,19 +165,51 @@ Docker能够运行在不同的主流操作系统macOS、Windows和Linux上，在
 
 现在在你的机器上有一个运行中的Docker，是时候运行你的第一个容器了，打开命令行，输入如下命令：
 
-`docker run hello-world`
+```shell
+docker run hello-world
 
-![](/img/posts/docker-handbook-2021-05.jpg)
+# Unable to find image 'hello-world:latest' locally
+# latest: Pulling from library/hello-world
+# 0e03bdcc26d7: Pull complete 
+# Digest: sha256:4cf9c47f86df71d48364001ede3a4fcd85ae80ce02ebad74156906caff5378bc
+# Status: Downloaded newer image for hello-world:latest
+# 
+# Hello from Docker!
+# This message shows that your installation appears to be working correctly.
+# 
+# To generate this message, Docker took the following steps:
+#  1. The Docker client contacted the Docker daemon.
+#  2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+#     (amd64)
+#  3. The Docker daemon created a new container from that image which runs the
+#     executable that produces the output you are currently reading.
+#  4. The Docker daemon streamed that output to the Docker client, which sent it
+#     to your terminal.
+#
+# To try something more ambitious, you can run an Ubuntu container with:
+#  $ docker run -it ubuntu bash
+# 
+# Share images, automate workflows, and more with a free Docker ID:
+#  https://hub.docker.com/
+#
+# For more examples and ideas, visit:
+#  https://docs.docker.com/get-started/
+```
 
 hello-world镜像Docker提供的一个很小的容器化程序，它是很简单的hello.c程序，在终端打印出Hello Worl字符串。
 
 在终端中，你可以执行使用`docker ps -a`命令来查看目前或者历史运行的Docker容器
 
-`docker ps -a`
+```
+docker ps -a
+
+# CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                     PORTS               NAMES
+# 128ec8ceab71        hello-world         "/hello"            14 seconds ago      Exited (0) 13 seconds ago                      exciting_chebyshev
+```
 
 ![](/img/posts/docker-handbook-2021-06.jpg)
 
-输出结果中，镜像hello-world对应有一个命名为`exciting_chebyshev`的容器，容器的ID为`TODO`，还有一个Exited（0）13 seconds ago的状态表示容器运行的过程中没有产生错误。
+输出结果中，镜像hello-world对应有一个命名为`exciting_chebyshev`的容器，容器的ID为`128ec8ceab71`，还有一个Exited（0）13 seconds ago的状态表示容器运行的过程中没有产生错误。
 
 为了能够理解刚才屏幕中输出的内容，必须要了解Docker的架构和容器化技术的三个基本概念，如下：
 
@@ -195,9 +229,9 @@ Docker官方文档中是这样说的：
 
 容器和虚拟机使用不同的方法虚拟化硬件，两者的主要不同是虚拟化方法的不同。
 
-虚拟机通常被一个叫做Hypervisor的程序创建并管理，例如Oracle VM VirtualBox、VMware、KVM和Hyper-V等等。这个hypervisor程序处在宿主机操作系统和虚拟机之间，承担中间通信的指责。
+虚拟机通常被一个叫做Hypervisor的程序创建并管理，例如Oracle VM VirtualBox、VMware、KVM和Hyper-V等等。这个hypervisor程序处在宿主机操作系统和虚拟机之间，承担中间通信的职责。
 
-![](/img/posts/docker-handbook-2021-07.jpg)
+![](/img/posts/docker-handbook-2021-07.svg)
 
 在虚拟机中运行的程序和本地操作系统（gust operating system）通信，本地操作系统和hypervisor程序通信，hypervisor程序再像宿主机操作系统从硬件中申请必要的资源来运行程序。
 
@@ -205,7 +239,7 @@ Docker官方文档中是这样说的：
 
 和虚拟机使用的虚拟方法不一样，容器使用更加聪明的方式。容器没有完整的本地操作系统，它通过运行时的容器服务使用宿主机操作系统，同时就像虚拟机那样保持环境的隔离性。
 
-![](/img/posts/docker-handbook-2021-08.jpg)
+![](/img/posts/docker-handbook-2021-08.svg)
 
 运行时的容器服务，也就是Docker，处在宿主机操作系统和容器之间，容器通过Docker和宿主机操作系统进行通信，从基础物理硬件获取程序运行的资源。
 
@@ -213,9 +247,13 @@ Docker官方文档中是这样说的：
 
 为了验证这一点，执行下面的代码：
 
-`uname -a`
+```
+uname -a
+# Linux alpha-centauri 5.8.0-22-generic #23-Ubuntu SMP Fri Oct 9 00:34:40 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux
 
-![](/img/posts/docker-handbook-2021-10.jpg)
+docker run alpine uname -a
+# Linux f08dbbe9199b 5.8.0-22-generic #23-Ubuntu SMP Fri Oct 9 00:34:40 UTC 2020 x86_64 Linux
+```
 
 上面的代码中，我先在宿主机上执行了`uname -a`命令，获取宿主机操作系统的内核详情。然后第二行运行了一个Alpine Linux容器执行了同样的命令。
 
@@ -273,7 +311,7 @@ Docker引擎包含三个主要部分：
 
 好的，基础的概念已经了解了，我们开始把所学习的一切串起来，看看它们合在一起是怎么工作的。在我们详细讲解`docker run hello-world`命令背后到底发生什么之前，先看看我画的一张图：
 
-![](/img/posts/docker-handbook-2021-12.jpg)
+![](/img/posts/docker-handbook-2021-12.svg)
 
 这张图基于Docker官方网站的一张稍微作出改动，当你执行命令的时候，发生的事情如下：
 
@@ -286,7 +324,13 @@ Docker引擎包含三个主要部分：
 
 Docker在本地找不到拉取镜像的时候，默认会去Docker Hub仓库下载。一旦镜像被下载，就会缓存到本地仓库。所以，你重新执行命令，就看不到如下的日志输出：
 
-![](/img/posts/docker-handbook-2021-13.jpg)
+```
+Unable to find image 'hello-world:latest' locally
+latest: Pulling from library/hello-world
+0e03bdcc26d7: Pull complete
+Digest: sha256:d58e752213a51785838f9eed2b7a498ffa1cb3aa7f946dda11af39286c3db9a9
+Status: Downloaded newer image for hello-world:latest
+```
 
 如果在公共的Docker仓库有一个新的镜像版本，Docker后台程序会重新获取镜像，这里的`:latest`是一个标签。Docker镜像会有有意义标签表示版本或者构建。关于标签我们在后续会做详细介绍。
 
@@ -324,9 +368,17 @@ Docker在本地找不到拉取镜像的时候，默认会去Docker Hub仓库下�
 
 image name可以是任何本地或者远程仓库上的镜像名称。例如，你也可以使用fhsinchy/hello-dock这个镜像名称，这个镜像包含了一个简单的vue.js应用，运行容器内应用启动监听80端口。想要运行这个镜像的容器，执行下面的命令：
 
-`docker container run --publish 8080:80 fhsinchy/hello-dock`
+```
+docker container run --publish 8080:80 fhsinchy/hello-dock
 
-![](/img/posts/docker-handbook-2021-14.jpg)
+# /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+# /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+# /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+# 10-listen-on-ipv6-by-default.sh: Getting the checksum of /etc/nginx/conf.d/default.conf
+# 10-listen-on-ipv6-by-default.sh: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+# /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+# /docker-entrypoint.sh: Configuration complete; ready for start up
+```
 
 命令行很好理解，需要解释的--publish 8080:80参数会在下一部分内容中解释。
 
