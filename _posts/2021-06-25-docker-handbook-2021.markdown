@@ -27,6 +27,8 @@ comment: false
     - [7.3 怎样使用后台模式？](#7.3)
     - [7.4 怎样查看容器？](#7.4)
     - [7.5 怎样命名或者重命名一个容器？](#7.5)
+    - [7.6 怎样停止或者杀死一个运行中的容器？](#7.6)
+    - [7.7 怎样重启一个容器？](#7.7)
 
 ---
 
@@ -453,4 +455,57 @@ docker container ls --all
 
 可以看出来，第二个名字为`reverent_torvalds`的容器早些时候运行过，退出时候exit code为0，标识容器运行的时候没有产生错误。
 
-<h3 id="7.4">7.4 怎样命名或者重命名一个容器？</h3>
+<h3 id="7.5">7.5 怎样命名或者重命名一个容器？</h3>
+
+每一个容器默认都有两个标识，它们是：
+
+- 容器ID - 64位长度的字符串。
+- 容器名称 - 用下划线连接的两个随机单词。
+
+使用随机生成的容器名称来指代容器很不方便，我们也可以自定义容器的名称。
+
+通过参数`--name`可以定义容器名称，基于镜像`fhsinchy/hello-dock`启动另外一个名称为`hello-dock-container`的容器，使用如下命令：
+
+`docker container run --detach --publish 8888:80 --name hello-dock-container fhsinchy/hello-dock`
+
+COPY
+
+8080的本地端口被我们之前启动的容器占用着，因此我们使用了一个新的端口8888。可以查看下启动的容器：
+
+COPY
+
+名称为`hello-dock-container`的容器处于运行中状态。
+
+你也可以使用`docker container rename`命令重命名一个容器，语法如下：
+
+`docker container rename <container identifier> <new name>`
+
+重命名之前的名称为gifted_sammet的容器为hello-dock-container-2，命令如下：
+
+`docker container rename gifted_sammet hello-dock-container-2`
+
+这个命令执行没有任何输出结果，不过你可以通过查看容器列表`container ls`确实是否修改成功
+
+无论容器在运行态或者停止态，`rename`命令都可以使用。
+
+<h3 id="7.6">7.6 怎样停止或者杀死一个运行中的容器？</h3>
+
+前台运行的容器可以通过关闭终端命令行或者按键ctrl + c来停止运行。后台运行的容器需要使用不同的方法。
+
+有两个命令可以停止容器，第一个是`container stop`命令，基本的语法是：
+
+`docker container stop <container identifier>`
+
+这里的container identifier可以是容器的名称或者ID。
+
+应该还记得我们之前启动的容器还在后台运行着，通过container ls查看容器的标识（这里我们以hello-dock-container作为示例）。执行下面的命令来停止容器运行：
+
+COPY
+
+如果你使用容器的名称作为标识，容器停止后控制台会将名字输出。stop命令通过发送`SIGTERM`信号优雅的关闭掉了容器。如果容器在一段时间内没有停掉，则会发送一个`SIGKILL`信号，立即停止容器。
+
+如果你想发送`SIGKILL`而不是`SIGTERM`信号，你可以使用container kill命令，命令的语法如下：
+
+COPY
+
+<h3 id="7.7">7.7 怎样重启一个容器？</h3>
