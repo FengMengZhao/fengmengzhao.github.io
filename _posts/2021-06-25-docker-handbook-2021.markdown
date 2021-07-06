@@ -29,6 +29,9 @@ comment: false
     - [7.5 怎样命名或者重命名一个容器？](#7.5)
     - [7.6 怎样停止或者杀死一个运行中的容器？](#7.6)
     - [7.7 怎样重启一个容器？](#7.7)
+    - [7.8 怎样不启动容器的情况下创建一个容器？](#7.8)
+    - [7.9 怎样移除一个不用的容器？](#7.9)
+    - [7.10 怎样使用命令行交互的方式启动一个容器？](#7.10)
 
 ---
 
@@ -466,13 +469,21 @@ docker container ls --all
 
 通过参数`--name`可以定义容器名称，基于镜像`fhsinchy/hello-dock`启动另外一个名称为`hello-dock-container`的容器，使用如下命令：
 
-`docker container run --detach --publish 8888:80 --name hello-dock-container fhsinchy/hello-dock`
+```
+docker container run --detach --publish 8888:80 --name hello-dock-container fhsinchy/hello-dock
 
-COPY
+# b1db06e400c4c5e81a93a64d30acc1bf821bed63af36cab5cdb95d25e114f5fb
+```
 
 8080的本地端口被我们之前启动的容器占用着，因此我们使用了一个新的端口8888。可以查看下启动的容器：
 
-COPY
+```
+docker container ls
+
+# CONTAINER ID        IMAGE                 COMMAND                  CREATED             STATUS              PORTS                  NAMES
+# b1db06e400c4        fhsinchy/hello-dock   "/docker-entrypoint.…"   28 seconds ago      Up 26 seconds       0.0.0.0:8888->80/tcp   hello-dock-container
+# 9f21cb777058        fhsinchy/hello-dock   "/docker-entrypoint.…"   4 minutes ago       Up 4 minutes        0.0.0.0:8080->80/tcp   gifted_sammet
+```
 
 名称为`hello-dock-container`的容器处于运行中状态。
 
@@ -500,12 +511,182 @@ COPY
 
 应该还记得我们之前启动的容器还在后台运行着，通过container ls查看容器的标识（这里我们以hello-dock-container作为示例）。执行下面的命令来停止容器运行：
 
-COPY
+```
+docker container stop hello-dock-container
+
+# hello-dock-container
+```
 
 如果你使用容器的名称作为标识，容器停止后控制台会将名字输出。stop命令通过发送`SIGTERM`信号优雅的关闭掉了容器。如果容器在一段时间内没有停掉，则会发送一个`SIGKILL`信号，立即停止容器。
 
 如果你想发送`SIGKILL`而不是`SIGTERM`信号，你可以使用container kill命令，命令的语法如下：
 
-COPY
+```
+docker container kill hello-dock-container-2
+
+# hello-dock-container-2
+```
 
 <h3 id="7.7">7.7 怎样重启一个容器？</h3>
+
+这里说的重启，有两种场景：
+
+- 重启之前已经停掉或者被杀死的容器
+- 重启一个运行中的容器
+
+在上面的章节中，我们系统中有停掉的容器，可以使用`container start`命令来启动停掉或者被杀死的容器，语法如下：
+
+`docker container start <container identifier>`
+
+可以使用`container ls --all`命令列出来所有的容器，找到状态是`Exited`的。
+
+```
+docker container ls --all
+
+# CONTAINER ID        IMAGE                 COMMAND                  CREATED             STATUS                        PORTS               NAMES
+# b1db06e400c4        fhsinchy/hello-dock   "/docker-entrypoint.…"   3 minutes ago       Exited (0) 47 seconds ago                         hello-dock-container
+# 9f21cb777058        fhsinchy/hello-dock   "/docker-entrypoint.…"   7 minutes ago       Exited (137) 17 seconds ago                       hello-dock-container-2
+# 6cf52771dde1        fhsinchy/hello-dock   "/docker-entrypoint.…"   7 minutes ago       Exited (0) 7 minutes ago                          reverent_torvalds
+# 128ec8ceab71        hello-world           "/hello"                 9 minutes ago       Exited (0) 9 minutes ago                          exciting_chebyshev
+```
+
+现在可以重启`hello-dock-container`容器，执行以下命令：
+
+```
+docker container start hello-dock-container
+
+# hello-dock-container
+```
+
+可以通过`container ls`命令展示运行中的容器，验证容器是否启动成功。
+
+`container start`命令默认情况下，保留之前的端口配置启动任何后台容器，所以如果你现在访问`http://127.0.0.1:8080`，就能够像之前那样访问到`hello-dock`应用。
+
+![](/img/posts/docker-handbook-2021-16.jpg)
+
+现在说下重启运行中容器的场景，要用到`container restart`命令，语法和`container start`命令类似。
+
+```
+docker container restart hello-dock-container-2
+
+# hello-dock-container-2
+```
+
+二者不同的地方在于，重启容器（restart）是先停掉容器在启动，而启动（start）容器就直接启动。
+
+对于停止状态的容器，二者都可以使用。但是对于运行中的容器，只能使用`docker restart`命令。
+
+<h3 id="7.8">7.8 怎样不启动容器的情况下创建一个容器？</h3>
+
+目前，我们学习用`docker run`命令启动一个容器。实际上，这个命令包含两部分：
+
+- `container create`命令，基于一个镜像创建一个容器。
+- `container start`命令，启动刚刚创建的容器。
+
+我们可以像[怎样运行一个容器](#7.1)章节那样，分两个步骤，启动一个容器：
+
+```
+docker container create --publish 8080:80 fhsinchy/hello-dock
+
+# 2e7ef5098bab92f4536eb9a372d9b99ed852a9a816c341127399f51a6d053856
+
+docker container ls --all
+
+# CONTAINER ID        IMAGE                 COMMAND                  CREATED             STATUS              PORTS               NAMES
+# 2e7ef5098bab        fhsinchy/hello-dock   "/docker-entrypoint.…"   30 seconds ago      Created                                 hello-dock
+```
+
+通过上面`container ls --all`命令展示所有容器，我们看到一个基于镜像`fhsinchy/hello-dock`的名称是`hello-dock`的容器。目前容器的状态是`Created`，说明这个容器没有运行，没有参数`--all`容器也不会展示出来。
+
+容器创建后，我们可以用`container start`命令来启动它：
+
+```
+docker container start hello-dock
+
+# hello-dock
+
+docker container ls
+
+# CONTAINER ID        IMAGE                 COMMAND                  CREATED              STATUS              PORTS                  NAMES
+# 2e7ef5098bab        fhsinchy/hello-dock   "/docker-entrypoint.…"   About a minute ago   Up 29 seconds       0.0.0.0:8080->80/tcp   hello-dock
+```
+
+容器的状态从`Created`变为了`Up 29 seconds`，表明容器现在是运行的状态。之前空着的PORTS列也有了数据。
+
+<h3 id="7.9">7.9 怎样移除一个不用的容器？</h3>
+
+一个被停掉或者杀死的容器还会停留在系统中，这些不用的容器会占用空间并且可能会很新的容器冲突。
+
+可以是`container rm`移除停掉的容器，语法如下：
+
+`docker container rm <container-identifier>`
+
+想找出来哪些容器不是运行的状态，可以使用`container ls --all`命令并寻找`Exited`状态的容器。
+
+```
+docker container ls --all
+
+# CONTAINER ID        IMAGE                 COMMAND                  CREATED             STATUS                      PORTS                  NAMES
+# b1db06e400c4        fhsinchy/hello-dock   "/docker-entrypoint.…"   6 minutes ago       Up About a minute           0.0.0.0:8888->80/tcp   hello-dock-container
+# 9f21cb777058        fhsinchy/hello-dock   "/docker-entrypoint.…"   10 minutes ago      Up About a minute           0.0.0.0:8080->80/tcp   hello-dock-container-2
+# 6cf52771dde1        fhsinchy/hello-dock   "/docker-entrypoint.…"   10 minutes ago      Exited (0) 10 minutes ago                          reverent_torvalds
+# 128ec8ceab71        hello-world           "/hello"                 12 minutes ago      Exited (0) 12 minutes ago                          exciting_chebyshev
+```
+
+从上面我们能找出来，容器ID是`6cf52771dde1`和`128ec8ceab71`的容器不是运行的状态，移除容器ID`6cf52771dde1`的容器，执行命令：
+
+```
+docker container rm 6cf52771dde1
+
+# 6cf52771dde1
+```
+
+可以使用`container ls --all`来验证容器是否被移除。如果要批量移除容器，可以一次性将容器的标识用空格隔开传递给命令。
+
+或者，你可以不用单个的移除容器，使用`container prune`命令可以一次性移除所有停掉或者退出的容器。
+
+使用`container ls --all`命令验证容器是否被移除：
+
+```
+docker container ls --all
+
+# CONTAINER ID        IMAGE                 COMMAND                  CREATED             STATUS              PORTS                  NAMES
+# b1db06e400c4        fhsinchy/hello-dock   "/docker-entrypoint.…"   8 minutes ago       Up 3 minutes        0.0.0.0:8888->80/tcp   hello-dock-container
+# 9f21cb777058        fhsinchy/hello-dock   "/docker-entrypoint.…"   12 minutes ago      Up 3 minutes        0.0.0.0:8080->80/tcp   hello-dock-container-2
+```
+
+如果严格按照本书的执行，执行到了这里，应该能够看到列表中的另个容器：`hello-dock-container`和`hello-dock-container-2`。建议进行下面的内容之前将这两个容器移除。
+
+`container run`命令和`container start`命令也有一个参数`--rm`，表示一旦容器停掉就删除容器。可以使用`--rm`参数启动另一个`hello-dock`容器。
+
+```
+docker container run --rm --detach --publish 8888:80 --name hello-dock-volatile fhsinchy/hello-dock
+
+# 0d74e14091dc6262732bee226d95702c21894678efb4043663f7911c53fb79f3
+```
+
+使用`container ls`命令查看容器是否启动：
+
+```
+docker container ls
+
+# CONTAINER ID   IMAGE                 COMMAND                  CREATED              STATUS              PORTS                  NAMES
+# 0d74e14091dc   fhsinchy/hello-dock   "/docker-entrypoint.…"   About a minute ago   Up About a minute   0.0.0.0:8888->80/tcp   hello-dock-volatile
+
+```
+
+现在可以停掉这个容器并使用`container ls --all`名称查看确认：
+
+```
+docker container stop hello-dock-volatile
+
+# hello-dock-volatile
+
+docker container ls --all
+
+# CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+```
+
+可以看见容器被自动删除了。后面我们基本上都会用上`--rm`参数，不需要的地方会特殊说明。
+
+<h3 id="7.10">7.10 怎样使用命令行交互的方式启动一个容器？</h3>
