@@ -690,3 +690,24 @@ docker container ls --all
 可以看见容器被自动删除了。后面我们基本上都会用上`--rm`参数，不需要的地方会特殊说明。
 
 <h3 id="7.10">7.10 怎样使用命令行交互的方式启动一个容器？</h3>
+
+目前我们基于[hello-world](https://hub.docker.com/_/hello-world)和[fhsinchy/hello-dock](https://hub.docker.com/r/fhsinchy/hello-dock)镜像创建并运行容器，这些都是简单程序的镜像，不需要命令行交互。
+
+镜像不都是这么简单的，它可以封装进去整个Linux的发行版。
+
+流行的Linux发型版，例如[Ubuntu](https://ubuntu.com/)、[Fedora](https://fedora.org/)和[Debian](https://debian.org/)在官方的仓库中都有Docker镜像。编程语言，像[python](https://hub.docker.com/_/python)、[php](https://hub.docker.com/_/php)、[go](https://hub.docker.com/_/golang)，过着运行时环境[node](https://hub.docker.com/_/node)和[deno](https://hub.docker.com/r/hayd/deno)都有自己的官方镜像。
+
+这些镜像不仅仅是做好了提前的配置，默认会配置执行一个shell。对于操作系统镜像来说，可能是一个`sh`或者`bash`，对于一个编程语言或者运行时环境，可能是语言自身的shell。
+
+我们都知道，shell是命令行交互式程序。如果一个镜像配置执行这样一个程序，这样的镜像称之为交互式的镜像。他们在启动容器`docker run`的时候需要一个`-it`参数。
+
+举一个例子，如果你使用`docker container run ubuntu`启动一个ubuntu镜像的容器，命令行上你会看不到任何输出。但是如果你加上`-it`参数，你就能够直接在命令行中操作这个Ubuntu容器。
+
+COPY
+
+上面，我们执行命令`cat /etc/os-release`得到相应的输出，说明我们确实是和Ubuntu容器在进行交互。
+
+`-it`参数能够让你和容器内的交互式程序进行交互。这个参数实际上是有两部分组成在一起。
+
+- `-i`参数或者`--interactive`绑定连接终端到容器的输入流中，因此你可以在终端中输入。
+- `-t`或者`--tty`参数保证你获取格式化后的内容，并且通过分配一个伪tty让你有一个很好的终端体验。
