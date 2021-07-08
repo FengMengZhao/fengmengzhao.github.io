@@ -32,6 +32,8 @@ comment: false
     - [7.8 怎样不启动容器的情况下创建一个容器？](#7.8)
     - [7.9 怎样移除一个不用的容器？](#7.9)
     - [7.10 怎样使用命令行交互的方式启动一个容器？](#7.10)
+    - [7.11 怎样在容器内执行命令？](#7.11)
+    - [7.12 怎样操作可执行镜像？](#7.12)
 
 ---
 
@@ -703,7 +705,23 @@ docker container ls --all
 
 举一个例子，如果你使用`docker container run ubuntu`启动一个ubuntu镜像的容器，命令行上你会看不到任何输出。但是如果你加上`-it`参数，你就能够直接在命令行中操作这个Ubuntu容器。
 
-COPY
+````
+docker container run --rm -it ubuntu
+
+# root@dbb1f56b9563:/# cat /etc/os-release
+# NAME="Ubuntu"
+# VERSION="20.04.1 LTS (Focal Fossa)"
+# ID=ubuntu
+# ID_LIKE=debian
+# PRETTY_NAME="Ubuntu 20.04.1 LTS"
+# VERSION_ID="20.04"
+# HOME_URL="https://www.ubuntu.com/"
+# SUPPORT_URL="https://help.ubuntu.com/"
+# BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+# PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+# VERSION_CODENAME=focal
+# UBUNTU_CODENAME=focal
+````
 
 上面，我们执行命令`cat /etc/os-release`得到相应的输出，说明我们确实是和Ubuntu容器在进行交互。
 
@@ -711,3 +729,87 @@ COPY
 
 - `-i`参数或者`--interactive`绑定连接终端到容器的输入流中，因此你可以在终端中输入。
 - `-t`或者`--tty`参数保证你获取格式化后的内容，并且通过分配一个伪tty让你有一个很好的终端体验。
+
+当你像以命令行交互的方式运行一个容器的时候，你需要使用`-it`。你可以这样启动node容器：
+
+```
+docker container run -it node
+
+# Welcome to Node.js v15.0.0.
+# Type ".help" for more information.
+# > ['farhan', 'hasin', 'chowdhury'].map(name => name.toUpperCase())
+# [ 'FARHAN', 'HASIN', 'CHOWDHURY' ]
+```
+
+任何有效的JavaScript代码都可以在这个终端中运行。`-it`是缩写，我们也分别可以写成`--interactive --tty`。
+
+<h3 id="7.11">7.11 怎样在容器内执行命令？</h3>
+
+在上面的章节，我们运行了一个Alpine Linux容器，并且执行了一个命令：
+
+```
+docker run alpine uname -a
+# Linux f08dbbe9199b 5.8.0-22-generic #23-Ubuntu SMP Fri Oct 9 00:34:40 UTC 2020 x86_64 Linux
+```
+
+在上面的命令中，我在容器Alpine Linux容器中执行了`uname -a`命令。像这种的场景（启动一个容器的时候，需要在容器内执行一个命令）很常见。
+
+假设你想base64一个字符串，这在Linux或者Unix系统中很容易做到（不包括Windows系统）。
+
+你可以快速的启动一个基于[busybox](https://hub.docker.com/_/busybox)的镜像的容器，让这个容器做base64的工作。
+
+把一个字符串base64的基本语法是：
+
+```
+echo -n my-secret | base64
+
+# bXktc2VjcmV0
+```
+
+将命令传递给没有在运行的容器的基本语法是：
+
+`docker container run <image name> <command>`
+
+使用`busybox`镜像运行容器，并让容器执行base64命令，可以这样启动：
+
+```
+docker container run --rm busybox echo -n my-secret | base64
+
+# bXktc2VjcmV0
+```
+
+这里的处理逻辑上，`docker run`命令任何在image name后面的内容都作为参数传递给容器的默认`entry point`。
+
+所谓的`entry point`就是一个镜像的入口。除了可执行镜像（在下面[怎样操作可执行镜像](#7.12)章节说明）外，大部分镜像使用shell或者`sh`作为默认的`entry point`。因此任何有效的shell命令都可以作为参数传递。
+
+<h3 id="7.12">7.12 怎样操作可执行镜像？</h3>
+
+之前我们有简单提到可执行容器，这些容器的目的是样程序一样可执行。
+
+看一看我的[rmbyext](https://github.com/fhsinchy/rmbyext)项目，这是一个简单的Python脚本，能够递归删除给定扩展名的文件。可以访问仓库了解更详细的信息。
+
+如果你已经安装了Git和Python，可以执行下面的命令安装这个脚本：
+
+`pip install git+https://github.com/fhsinchy/rmbyext.git#egg=rmbyext`
+
+如果你已经配置好了Python环境命令，在任意的命令行中，都可以使用一下命令：
+
+`rmbyext <file extension>`
+
+为了测试，在一个空目录中打开命令行并以不同的扩展创建多个文件。你可以使用touch命令来这样做，现在我们有了一个目录，目录中有如下文件：
+
+```
+touch a.pdf b.pdf c.txt d.pdf e.txt
+
+ls
+
+# a.pdf  b.pdf  c.txt  d.pdf  e.txt
+```
+
+要删除所有的pdf文件，可以执行如下的命令：
+
+`rmbyext pdf`
+
+一个可执行的镜像也应该像`rmbyext`脚本文件一样，接收一个文件后缀的参数，能够删除后缀结尾的文件。
+
+[fhsinchy/rmbyext](https://hub.docker.com/r/fhsinchy/rmbyext)镜像和上面的程序类似，它包含了`rmbyext`脚本，并且配置了执行脚本时删除容器内`/zone`目录下的文件。
