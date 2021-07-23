@@ -260,7 +260,7 @@ WHERE
 --step 1
 REVOKE CONNECT ON DATABASE db_jcdsj FROM public;
 
---step 2
+--step 2 如果procid报不存在 应该是版本问题 用pid
 SELECT 
    pg_terminate_backend(pg_stat_activity.procpid)
 FROM 
