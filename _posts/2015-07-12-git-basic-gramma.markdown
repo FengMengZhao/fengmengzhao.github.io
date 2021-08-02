@@ -98,6 +98,7 @@ url可以写成两种情况
     git remote set-url origin https://username:passwd@github.com/repo.git
 
 - 例如: `git remote set-url origin https://fmzhao:FENG799520.Github@github.com/fmzhao/fmzhao.github.io.git`
+- 例如2：`git remote set-url origin http://${user}:{password}@192.168.12.137/root/docker-image.git`
 - 这样clone一个项目之后(自己的账号,知道用户名和密码),直接可以push而不需要ssh设置
 
 **git重命名文件**
