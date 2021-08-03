@@ -445,7 +445,13 @@ rc 3 就进去读取 `/etc/rc.d/rc.3`中的进程，以S开头是要启动的程
 
 强制卸载RPM包：`rpm -e httpd-2.2.3-43.el5.centos --force --nodeps`
 
-查看RPM安装了些什么：`rpm -qpl httpd-2.2.3-43.el5.centos.i386.rpm |more`
+查看RPM安装了些什么：`rpm -ql httpd-2.2.3-43.el5.centos.i386.rpm |more`，这里可以是本地的一个rpm包，也可以不加后缀，也可以是具体安装的应用。如：`rpm -ql /root/elasticsearch-5.0.0-thunisoft.ky10.ky10.aarch64.rpm`或者`rpm -ql elasticsearch-5.0.0-thunisoft.ky10.ky10.aarch64`或者`rpm -ql elasticsearch`
+
+查看RPM的配置文件：`rpm -qc mariadb-server-10.3.9-8.ky10.aarch64.rpm`
+
+根据RPM包安装的默认路径查看对应的包：`rpm -qf $(which mysql)`
+
+查看rpm包的具体内容：`rpm -qi mariadb-10.3.9-8.ky10.aarch64`
 
 **yum工具来安装RPM软件包**
 
