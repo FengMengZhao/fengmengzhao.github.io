@@ -41,6 +41,7 @@ comment: false
         - [6.6.1 ftp映射本地Linux目录](#6.6.1)
         - [6.6.2 lftp下载ftp数据](#6.6.2)
         - [6.6.3 将FTP文件映射为本地目录](#6.6.3)
+        - [6.6.4 将本地的一个目录挂载到另外一个目录上](#6.6.4)
 - [7. 日常小技巧](#7)
     - [7.1 监控某个端口的数据](#7.1)
     - [7.2 浏览器中点点点密码显示](#7.2)
@@ -835,6 +836,20 @@ curlftpfs -o codepage=utf8 ftp://admin:admin@172.16.32.221:2121 /ftp/ftpmapdata
 #确保文件rc.local具有可执行权限：
 chmod a+x /etc/rc.d/rc.local
 ```
+
+<h5 id="6.6.4">6.6.4 将本地的一个目录挂载到另外一个目录上</h5>
+
+```shell
+#将/path/to/newfolder目录挂载到/path/to/folder，类似于软连接的概念
+#该方法也可以用来扩容
+mount -o bind /path/to/folder /path/to/newfolder
+#例如：mount -o bind /acloud_cp/acloud/docker/volumes /acloud/docker/volumes
+
+#如果需要改在永久生效，需要修改/etc/fstab，增加配置
+/path/to/folder /path/to/newfolder none defaults,bind 0 0
+```
+
+详细参考文章：[https://gamblisfx.com/how-to-mount-a-folder-to-another-folder-on-linux/](https://gamblisfx.com/how-to-mount-a-folder-to-another-folder-on-linux/)
 
 ---
 
