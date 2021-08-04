@@ -31,17 +31,18 @@ comment: true
 
 <h3 id="1">基本命令</h3>
 
-| 命令 | 说明 | 解释 |
-| :--:| :--: | :--: |
+| 命令 | 说明 |
+| :--:| :--: |
 | `:e filename` | 打开新的文件并命名 |
 | `:w` | 保存文件 |
 | `:q` | 退出Vim |
 | `:q!` | 不保存退出Vim |
 | `:x` | 写入文件(如果文件有修改)并退出 |
 | `:sav filename` | 另存文件并命名 |
-| `.` | 重复上一次在normal模式中的改变 | 例如normal模式中增加了几个字，在其他行中用`.`命令，同样可以增加；在命令行模式中执行命令，用`.`同样可以使用 |
+| `.` | 重复上一次在normal模式中的改变(例如normal模式中增加了几个字，在其他行中用`.`命令，同样可以增加；在命令行模式中执行命令，用`.`同样可以使用) |
 | `5.` | 5次重复上一次在normal模式中的改变 |
 | `shift+A` | 移动到当前行尾 |
+| `shift+^` | 移动到当前行首(也可以使用`0`移动到行首) |
 | `u` | 撤销 |
 | `ctrl+r` | 恢复撤销 |
 
@@ -74,7 +75,8 @@ comment: true
 | `y` | 复制选中的内容到剪切板 |
 | `p` | 粘贴剪切板内容 |
 | `dd` | 删除当前行 |
-| `yy` | 赋值当前行 |
+| `d$` | 删除当前行到行尾 |
+| `yy` | 复制当前行 |
 | `y$` | 复制当前到行尾 |
 | `D` | 剪切当前到行尾 |
 
@@ -89,9 +91,9 @@ comment: true
 | `*` | 搜索光标所在的word |
 | `/\cstring` | 搜索string或者STRING,大小写敏感 |
 | `/jo[ha]n` | 搜索john或者joan |
-| `/\<the` | 搜索the,theatre或者then(以the开头) |
-| `/the\>` | 搜索the或者breathe(以the结尾) |
-| `/\<the\>` | 搜索the |
+| `/\<the` | 搜索the,theatre或者then(以the开头),搜索的是单词 |
+| `/the\>` | 搜索the或者breathe(以the结尾),搜索的是单词 |
+| `/\<the\>` | 搜索the,搜索的是单词 |
 | `/\/` | 搜索字符`/` |
 | `/fred\|joe` | 搜索fred或者joe |
 | `/\<\d\d\d\d\>` | 搜索四个数字 |
@@ -111,14 +113,14 @@ comment: true
 | `:%s/old/new/gc` | 替换所有出现的old为new(提示确认) |
 | `:2,35s/old/new/g` | 替换所有出现的old为new(从2行到35行) |
 | `:5,$s/old/new/g` | 替换所有出现的old为new(从5行到末行) |
-| `:%s/^/new/g` | 替换行头为new |
-| `:%s/$/new/g` | 替换行未为new |
-| `:s/Bill/Steve/` | 替换当前行第一次出现的Bill为Steve |
-| `:s/Bill/Steve/g` | 替换当前行出现的所有Bill为Steve |
+| `:%s/^/new/g` | 替换行头为new,%代表所有的行 |
+| `:%s/$/new/g` | 替换行未为new,%代表所有的行 |
+| `:s/Bill/Steve/` | 替换当前行第一次出现的Bill为Steve,没有百分还为当前行 |
+| `:s/Bill/Steve/g` | 替换当前行出现的所有Bill为Steve,没有百分还为当前行 |
 | `:g/string/d` | 删除所有包含string的行 |
 | `:v/string/d` | 删除所有不包含string的行 |
 | `:%s/^M//g` | 删除DOS的carrage returns(^M) |
-| `:%s/^M//g` | 删除DOS的carrage returns(^M) |
+| `:%s/\r/\r/g` | 删除DOS的carrage returns(^M) |
 | `:%s#<[^>]\+>##g` | 删除html标签保留文本 |
 | `:%s/^.*\n\1$/\1/` | 删除出现两次的行 |
 | `ctrl+a` | 增加光标下数字大小 |
