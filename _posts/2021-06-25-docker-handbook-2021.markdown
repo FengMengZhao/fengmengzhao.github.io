@@ -31,6 +31,7 @@ comment: false
     - [7.7 怎样重启一个容器？](#7.7)
     - [7.8 怎样不启动容器的情况下创建一个容器？](#7.8)
     - [7.9 怎样移除一个不用的容器？](#7.9)
+
     - [7.10 怎样使用命令行交互的方式启动一个容器？](#7.10)
     - [7.11 怎样在容器内执行命令？](#7.11)
     - [7.12 怎样操作可执行镜像？](#7.12)
@@ -45,6 +46,12 @@ comment: false
     - [8.8 怎样创建一个可执行Docker镜像？](#8.8)
     - [8.9 怎样在线共享你的镜像？](#8.9)
 - [9. 怎样容器化一个Javascript应用？](#9)
+    - [9.1 怎么写Dockerfile？](#9.1)
+    - [9.2 怎么在Docker中处理Bind Mounts(绑定挂载)？](#9.2)
+    - [9.3 怎么使用Docker的匿名卷？](#9.3)
+    - [9.4 怎么在Docker中执行多阶段构建（Multi-Staged Builds）？](#9.4)
+    - [9.5 怎么忽略掉不必要的文件？](#9.5)
+- [10. Docker中的网络操作](#10)
 
 ---
 
@@ -1204,3 +1211,204 @@ COPY
 ---
 
 <h2>9. 怎样容器化一个Javascript应用？</h2>
+
+现在你学习了怎样创建一个镜像，接下来做一些更相关的内容。
+
+在接下来的章节你将会书写之前用过的`fhsinchy/hello-dock`镜像的源代码。在容器化这个简单应用的过程中，你将会了解卷（volume）和多步构建（two-stage builds）两个Docker重要的概念。
+
+<h3 id="9.1">9.1 怎么写Dockerfile？</h3>
+
+打开你克隆本书的仓库目录，`hello-dock`应用的代码就在同名的子目录中。
+
+这是一个使用`vitejs/vite`的非常简单的JavaScript项目，要了解接下来的内容你不需要懂JavaScript或者vite，只要对Node.js和npm有简单的了解就足够了。
+
+就像之前章节的其他项目一样，你首先要对应用怎么运行有一个规划，在我看来，规划应该是：
+
+- 获取一个运行JavaScript的基础镜像，例如node。
+- 在镜像中设置默认的工作目录。
+- 复制package.json文件到镜像中。
+- 安装必要的依赖。
+- 复制其他的项目文件。
+- 通过执行`npm run dev`启动vite dev服务。
+
+这样的规划通常来自于应用的开发人员，如果你本身是一个开发人员，你应该已经对应用怎么运行有很好的理解了。
+
+如果将上述的规划放在Dockerfile.dev中，内容应该是这样的：
+
+COPY
+
+上述命令的解释如下：
+
+- `FROM`命令表示指定Node.js镜像作为基础镜像，该镜像中你可以运行任何的JavaScript应用。`lts-alpine`标签表示你使用的是Alpine的镜像版本，这是一个支持长久维护的镜像版本。所有的tag和文档都可以在node hub页面找到。
+- `USER`命令设置该镜像默认的user为node。默认情况Docker以root用户运行容器，但是根据Docker和Node.js的最佳实践这样会带来安全上的问题，所以最好尽可能用非root用户。这样node镜像拥有了一个非root的用户叫做node，你可以使用`USER`命令来设置默认的用户。
+- `RUN mkdir -p /home/node/app/`命令使用node用户在家目录中创建了一个叫app的目录。Linux中一般非root用户的家目录默认是`/home/<username>`。
+- `WORKDIR`命令设置默认的工作目录为新创建的`/home/node/app`目录。镜像默认的工作目录是root，你也不想一些不必要的文件散落在root目录是吧？因此你改变了默认的工作目录为更有意义的目录`/home/node/app`或者其他你喜欢的目录。接下来的copy、ADD和CMD等命令都是在该工作目录下执行的。
+- `COPY`指令复制package.json文件，该文件中包含了应用必要的依赖信息。`RUN`命令执行`npm install`命令，该命令是node项目中使用package.json来安装依赖包的默认命令。`.`代表工作目录。
+- 第二个`COPY`命令表示复制文件系统中当前目录(`.`)剩余的内容到Docker镜像的工作目录(`.`)中。
+- 最后`CMD`命令用`exec`的格式设置该镜像默认的运行命令为`npm run dev`。
+- vite dev服务默认运行的端口是3000，因此用`EXPOSE`命令加以说明是一个很好的选择。
+
+现在使用该Dockerfile.dev文件来构建一个镜像，你可以执行如下指令：
+
+```shell
+COPY
+```
+
+因为Dockerfile文件名不是默认的Dockerfile，因此你需要使用`--file`参数来手动指定文件。你可以使用下面的命令来运行一个容器：
+
+```shell
+docker container run \
+--rm \
+--detach \
+--publish 3000:3000 \
+--name hello-dock-dev \
+hello-dock:dev
+
+COPY
+```
+
+现在可以通过`http://127.0.0.1:3000`来访问hello-dock应用了。
+
+![](/img/posts/docker-handbook-2021-19.jpg)
+
+恭喜你成功运行了第一个容器化的应用。你的代码没有问题，但是一些地方还有很大提高的地方，我们首先来看第一个问题。
+
+<h3 id="9.2">9.2 怎么在Docker中处理Bind Mounts(绑定挂载)？</h3>
+
+如果你之前有接触过前端的一些框架，你应该了解这些框架的dev服务都有热部署的功能。那就是如果你源代码有所改变，服务端就会reload，任何修改都能够自动的立刻完成重新部署显现出来。
+
+但是如果你现在改变你的源代码，启动的服务不会有任何改变。这是因为你的修改发生在本地文件系统上，而你看到的页面的后台服务的代码是在容器内的文件系统上。
+
+![](/img/posts/docker-handbook-2021-20.jpg)
+
+为来解决这个问题，你可以使用bind mount，能很容易的实现将本地文件系统的一个目录挂载到容器上。bind mount不是复制了一份本地文件系统中的内容，而是让容器可以直接引用本地文件系统上的内容。
+
+![](/img/posts/docker-handbook-2021-21.jpg)
+
+这样在你本地文件系统中改变的内容就会立马体现在容器中，触发vite dev服务的热部署。容器中的任何改变也会反映在本地文件系统中。
+
+在[怎样操作可执行镜像](#7.12)章节中我们学习了可以使用`container run`或者`container start`命令的`--volume|-v`参数来创建bind mount，提醒一下，基本的语法是这样的：
+
+```shell
+--volume <local file system directory absolute paty>:<container file system directory absolute path>:<read write access>
+```
+
+停掉你之前启动的hello-dock-dev容器，使用下面的命令启动一个新的容器：
+
+```shell
+docker container run \
+--rm \
+--publish 3000:3000 \
+--name hello-dock-dev \
+--volume $(pwd):/home/node/app \
+hello-dock:dev
+
+COPY
+```
+
+请注意，我省略了`--detach`参数是为了证明一个重要的内容，终端中可以看出，应用没有运行起来。
+
+这是因为尽管volume的使用解决了热部署的问题，它带来了一个新的问题。如果你有node.js的经验，你会知道Node项目的依赖都在根目录下一个`node_modules`目录中。
+
+如今，你讲整个Node项目的挂载到本地文件系统的目录上，容器内的`node_modules`目录也被替换了，这样应用就不能正常启动了。
+
+<h3 id="9.3">9.3 怎么使用Docker的匿名卷？</h3>
+
+这个问题可以通过Docker匿名卷的方式解决，匿名卷除了不需要指定一个源目录之外和一个bind mount以一样的，通用的语法是：
+
+```shell
+--volume <container file system directory absolute path>:<read write access>
+```
+
+因此基于匿名卷最终运行容器hello-dock的命令是：
+
+```shell
+docker container run \
+--rm \
+--detach \
+--publish 3000:3000 \
+--name hello-dock-dev \
+--volume $(pwd):/home/node/app \
+--volume /home/node/app/node_modules \
+hello-dock:dev
+
+COPY
+```
+
+在这里，Docker将容器内node_modules整个目录和由Docker daemon管理的匿名目录绑定。
+
+<h3 id="9.4">9.4 怎么在Docker中执行多阶段构建（Multi-Staged Builds）？</h3>
+
+目前为止，我们已经在开发环境下可以构建JavaScript应用镜像。如果你要在生产环境中构建一个镜像，新的挑战就出来了。
+
+在生产环境中，`npm run build`编译了所有的JavaScript代码为HTML、CSS和JavaScript文件。为了运行这些文件，你不在需要node或者其他运行时的依赖。你所需要的是一个像nginx的http服务器。
+
+为了创建在生产环境中运行应用的镜像，你可以按照按照一下步骤：
+
+- 使用node作为基础镜像构建应用。
+- 在node镜像中安装nginx并且使用它提供http服务。
+
+上面的办法是可行的，但是问题是node镜像很大并且镜像中的很多东西对于http服务来说都不是必须的，这种情况更好的办法是：
+
+- 使用node作为基础镜像构建应用。
+- 复制node镜像中产生的文件到一个nginx镜像中。
+- 抛弃node所有相关的东西，基于nginx创建最终的镜像。
+
+这样制作的镜像仅仅包含需要的文件，镜像也会很小。
+
+这种方法是多阶段构建，为了执行这样的构建，在你的hello-dock目录中创建一个新的Dockerfile，写入如下内容：
+
+COPY
+
+这个Dockefile除了新增的一些行外和之前的很类似，命令解释如下：
+
+- 第1行，开始第一阶段的构建，使用`node-alpine`作为基础镜像，`as builder`语法指定了该阶段的一个名称，以便后续能够访问到。
+- 第3到9行，这是我们之前看到过的很多标准的命令。`RUN npm run build`命令是将整个项目编译并将结果输出到`/app/disk`目录，app目录是指定的工作目录，disk目录是vite默认的文件输出目录。
+- 第11行，开启了一个新的bulid阶段，使用`nginx:stable-alpine`作为基础了nginx镜像。
+- nginx服务默认监听80端口，因此加上`EXPOSE 80`。
+- 最后一行是一个copy命令，`--from=builder`参数表明你想要从builder阶段copy一些东西。那之后是一个标准的copy命令，`/app/dist`是源端、`/usr/share/nginx/html`是目标端。目录段路径使用的是nginx的默认配置路径，该路径下的文件会自动被nginx server读取。
+
+从上面可以看到，生成的镜像以nginx为基础镜像，镜像中仅仅包含运行应用的必要文件。可以通过下面的命令构建镜像：
+
+```shell
+docker image build --tag hello-dock:prod .
+COPY
+```
+
+镜像创建后，你可以通过执行下面的命令来运行容器：
+
+```shell
+docker container run \
+--rm \
+--detach \
+--name hello-dock-prod \
+--publish 8080:80 \
+hello-dock:prod
+
+COPY
+```
+
+可用通过`http://127.0.0.1`来访问启动的服务。
+
+![](/img/posts/docker-handbook-2021-22.jpg)
+
+这里你可以看到hello-dock应用。多阶段构建在构建许多依赖的大项目的时候非常有用，如果能够很好的配置，多阶段构建的镜像非常的小并且优化。
+
+<h3 id="9.5">9.5 怎么忽略掉不必要的文件？</h3>
+
+如果你了解过git，你可能会知道.gitignore文件，该文件中包含的一系列文件和目录将会从git仓库中忽略掉。
+
+同样，Docker也有一个类似概念，`.dockerignore`文件中包含一系列的文件和目录会在镜像构建时候忽略，你可以在hello-dock目录中找到.dockerignore。
+
+```shell
+.git
+*Dockerfile*
+*docker-compose*
+node_modules
+```
+
+这个`.dockerignore`只适用在build阶段，.dockerignore中的文件和目录在COPY命令时会被忽略，但是如果你要进行目录挂载，.dockerignore就没有任何作用。我会在有必要的项目中添加.dockerignore文件。
+
+---
+
+<h2>10. Docker中的网络操作</h2>
