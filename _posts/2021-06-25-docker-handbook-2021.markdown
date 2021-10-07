@@ -51,6 +51,20 @@ comment: false
     - [9.4 怎么在Docker中执行多阶段构建（Multi-Staged Builds）？](#9.4)
     - [9.5 怎么忽略掉不必要的文件？](#9.5)
 - [10. Docker中的网络操作](#10)
+    - [10.1 Docker网络基础](#10.1)
+    - [10.2 怎样在Docker中自定义一个桥接网络？](#10.2)
+    - [10.3 怎样在Docker中附接一个容器到网络中？](#10.3)
+    - [10.4 怎样在Docker中将容器从网络中断开连接？](#10.4)
+    - [10.5 怎样在Docker中删除网络？](#10.5)
+- [11. 怎样容器化配置一个多容器JavaScript应用？](#11)
+    - [11.1 怎样运行一个数据库服务？](#11.1)
+    - [11.2 怎样在Docker中使用实名卷？](#11.2)
+    - [11.3 怎样在Docker中查看容器的日志？](#11.3)
+    - [11.4 怎样在Docker中创建一个网络并且将数据库容器附接到网络中？](#11.4)
+    - [11.5 怎样写Dockerfile？](#11.5)
+    - [11.6 怎样在运行的容器中执行命令？](#11.6)
+    - [11.7 怎样写管理Docker的脚本？](#11.7)
+- [12. 怎样使用Docker-Compose？](#12)
 
 ---
 
@@ -1411,3 +1425,380 @@ node_modules
 ---
 
 <h2>10. Docker中的网络操作</h2>
+
+目前为止本书中你只接触到了单个的容器，但是在实际的工作中，你要处理的大部分项目都超过一个容器。事实上，如果你不了解容器隔离的细微差别，就很难协作好多个容器。
+
+因此本书的这一部分你会熟悉Docker网络并能够协作一个小的多容器项目。
+
+从之前的章节中你会了解到容器时一个隔离的环境。现在假设你有一个基于Express.js的notes-api应用和一个postgres数据库服务分别在两个容器上运行。
+
+这两个容器彼此间时完全隔离的并且批次意识不到对方的存在，那么两个容器之间这门能够连接起来，是不是很困难？
+
+你可能会想到这个问题的两个解决方案，它们是：
+
+- 通过暴露的端口访问数据库服务。
+- 通过数据库服务器的IP和默认端口访问数据库服务。
+
+第一个方案需要postgres容器暴露一个端口，notes-api通过这个暴露的端口例如5432进行连接。如果你在notes-api容器中使用`127.0.0.1:5432`来连接数据库服务，你会发现note-api无法找到数据库服务。
+
+原因是当你在note-api容器中使用`127.0.0.1`时，你实际上在访问当前容器的localhost，postgres服务在notes-api容器中并不存在，这样也就连接不上。
+
+第二种方案你可能会想用`container inspect`命令找到postgres数据库容器的实际IP地址并且使用IP和端口进行连接。假设postgres数据库服务容器的名称是notes-api-db-server，你可以通过下面的命令，很方便的获得容器的IP地址：
+
+```shell
+```
+
+现在已知postgres默认的端口是5432，notes-api容器可以方便的通过`172.17.0.2:5432`连接到数据库服务。
+
+这种办法也存在问题，实际上使用容器的IP来连接容器是不被推荐的。并且，假设容器被销毁或者被重新创建，容器的IP是会发生改变的，跟踪这些变化的IP是一件很繁琐的事情。
+
+现在否定了原始问题的所有答案，我们给出正确的答案：将要互联的容器放在一个用户自定义的桥接网络中。
+
+<h3 id="10.1">10.1 Docker网络基础</h3>
+
+像`container`和`image`一样，`network`是Docker中的另外一个逻辑对象，同样有`docker network`开头的很多命令来管理网络。
+
+列出系统中的所有网络，执行下面的命令：
+
+```shell
+docker network ls
+COPY
+```
+
+你能够看到系统中有三个网络，现在看下表格中的DRIVER列，该列表示网络的类型。
+
+默认，Docker有5种网络drivers，它们是：
+
+- 桥接（bridge）-Docker中的默认网络类型，这种类型适合使用在独立运行的容器并且容器间需要相互通信。
+- 主机（host）-完全移除了网络的隔离。只要在主机网络下的任何容器都连接到了宿主机网络下。
+- 无（none）-这种类型容器之间的网络连接，我还没有发现该中类型的任何用处。
+- overlay-这种类型跨主机连接多个Docker daemon，不在本书的讨论范围之内。
+- macvlan-它允许给容器分配MAC地址，是容器模拟一个物理设备。
+
+也有第三方的插件允许你整合Docker和特殊的网络栈。在上面5中网络类型中，在本书中你只需要了解桥接网络类型。
+
+<h3 id="10.2">10.2 怎样在Docker中自定义一个桥接网络？</h3>
+
+在创建自定义网络之前，最好花一些时间认识一个Docker默认的桥接网络。从列出系统上的所有网络开始：
+
+```shell
+docker network ls
+COPY
+```
+
+可以看到，Docker有一个默认的桥接网络名字叫做bridge，你运行的容器都会自动附接在这个桥接网络下：
+
+```shell
+COPY
+```
+
+之前有讲到过，附接在这个默认桥接网络下的所有容器相互间可以通过IP通信。
+
+一个自定义的桥接网络相比较默认桥接有一些额外的功能，根据官方文档，额外的功能如下：
+
+- 自定义桥接网络提供容器间自动DNS解析功能。这意味着在同一个自定义桥接网络下的容器间可以通过容器名称通信。因此如果你有两个容器分别是notes-api和notes-db，那么API容器就可以通过note-db容器名字来连接数据库容器。
+- 自定义桥接网络提供更好的容器间的隔离。所有附接在默认桥接网络下的容器可能会彼此冲突，自定义桥接网络下的容器能确保更好的隔离。
+- 容器能够随时附接在或者从自定义桥接中断开连接。在容器的生命周期中你可以随时附接在或者断开于自定义桥接网络中，从自定义桥接网络中断开容器连接的方法是，首先要停掉容器，然后重新运行容器并指定网络参数。
+
+现在你了解了足够多自定义桥接网络的内容，是时候自己动手创建一个了，可以使用`network create`命令来创建网络，基本的语法如下：
+
+```shell
+docker network create <network name>
+```
+
+创建一个名称为skynet的网络，命令如下：
+
+```shell
+docker network create skynet
+COPY
+```
+
+上面可以看到一个指定名称的网络被创建，目前没有容器附连在这个网络下面，下一部分你会学习如何附接一个容器到一个网络。
+
+<h3 id="10.3">10.3 怎样在Docker中附接一个容器到网络中？</h3>
+
+基本上有两个办法将一个容器附接在一个网络上。首先，你可以使用network的命令来附接容器，基本的语法如下：
+
+```shell
+docker network connect <network identifier> <container identifier>
+```
+
+为了能够将`hello-dock`容器附接在`skynet`网络下，你可以执行下面的命令：
+
+```shell
+docker network connnect skynet hell-dock
+COPY
+```
+
+从上面我们执行两条network inspect的输出中可以看到，hello-dock容器已经附接在skynet和默认bridge桥接网络下了。
+
+第二种附接容器在网络下的方法是使用命令`container run|create`命令的`--network`参数，基本的语法如下：
+
+```shell
+--network <network identifier>
+```
+
+运行另外一个alpine-box容器并附接在同样的网络下，可以执行：
+
+```shell
+docker container run --network skynet --rm --name alpine-box -it alpine sh
+COPY
+```
+
+你可以看到，在alpine-box容器中运行`ping hello-dock`能成功联通，因为二容器同在自定义的桥接网络中且具备自动DNS解析的功能。
+
+需要注意的是，要想让自定义DNS解析功能成功，你必须给容器设定自定的名称，用自动生成的容器名称在自定义DNS解析时是无效的。
+
+<h3 id="10.4">10.4 怎样在Docker中将容器从网络中断开连接？</h3>
+
+上面你学习了将一个容器附接在一个网络中，这一节你会学习到如何将一个容器从网络中断开连接。你可以使用`network disconnect`命令来完成，基本的语法如下：
+
+```shell
+docker network disconnect <network identifier> <container identifier>
+```
+
+将hello-dock容器从skynet网络中断开连接，你可以执行下面的命令：
+
+```shell
+docker network disconnect skynet hello-dock
+```
+
+和network connect命令一样，network disconnect命令也没有任何输出
+
+<h3 id="10.5">10.5 怎样在Docker中删除网络？</h3>
+
+和其他Docker中的逻辑对象一样，网络可以使用`network rm`命令删除，基本的语法是：
+
+```shell
+docker network rm <network identifier>
+```
+
+将skynet网络从系统中删除，可以执行如下命令：
+
+```shell
+docker network rm skynet
+```
+
+你也可以使用`network prune`命令来删除任何系统中没有使用的网络，该命令也具有`-f|--force`和`-a|--all`参数。
+
+---
+
+<h2>11. 怎样容器化配置一个多容器JavaScript应用？</h2>h
+
+现在你学习了足够多的Docker网络知识，在这一部分中，你会学习到如何容器化配置一个完整的多容器项目，该项目包括一个基于Express.js的notes-api和PostgreSQL。
+
+在这个项目当中，一共有两个容器需要你用网络将它们连在一起。此外，你将会学习到如环境变量和实名卷（named volume）的概念，我们开始吧。
+
+<h3 id="11.1">11.1 怎样运行一个数据库服务？</h3>
+
+该项目的数据库服务是PostgreSQL，使用的是官方的镜像。
+
+根据官方文档，如果运行官方镜像，你必须提供`POSTGRES_PASSWORD`环境变量，我还同时使用`POSTGRES_DB`环境变量作为默认的数据库名称。PostgreSQL默认使用的端口是5432，因此你也需要发布该端口。
+
+运行数据库容器，你可以执行下面的命令：
+
+```shell
+docker container run \
+--detach \
+--name=notes-db \
+--env POSTGRES_DB=notesdb \
+--env POSTGRES_PASSWORD=secret \
+--network=notes-api-network \
+postgres:12
+
+COPY
+```
+
+`--env`参数用在`container run`和`container create`命令中为运行的容器设置环境变量。上面可以看到数据库容器创建成功并且在运行中。
+
+尽管容器成功运行中，还有一个问题。像PostgreSQL、MongoDB和MySQL持久化数据在一个数据目录中。PostgreSQL使用容器内的`/var/lib/postgresql/data`目录持久化数据。那如果由于某种原因容器被删除了，你将失去你所有的数据，为了解决这个问题，需要用到实名卷。
+
+<h3 id="11.2">11.2 怎样在Docker中使用实名卷？</h3>
+
+在之前我们学习了绑定挂载（bind mounts）和匿名卷，所谓的实名卷和匿名卷类似，但是实名卷可以通过名字来引用它。
+
+卷（volume）在Docker中也是一个逻辑对象，可以通过命令行来进行管理。`volume create`命令可以用来创建实名卷。
+
+基本的语法如下：
+
+```shell
+docker volume create <volume name>
+```
+
+创建一个名称为notes-db-data的实名卷，可以执行以下命令：
+
+```shell
+docker volume create notes-db-data
+COPY
+```
+
+实名卷可以挂载到notes-db容器的目录`/var/lib/postgresql/data`目录上，要进行挂载，首先停止并删除notes-db容器：
+
+```shell
+docker container stop notes-db
+
+COPY
+```
+
+现在运行一个新的容器，用--volume或者-v参数进行挂载：
+
+```shell
+COPY
+```
+
+现在使用inspect命令查看notes-db容器的挂载是否成功：
+
+```shell
+COPY
+```
+
+现在notes-db-data的数据将会安全的持久化到卷中并且后面可以复用。这里也可以使用绑定挂载来代替实名卷，只是这种场景我更喜欢使用实名卷。
+
+<h3 id="11.3">11.3 怎样在Docker中查看容器的日志？</h3>
+
+为了查看一个容器的日志，你可以使用`contaier logs`命令，基本的语法是：
+
+```shell
+docker container logs <container identifier>
+```
+
+获取notes-db-container的日志，你可以执行下面的命令：
+
+```shell
+COPY
+```
+
+从57行的日志可以看出来数据库服务已经启动并且等待外部的连接。有参数`--follow|-f`可以让你把终端的输出重定向到日志文件中，得到一个持续到输出的文档。
+
+<h3 id="11.4">11.4 怎样在Docker中创建一个网络并且将数据库容器附接到网络中？</h3>
+
+之前我们有学过，为了容器之间能够通信，怎样创建一个自定的网络并且将容器附接到网络中。首先在系统中创建一个名称为notes-api-network的网络：
+
+```shell
+docker network create notes-api-network
+```
+
+现在将notes-db容器附接在这个网络下，执行下面的命令：
+
+```shell
+docker network connect notes-api-network notes-db
+```
+
+<h3 id="11.5">11.5 怎样写Dockerfile？</h3>
+
+进入你下载的项目目录，进入`notes-api/api`目录，创建一个新的Dockerfile文件，copy下面的内容进去：
+
+```shell
+COPY
+```
+
+这是一个多阶段的构建，第1阶段使用`node-gyp`进行构建和安装依赖，第2阶段用来运行应用。我简单介绍下相关步骤：
+
+- 阶段1，使用`node:lts-alpine`作为基础镜像并且使用`builder`最为阶段1的阶段名称。
+- 第5行，我们安装python、make和g++，`node-gyp`工具运行需要这3个依赖包。
+- 第7行，我么是`/app`作为工作目录。
+- 第9和10行，我们复制package.json文件到工作目录中并且安装所有的依赖。
+- 阶段2，仍然使用`node:lts-alpine`最为基础镜像。
+- 第16行，我们设置NODE_ENV环境变量为production，要让API正常运行，这个设置相当重要。
+- 第18到20行，我们设置默认的用户为node，创建`/home/node/app`目录并且设置该目录为工作目录。
+- 第22行，我们复制所有的项目文件，第23行，我们从`builder`阶段复制了node_modules目录，该目录中包含所有运行依赖的构建阶段的包。
+- 第25行，我们设置了默认的启动命令。
+
+根据Dockerfile构建镜像，执行下面的命令：
+
+```shell
+docker image build --tag notes-api .
+
+COPY
+```
+
+在使用构建出来的镜像运行容器之前，确保数据库容器是运行的并且已经附接在notes-api-network网络下。
+
+```shell
+docker container inspect notes-db
+
+COPY
+```
+
+为了方便展示，这里我省略了一些信息。在我的系统中，notes-db容器是运行的，该容器挂载了notes-db-data卷并且附接在桥接网络notes-api-network下。
+
+确保所有的都正确后，你可以用下面的命令运行一个新的容器：
+
+```shell
+COPY
+```
+
+你应该能够自己能够理解这个长长的命令，因此我只对环境变量做简单的说明。
+
+notes-api容器需要设置三个环境变量，它们时：
+
+- DB_HOST-这个是数据库服务的主机名。由于数据库服务和API都附接在同一个自定义的桥接网络下，数据库服务可以使用容器名称notes-db来进行引用。
+- DB_DATABASE-API使用的数据库。在运行数据库服务的时候，我们通过环境变量POSTGRES_DB设置了默认的数据库名称为notesdb，正是我们使用的这个。
+- DB_PASSWORD-连接数据库的密码。这个变量也是通过之前的环境变量POSTGRES_PASSWORD设置过。
+
+查看应用是否正常启动，可以使用下面的命令：
+
+```shell
+COPY
+```
+
+现在，容器在运行中，你可以通过`http://127.0.0.1:3000/`来访问一下API。
+
+![](/img/posts/docker-handbook-2021-23.jpg)
+
+该API共有5个路由，你可以在`/notes-api/api/api/routes/notes.js`查看。
+
+尽管容器在运行中，在正式使用之前仍然有最后一件事情要做。你必要要进行必要的数据库迁移来设置数据库中的表，在容器中执行`npm run db:migrate`来完成。
+
+<h3 id="11.6">11.6 怎样在运行的容器中执行命令？</h3>
+
+在运行中的容器内执行命令，你需要用到`exec`命令，基本的语法是：
+
+```shell
+docker container exec <container identifier> <command>
+```
+
+在notes-api容器中执行`rpm run db:migrate`命令，你需要执行下面的命令：
+
+```shell
+docker container exec notes-api npm run db:migrate
+COPY
+```
+
+如果你想用命令行交互的方式在容器内执行命令，必须要使用`-it`参数。例如你想在运行中的notes-api容器中启动交互式shell，你可以执行下面的命令：
+
+```shell
+COPY
+```
+
+<h3 id="11.7">11.7 怎样写管理Docker的脚本？</h3>
+
+管理一个多容器带有卷和网络的多容器项目意味着有很多命令，为了简化这个过程，我通常用简单的shell scripts和Makefile。
+
+你可以在notes-api目录中找打4个shell scripts，它们分别是：
+
+- boot.sh-用来启动已经存在的容器。
+- build.sh-用来创建并运行容器，如果必要的话也会创建卷和网络。
+- destroy.js-删除该项目所有容器、卷及网络。
+- stop.js-停掉所有的容器。
+
+有一个Makefile包含了4个目标叫做start、stop、build和destory，每一个目标都是调用上面4个shell scripts。
+
+如果系统中容器处于运行态，执行`make stop`命令应该停掉所有的容器。执行`make destory`应该停掉所有的容器并且删除所有的相关内容。确保你在notes-api目录中：
+
+```shell
+make destory
+COPY
+```
+
+如果你遇到了permission denied的错误，你需要在脚本上执行`chmod +x`：
+
+```shell
+COPY
+```
+
+在这里不再解释这些脚本，因为它们都是一些if else指令加上见过很多次的Docker命令。如果你有了解Linux Shell，你应该能够理解脚本中的内容。
+
+---
+
+<h2>12. 怎样使用Docker-Compose？</h2>
