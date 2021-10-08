@@ -66,6 +66,13 @@ comment: false
     - [11.7 怎样写管理Docker的脚本？](#11.7)
 - [12. 怎样使用Docker-Compose？](#12)
     - [12.1 Docker Compose基础](#12.1)
+    - [12.2 Docker Compose中如何启动服务？](#12.2)
+    - [12.3 Docker Compose如何展示服务？](#12.3)
+    - [12.4 怎样在Docker Compose运行的服务中执行命令？](#12.4)
+    - [12.5 怎样在Docker Compose中查看运行的服务的日志？](#12.5)
+    - [12.6 怎样在Docker Compose中停止运行的服务？](#12.6)
+- [13. 怎样Compose一个全栈应用？](#13)
+- [14. 结论](#14)
 
 ---
 
@@ -1853,7 +1860,450 @@ YAML文件是用缩进定义不同的块，我将讲解每一个块的内容：
 db服务的定义如下：
 
 ```shell
-COPY
+db:
+    image: postgres:12
+    container_name: notes-db-dev
+    volumes: 
+        - db-data:/var/lib/postgresql/data
+    environment:
+        POSTGRES_DB: notesdb
+        POSTGRES_PASSWORD: secret
 ```
 
-- image key内容定义了该容器的镜像仓库和tag，我们使用的是运行数据库容器的postgres:12镜像。
+- `image`内容定义了该容器的镜像仓库和tag，我们使用的是运行数据库容器的postgres:12镜像。
+- `container_name`内容定义了容器的名称，默认情况下容器名称定义为`<project directory name>_<service name>`语法格式。你可以用容器的名称`<container name>`进行覆写。
+- `volumes`数组内容定义了服务的卷映射，支持实名卷、匿名卷和挂载绑定。语法`<source>:<destination>`和你之前看到的一样。
+- `environment`内容定义的服务运行需要的不同环境变量。
+
+`api`服务的定义代码如下：
+
+```shell
+api:
+    build:
+        context: ./api
+        dockerfile: Dockerfile.dev
+    image: notes-api:dev
+    container_name: notes-api-dev
+    environment: 
+        DB_HOST: db ## same as the database service name
+        DB_DATABASE: notesdb
+        DB_PASSWORD: secret
+    volumes: 
+        - /home/node/app/node_modules
+        - ./api:/home/node/app
+    ports: 
+        - 3000:3000
+```
+
+- `api`服务没有一个预构建好的镜像，因此这里设置构建的参数。在`build`块下我们定义了上下文和用于构建镜像的Dockerfile，你现在应该能够理解上下文和Dockerfile，因为我们不做过多的解释了。
+- `image`内容代表要构建的镜像的名称。如果没有指定默认将会遵照`<project directory name>_<service name>`的语法格式。
+- 在`environment`映射中，`DB_HOST`变量证实了compose的一个功能，那就是你可以在同一项目下引用另外一个服务的名称，在这里就是`db`，它将会在容器中被替换为`api`服务的IP地址。`DB_DATABASE`和`DB_PASSWORD`变量和`db`服务中的`POSTGRE_DB`和`POSTGRE_PASSWORD`相对应。
+- 在`volumes`映射中，你可以看到有一个匿名卷和绑定挂载被定义。其语法和之前看到的一样。
+- `ports`映射定义了端口的映射。语法`<host port>:<container port>`和之前用的`--publish`语法一样。
+
+最后`volumes`的代码如下：
+
+```shell
+volumes:
+    db-data:
+        name: notes-db-dev-data
+```
+
+任何实名卷都可以在这里定义，如果你没有给卷定义一个名称，卷名将遵照`<project directory name>_<volume_key>`的语法格式，这里的key是`db-data`。
+
+你可以在[这里](https://docs.docker.com/compose/compose-file/compose-file-v3/#volumes)了解更多卷相关的配置。
+
+<h3 id="12.2">12.2 Docker Compose中如何启动服务？</h3>
+
+有多种方法可以启动应以在YAML文件中的服务，首先要学习的是`up`命令，`up`命令会一口气构建缺失的镜像、创建并启动容器。
+
+在你执行命令之前，确保你打开终端的目录中有`docker-compose.yaml`文件，这对于你要执行的`docker-compose`命令来说很重要。
+
+```shell
+docker-compose --file docker-compose.yaml up --detach
+
+# Creating network "notes-api_default" with the default driver
+# Creating volume "notes-db-dev-data" with default driver
+# Building api
+# Sending build context to Docker daemon  37.38kB
+#
+# Step 1/13 : FROM node:lts-alpine as builder
+#  ---> 471e8b4eb0b2
+# Step 2/13 : RUN apk add --no-cache python make g++
+#  ---> Running in 197056ec1964
+### LONG INSTALLATION STUFF GOES HERE ###
+# Removing intermediate container 197056ec1964
+#  ---> 6609935fe50b
+# Step 3/13 : WORKDIR /app
+#  ---> Running in 17010f65c5e7
+# Removing intermediate container 17010f65c5e7
+#  ---> b10d12e676ad
+# Step 4/13 : COPY ./package.json .
+#  ---> 600d31d9362e
+# Step 5/13 : RUN npm install
+#  ---> Running in a14afc8c0743
+### LONG INSTALLATION STUFF GOES HERE ###
+#  Removing intermediate container a14afc8c0743
+#  ---> 952d5d86e361
+# Step 6/13 : FROM node:lts-alpine
+#  ---> 471e8b4eb0b2
+# Step 7/13 : ENV NODE_ENV=development
+#  ---> Running in 0d5376a9e78a
+# Removing intermediate container 0d5376a9e78a
+#  ---> 910c081ce5f5
+# Step 8/13 : USER node
+#  ---> Running in cfaefceb1eff
+# Removing intermediate container cfaefceb1eff
+#  ---> 1480176a1058
+# Step 9/13 : RUN mkdir -p /home/node/app
+#  ---> Running in 3ae30e6fb8b8
+# Removing intermediate container 3ae30e6fb8b8
+#  ---> c391cee4b92c
+# Step 10/13 : WORKDIR /home/node/app
+#  ---> Running in 6aa27f6b50c1
+# Removing intermediate container 6aa27f6b50c1
+#  ---> 761a7435dbca
+# Step 11/13 : COPY . .
+#  ---> b5d5c5bdf3a6
+# Step 12/13 : COPY --from=builder /app/node_modules /home/node/app/node_modules
+#  ---> 9e1a19960420
+# Step 13/13 : CMD [ "./node_modules/.bin/nodemon", "--config", "nodemon.json", "bin/www" ]
+#  ---> Running in 5bdd62236994
+# Removing intermediate container 5bdd62236994
+#  ---> 548e178f1386
+# Successfully built 548e178f1386
+# Successfully tagged notes-api:dev
+# Creating notes-api-dev ... done
+# Creating notes-db-dev  ... done
+```
+
+这里的`--detach|-d`参数和之前看到的参数功能一致，`--file|-f`参数当你需要指定命名非`docker-compose.yaml`文件时使用（这里使用是为了证明这个功能）。
+
+除了`up`命令之外还有`start`命令可以启动，二者的区别在于`start`命令不会创建缺失的容器，仅仅会启动已经存在的容器，和`container start`命令是一样的。
+
+`up`命令的`--build`参数强制重新构建镜像，还有其他的一些参数，可以查看[官方文档](https://docs.docker.com/compose/reference/up/)
+
+<h3 id="12.3">12.3 Docker Compose如何展示服务？</h3>
+
+尽管Compose启动的容器也可以通过`container ls`命令来展示，有一个`ps`命令可以只展示出YAML文件中定义的容器。
+
+```shell
+docker-compose ps
+
+#     Name                   Command               State           Ports         
+# -------------------------------------------------------------------------------
+# notes-api-dev   docker-entrypoint.sh ./nod ...   Up      0.0.0.0:3000->3000/tcp
+# notes-db-dev    docker-entrypoint.sh postgres    Up      5432/tcp
+```
+
+展示的内容没有`container ls`那么详尽，但是如果你同时运行很多的容器，这个语法还是很有用的。
+
+<h3 id="12.4">12.4 怎样在Docker Compose运行的服务中执行命令？</h3>
+
+你应该记得在之前的章节使用命令执行过迁移脚本的工作来创建API服务的数据库表。
+
+就像`container exec`命令一样，`docker-compose`命令也可以使用`exec`，基本的语法如下：
+
+```shell
+docker-compose exec <service name> <command>
+```
+
+在`api`服务中执行`npm run db:migrate`命令，你可以做如下操作：
+
+```shell
+docker-compose exec api npm run db:migrate
+
+# > notes-api@ db:migrate /home/node/app
+# > knex migrate:latest
+# 
+# Using environment: development
+# Batch 1 run: 1 migrations
+```
+
+和`container exec`不同，你不需要`-it`参数来进行命令行交互，`docker-compose`自动给你做了。
+
+<h3 id="12.5">12.5 怎样在Docker Compose中查看运行的服务的日志？</h3>
+
+你可以使用`logs`命令来获取运行中服务的日志，基本的语法是：
+
+```shell
+docker-compose logs <service name>
+```
+
+从`api`服务中获取日志，执行如下命令：
+
+```shell
+docker-compose logs api
+
+# Attaching to notes-api-dev
+# notes-api-dev | [nodemon] 2.0.7
+# notes-api-dev | [nodemon] reading config ./nodemon.json
+# notes-api-dev | [nodemon] to restart at any time, enter `rs`
+# notes-api-dev | [nodemon] or send SIGHUP to 1 to restart
+# notes-api-dev | [nodemon] ignoring: *.test.js
+# notes-api-dev | [nodemon] watching path(s): *.*
+# notes-api-dev | [nodemon] watching extensions: js,mjs,json
+# notes-api-dev | [nodemon] starting `node bin/www`
+# notes-api-dev | [nodemon] forking
+# notes-api-dev | [nodemon] child pid: 19
+# notes-api-dev | [nodemon] watching 18 files
+# notes-api-dev | app running -> http://127.0.0.1:3000
+```
+
+这只是部分日志，你可以通过`-f|--follow`参数将日志流重定向到文件中，运行中服务后续的日志将持续不断输出到文件中直到你按下`ctrl + c`键或者关闭窗口，关闭或者退出日志窗口不会影响容器的运行。
+
+<h3 id="12.6">12.6 怎样在Docker Compose中停止运行的服务？</h3>
+
+你有两种办法来停掉服务，第一个是使用`down`命令，该命令会停掉所有的容器并且从系统中删除，它也会删除所有的网络：
+
+```shell
+docker-compose down --volumes
+
+# Stopping notes-api-dev ... done
+# Stopping notes-db-dev  ... done
+# Removing notes-api-dev ... done
+# Removing notes-db-dev  ... done
+# Removing network notes-api_default
+# Removing volume notes-db-dev-data
+```
+
+`--volumes`参数表示你想删除所有定义在`volumes`块中的实名卷，你可以在[官方文档](https://docs.docker.com/compose/reference/down/)中了解更多`down`命令的参数。
+
+另外一个停掉服务的办法是用`stop`命令，功能和`container stop`命令一样。它会停掉应用的所有容器，这些容器会在后续`start`或者`up`命令中启动。
+
+---
+
+<h2 id="13">13. 怎样Compose一个全栈应用？</h2>
+
+在这一章节总我们将给notes API增加一个前端并且将之转化为一个全栈的应用。这里不会再解释`Dockerfile.dev`(除了nginx服务外)，因为它们在之前的章节已经出现过多次。
+
+如果你克隆过项目仓库，进入`fullstack-notes-application`目录，项目根目录下的每一个目录都包含代码和服务及其相关的`Dockerfile`。
+
+在我们使用`docker-compose.yaml`文件启动项目之前，先让我们看一下该应用是如何工作的：
+
+![](/img/posts/docker-handbook-2021-24.jpg)
+
+不像我们之前那样直接请求，该应用所有的请求先会到NGINX（让我们称之为路由）服务那里。
+
+路由将会查看是否请求中包含`/api`内容，如果是，路由将会请求到后端服务，如果不是，路由将会请求到前端服务。
+
+这样做的原因是，前端的应用不是在容器中运行的，而是在浏览器中，容器只提供服务。这样，Compose网络就会失效，前端应用找不到`api`服务。
+
+NGINX，在容器中运行，能够和整个应用中的不同服务进行通信。
+
+我不会在这里深入的解释NGINX的配置，改内容超出了本书的范围。如果你想看具体配置，查看文件`/notes-api/nginx/development.conf`和`/notes-api/nginx/development.production.conf`。`/notes-api/nginx/Dockerfile.dev`代码如下：
+
+```shell
+FROM nginx:stable-alpine
+
+COPY ./development.conf /etc/nginx/conf.d/default.conf
+```
+
+它所做的是将配置文件copy到容器内的`/etc/nginx/conf.d/default.conf`中。
+
+我们开始书写`docker-compose.yaml`文件，除了`api`和`db`服务外，还有`client`和`nginx`服务，还有一些网络的定义稍定会做出说明：
+
+```shell
+version: "3.8"
+
+services: 
+    db:
+        image: postgres:12
+        container_name: notes-db-dev
+        volumes: 
+            - db-data:/var/lib/postgresql/data
+        environment:
+            POSTGRES_DB: notesdb
+            POSTGRES_PASSWORD: secret
+        networks:
+            - backend
+    api:
+        build: 
+            context: ./api
+            dockerfile: Dockerfile.dev
+        image: notes-api:dev
+        container_name: notes-api-dev
+        volumes: 
+            - /home/node/app/node_modules
+            - ./api:/home/node/app
+        environment: 
+            DB_HOST: db ## same as the database service name
+            DB_PORT: 5432
+            DB_USER: postgres
+            DB_DATABASE: notesdb
+            DB_PASSWORD: secret
+        networks:
+            - backend
+    client:
+        build:
+            context: ./client
+            dockerfile: Dockerfile.dev
+        image: notes-client:dev
+        container_name: notes-client-dev
+        volumes: 
+            - /home/node/app/node_modules
+            - ./client:/home/node/app
+        networks:
+            - frontend
+    nginx:
+        build:
+            context: ./nginx
+            dockerfile: Dockerfile.dev
+        image: notes-router:dev
+        container_name: notes-router-dev
+        restart: unless-stopped
+        ports: 
+            - 8080:80
+        networks:
+            - backend
+            - frontend
+
+volumes:
+    db-data:
+        name: notes-db-dev-data
+
+networks: 
+    frontend:
+        name: fullstack-notes-application-network-frontend
+        driver: bridge
+    backend:
+        name: fullstack-notes-application-network-backend
+        driver: bridge
+```
+
+该文件几乎和我们之前见到的一样，需要做出解释的是`network`块，代码如下：
+
+```shell
+networks: 
+    frontend:
+        name: fullstack-notes-application-network-frontend
+        driver: bridge
+    backend:
+        name: fullstack-notes-application-network-backend
+        driver: bridge
+```
+
+这里我定义了两个网络，默认情况下，Compose会定义一个桥接网络将所有的容器都附接在这个网络下。这个项目中我想要更好的网络隔离，因此定义了两个网络，一个是给前端用一个给后端用。
+
+在每一个服务的定义里我也加入了`networks`块，这样`api`和`db`服务将在一个网络下，`client`将在一个分开的网络下。但是`nginx`服务将都是附接在两个网络下，这样才能够路由到前端和后端的服务。
+
+执行下面的命令启动所有的服务：
+
+```shell
+docker-compose --file docker-compose.yaml up --detach
+
+# Creating network "fullstack-notes-application-network-backend" with driver "bridge"
+# Creating network "fullstack-notes-application-network-frontend" with driver "bridge"
+# Creating volume "notes-db-dev-data" with default driver
+# Building api
+# Sending build context to Docker daemon  37.38kB
+# 
+# Step 1/13 : FROM node:lts-alpine as builder
+#  ---> 471e8b4eb0b2
+# Step 2/13 : RUN apk add --no-cache python make g++
+#  ---> Running in 8a4485388fd3
+### LONG INSTALLATION STUFF GOES HERE ###
+# Removing intermediate container 8a4485388fd3
+#  ---> 47fb1ab07cc0
+# Step 3/13 : WORKDIR /app
+#  ---> Running in bc76cc41f1da
+# Removing intermediate container bc76cc41f1da
+#  ---> 8c03fdb920f9
+# Step 4/13 : COPY ./package.json .
+#  ---> a1d5715db999
+# Step 5/13 : RUN npm install
+#  ---> Running in fabd33cc0986
+### LONG INSTALLATION STUFF GOES HERE ###
+# Removing intermediate container fabd33cc0986
+#  ---> e09913debbd1
+# Step 6/13 : FROM node:lts-alpine
+#  ---> 471e8b4eb0b2
+# Step 7/13 : ENV NODE_ENV=development
+#  ---> Using cache
+#  ---> b7c12361b3e5
+# Step 8/13 : USER node
+#  ---> Using cache
+#  ---> f5ac66ca07a4
+# Step 9/13 : RUN mkdir -p /home/node/app
+#  ---> Using cache
+#  ---> 60094b9a6183
+# Step 10/13 : WORKDIR /home/node/app
+#  ---> Using cache
+#  ---> 316a252e6e3e
+# Step 11/13 : COPY . .
+#  ---> Using cache
+#  ---> 3a083622b753
+# Step 12/13 : COPY --from=builder /app/node_modules /home/node/app/node_modules
+#  ---> Using cache
+#  ---> 707979b3371c
+# Step 13/13 : CMD [ "./node_modules/.bin/nodemon", "--config", "nodemon.json", "bin/www" ]
+#  ---> Using cache
+#  ---> f2da08a5f59b
+# Successfully built f2da08a5f59b
+# Successfully tagged notes-api:dev
+# Building client
+# Sending build context to Docker daemon  43.01kB
+# 
+# Step 1/7 : FROM node:lts-alpine
+#  ---> 471e8b4eb0b2
+# Step 2/7 : USER node
+#  ---> Using cache
+#  ---> 4be5fb31f862
+# Step 3/7 : RUN mkdir -p /home/node/app
+#  ---> Using cache
+#  ---> 1fefc7412723
+# Step 4/7 : WORKDIR /home/node/app
+#  ---> Using cache
+#  ---> d1470d878aa7
+# Step 5/7 : COPY ./package.json .
+#  ---> Using cache
+#  ---> bbcc49475077
+# Step 6/7 : RUN npm install
+#  ---> Using cache
+#  ---> 860a4a2af447
+# Step 7/7 : CMD [ "npm", "run", "serve" ]
+#  ---> Using cache
+#  ---> 11db51d5bee7
+# Successfully built 11db51d5bee7
+# Successfully tagged notes-client:dev
+# Building nginx
+# Sending build context to Docker daemon   5.12kB
+# 
+# Step 1/2 : FROM nginx:stable-alpine
+#  ---> f2343e2e2507
+# Step 2/2 : COPY ./development.conf /etc/nginx/conf.d/default.conf
+#  ---> Using cache
+#  ---> 02a55d005a98
+# Successfully built 02a55d005a98
+# Successfully tagged notes-router:dev
+# Creating notes-client-dev ... done
+# Creating notes-api-dev    ... done
+# Creating notes-router-dev ... done
+# Creating notes-db-dev     ... done
+```
+
+现在访问`http://localhost:8080`并验证。
+
+![](/img/posts/docker-handbook-2021-25.jpg)
+
+尝试增加或者删除notes验证应用是否能正常工作。这个项目也可以用shell scripts和Makefile完成，可以尝试像之前章节那样不使用Docker Compose来运行项目。
+
+---
+
+<h2 id="14">14. 结论</h2>
+
+十分感谢您的时间阅读本书，希望你喜欢他并且学会的Docker的所有基础知识。
+
+除了这一篇，我还写了关于其他主题的长篇指导性手册，可以在[freeCodeCamp](https://www.freecodecamp.org/news/the-docker-handbook/freecodecamp.org/news/author/farhanhasin/)中看到。
+
+这些手册都是我秉承着努力简化每个人对技术的理解的热情写的，每一本都花费了大量的时间和精力。
+
+如果你喜欢我的写作并且鼓励支持我，可以在我的[Github](https://github.com/fhsinchy/)给我点赞，或者在[LinkedIn])(https://www.linkedin.com/in/farhanhasin/)界面认可我的相关技能。我也欢迎您赞助我[一杯咖啡的钱](https://www.buymeacoffee.com/farhanhasin)。
+
+您有任何意见或者建议可以在[这些平台](https://linktr.ee/farhanhasin)留言，也可以在[Twitter](https://twitter.com/frhnhsin)或者[LinkedIn](https://www.linkedin.com/in/farhanhasin/)上关注我，直接给我留言。
+
+最后，建议将好东西分享给其他人，因为：
+
+> 知识分享是最基本的友谊，因为它能够让你在不失去任何东西的情况下赠人玫瑰。 -- Richard Stallman
+
+---
