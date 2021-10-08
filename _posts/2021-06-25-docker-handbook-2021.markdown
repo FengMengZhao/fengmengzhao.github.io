@@ -65,6 +65,7 @@ comment: false
     - [11.6 怎样在运行的容器中执行命令？](#11.6)
     - [11.7 怎样写管理Docker的脚本？](#11.7)
 - [12. 怎样使用Docker-Compose？](#12)
+    - [12.1 Docker Compose基础](#12.1)
 
 ---
 
@@ -1802,3 +1803,57 @@ COPY
 ---
 
 <h2>12. 怎样使用Docker-Compose？</h2>
+
+在上一章节，你学习了如何管理一个多容器的项目和解决相关的问题。存在有一个不用写那么多命令并且能够更方便管理多容器的工具，它叫做Docker Compose。
+
+根据Docker官方文档，Docker Compose是一个定义并运行多容器的工具。使用Compose你可以用一个YAML文件配置相关应用服务，使用一行命令就可以做到创建并启动配置的所有的服务。
+
+尽管Docker Compose可以运行在各种环境中，但是它更适合用在开发和测试环境中，不推荐在生产环境中使用。
+
+<h3 id="12.1">12.1 Docker Compose基础</h3>
+
+进入你复制本项目的目录，进入`notes-api/api`目录，创建一个命名为Dockerfile.dev的文件，将下面的代码复制进去：
+
+```shell
+COPY
+```
+
+这里的代码基本上和上一章节的Dockerfile的代码一致，不同的地方在于：
+
+- 第10行，不使用`npm run install --only=prod`而是是哟个你`npm install`，因为我们也需要开发时的依赖。
+- 第15行，我们设置环境变量NODE_ENV为development而不是production。
+- 第24行，我们使用一个nodemon的工具进行API的热部署。
+
+你已经知道这个项目共包含两个容器：
+
+- notes-db，一个PostgreSQL数据库服务。
+- notes-api，基于Express.js的REST API。
+
+在compose这里，应用中的每一个容器被定义为一个service，compose应用第一步是要定义这些service。
+
+就像Docker后台使用Dockerfile来构建镜像一样，Docker Compose使用一个`docker-compose.yaml`文件定义service。
+
+进入notes-api目录并创建一个新的docker-compose.yaml文件，复制下面的代码到文件中：
+
+```shell
+COPY
+```
+
+每一个有效的docker-compose.yaml文件在开头都会定义个一个版本，写作时最新的版本是3.8，你可以在[这里](http://www.baidu.com)找到最新的版本。
+
+YAML文件是用缩进定义不同的块，我将讲解每一个块的内容：
+
+- services块定义应用的每一个容器或者服务，该项目中的两个services分别是api和db。
+- db块定义了应用的db服务并且包含了启动容器的所有信息。每一个服务需要一个提前构建好的镜像或者一个Dockerfile来运行容器。对于该db服务使用的是官方的PostgreSQL镜像。
+- 和db服务不同，api服务没有预编译的镜像使用，因此我们使用Dockerfile.dev。
+- volumes块定义你需要的任何的卷。这里仅仅定义了db服务需要的notes-db-dev-data卷。
+
+现在你对docker-compose.yaml有一个整体的认识，我们进一步仔细看下单个服务。
+
+db服务的定义如下：
+
+```shell
+COPY
+```
+
+- image key内容定义了该容器的镜像仓库和tag，我们使用的是运行数据库容器的postgres:12镜像。
