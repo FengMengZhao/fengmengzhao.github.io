@@ -78,11 +78,11 @@ comment: false
 
 <h2 id="0">0. 前言</h2>
 
-容器化是一个相当古老的技术，2013年Docker Engine的出现让一个应用容器化变得更加简单。
+容器化是一个相当古老的技术，2013年[Docker Engine](https://docs.docker.com/get-started/overview/#docker-engine)的出现让一个应用容器化变得更加简单。
 
-根据Stack Overflow开发者调查，2020年Docker是最被需要、最受喜爱和最流行的平台。
+根据[Stack Overflow开发者调查](https://insights.stackoverflow.com/survey/2020#overview)，2020年[Docker](https://docker.com/)是[最被需要](https://insights.stackoverflow.com/survey/2020#technology-most-loved-dreaded-and-wanted-platforms-wanted5)、[最受喜爱](https://insights.stackoverflow.com/survey/2020#technology-most-loved-dreaded-and-wanted-platforms-loved5)和[最流行](https://insights.stackoverflow.com/survey/2020#technology-platforms)的平台。
 
-Docker技术如此流行，似乎我们不得不学习它。因此，本指南囊括有从基本到中级的容器化技术。通过本指南你应该学习到：几乎基于所有平台的容器化;上传一个自定义的Docker镜像(Image)到在线仓库(registry);使用docker-compose协作多个容器。
+Docker技术如此流行，似乎我们不得不学习它。因此，本指南囊括有从基本到中级的容器化技术。通过本指南你应该学习到：几乎基于所有平台的容器化；上传一个自定义的Docker镜像(Image)到在线仓库(registry)；使用docker-compose协作多个容器。
 
 ---
 
@@ -202,9 +202,9 @@ Docker能够运行在不同的主流操作系统macOS、Windows和Linux上，在
 
 安装完成后，打开命令行终端并且执行`docker --version`和`docker-compose --version`命令来验证Docker的安装是否成功。
 
-![](/img/posts/docker-handbook-2021-04.jpg)
+![](/img/posts/docker-handbook-2021-04.jpg "该图为冯兄译者本书命令操作环境图")
 
-尽管Docker能够在不同的平台上使用，我还是更倾向于在Linux上使用，本书中我将使用[Ubuntu20.10](https://releases.ubuntu.com/20.10/)和[Fedora33](https://fedoramagazine.org/announcing-fedora-33/)。
+尽管Docker能够在不同的平台上使用，我还是更倾向于在Linux上使用，本书中我将使用[Ubuntu20.04](https://releases.ubuntu.com/20.04/)和[Fedora33](https://fedoramagazine.org/announcing-fedora-33/)。
 
 另外一件事我想现在就说明的是：我没有使用任何GUI工具操作Docker。
 
