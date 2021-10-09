@@ -387,7 +387,7 @@ Status: Downloaded newer image for hello-world:latest
 
 ---
 
-<h2 id="7">7. Docker容器基本操作</h2>
+<h2 id="5">5. Docker容器基本操作</h2>
 
 在前面的章节中，我们学习了Docker的基础概念并且使用docker run命令运行了一个Docker容器。
 
@@ -395,7 +395,7 @@ Status: Downloaded newer image for hello-world:latest
 
 要知道的是，这里列出来的Docker命令不是全部的，而是一些最基本的命令。如果想要学习更多Docker支持的命令，可以访问官方文档的[命令行说明](https://docs.docker.com/engine/reference/commandline/container/)。
 
-<h3 id="7.1">7.1 怎样运行一个容器？</h3>
+<h3 id="5.1">5.1 怎样运行一个容器？</h3>
 
 之前的章节我们基于hello-world镜像，使用docker run命令启动了一个容器。基本的命令行语法是这样的：
 
@@ -443,7 +443,7 @@ Status: Downloaded newer image for fhsinchy/hello-dock:latest
 
 命令行很好理解，需要解释的`--publish 8080:80`参数会在下一部分内容中解释。
 
-<h3 id="7.2">7.2 怎样发布一个端口？</h3>
+<h3 id="5.2">5.2 怎样发布一个端口？</h3>
 
 容器是隔离的环境。容器的宿主机并不知道容器内发生的一切。因此，容器外部是不能直接访问容器内部的。
 
@@ -461,7 +461,7 @@ Status: Downloaded newer image for fhsinchy/hello-dock:latest
 
 你可以使用ctrl + c命令停止容器，命令行终端将会停止进程或者关闭整个终端。
 
-<h3 id="7.3">7.3 怎样使用后台模式？</h3>
+<h3 id="5.3">5.3 怎样使用后台模式？</h3>
 
 另外一个`run`命令常用的命令行参数是`--detach`或者`-d`。在上面的操作中，容器如果想保持运行状态，必须要保持命令行窗口打开的状态。关闭命令行窗口，容器就会被停掉。
 
@@ -479,7 +479,7 @@ docker container run --detach --publish 8080:80 fhsinchy/hello-dock
 
 参数的顺序先后没有关系，如果你把`--publish`参数放在了`--detach`参数之前，容器依然可以正常启动。对于`docker run`命令，只要记住镜像的名字是放在最后的就可以，如果镜像的名字后面还有内容，会被作为容器entry-point（见[在一个容器中执行命令](https://fengmengzhao.github.io/2021/06/25/docker-handbook-2021.html#executing-commands-inside-a-container)模块）的参数传递，可能会得到意想不到的结果。
 
-<h3 id="7.4">7.4 怎样查看容器？</h3>
+<h3 id="5.4">5.4 怎样查看容器？</h3>
 
 `container ls`命令可以展示出正在运行中的容器，命令如下：
 
@@ -509,7 +509,7 @@ docker container ls --all
 
 可以看出来，第二个名字为`reverent_torvalds`的容器早些时候运行过，退出时候exit code为0，标识容器运行的时候没有产生错误。
 
-<h3 id="7.5">7.5 怎样命名或者重命名一个容器？</h3>
+<h3 id="5.5">5.5 怎样命名或者重命名一个容器？</h3>
 
 每一个容器默认都有两个标识，它们是：
 
@@ -550,7 +550,7 @@ docker container ls
 
 无论容器在运行态或者停止态，`rename`命令都可以使用。
 
-<h3 id="7.6">7.6 怎样停止或者杀死一个运行中的容器？</h3>
+<h3 id="5.6">5.6 怎样停止或者杀死一个运行中的容器？</h3>
 
 前台运行的容器可以通过关闭终端命令行或者按键ctrl + c来停止运行。后台运行的容器需要使用不同的方法。
 
@@ -578,7 +578,7 @@ docker container kill hello-dock-container-2
 # hello-dock-container-2
 ```
 
-<h3 id="7.7">7.7 怎样重启一个容器？</h3>
+<h3 id="5.7">5.7 怎样重启一个容器？</h3>
 
 这里说的重启，有两种场景：
 
@@ -627,7 +627,7 @@ docker container restart hello-dock-container-2
 
 对于停止状态的容器，二者都可以使用。但是对于运行中的容器，只能使用`docker restart`命令。
 
-<h3 id="7.8">7.8 怎样不启动容器的情况下创建一个容器？</h3>
+<h3 id="5.8">5.8 怎样不启动容器的情况下创建一个容器？</h3>
 
 目前，我们学习用`docker run`命令启动一个容器。实际上，这个命令包含两部分：
 
@@ -664,7 +664,7 @@ docker container ls
 
 容器的状态从`Created`变为了`Up 29 seconds`，表明容器现在是运行的状态。之前空着的PORTS列也有了数据。
 
-<h3 id="7.9">7.9 怎样移除一个不用的容器？</h3>
+<h3 id="5.9">5.9 怎样移除一个不用的容器？</h3>
 
 一个被停掉或者杀死的容器还会停留在系统中，这些不用的容器会占用空间并且可能会很新的容器冲突。
 
@@ -740,7 +740,7 @@ docker container ls --all
 
 可以看见容器被自动删除了。后面我们基本上都会用上`--rm`参数，不需要的地方会特殊说明。
 
-<h3 id="7.10">7.10 怎样使用命令行交互的方式启动一个容器？</h3>
+<h3 id="5.10">5.10 怎样使用命令行交互的方式启动一个容器？</h3>
 
 目前我们基于[hello-world](https://hub.docker.com/_/hello-world)和[fhsinchy/hello-dock](https://hub.docker.com/r/fhsinchy/hello-dock)镜像创建并运行容器，这些都是简单程序的镜像，不需要命令行交互。
 
@@ -793,7 +793,7 @@ docker container run -it node
 
 任何有效的JavaScript代码都可以在这个终端中运行。`-it`是缩写，我们也分别可以写成`--interactive --tty`。
 
-<h3 id="7.11">7.11 怎样在容器内执行命令？</h3>
+<h3 id="5.11">5.11 怎样在容器内执行命令？</h3>
 
 在[Docker运行Hello World - Docker基本介绍](#4)章节，我们运行了一个Alpine Linux容器，并且执行了一个命令：
 
@@ -832,7 +832,7 @@ docker container run --rm busybox echo -n my-secret | base64
 
 所谓的`entry point`就是一个镜像的入口。除了可执行镜像（在下面[怎样操作可执行镜像](#7.12)章节说明）外，大部分镜像使用shell或者`sh`作为默认的`entry point`。因此任何有效的shell命令都可以作为参数传递。
 
-<h3 id="7.12">7.12 怎样操作可执行镜像？</h3>
+<h3 id="5.12">5.12 怎样操作可执行镜像？</h3>
 
 之前我们有简单提到可执行容器，这些容器的目的是样程序一样可执行。
 
@@ -894,25 +894,43 @@ COPY
 
 ---
 
-<h2>8. Docker镜像基本操作</h2>
+<h2 id="6">6. Docker镜像基本操作</h2>
 
 目前为止，我么学会了怎样启动一个镜像。接下来学习怎样创建你自己的镜像。
 
 这部分中，我们将会学习基本的创建一个镜像，运行这个镜像和在线分享镜像。
 
-我建议你下载Visual Studio Code的Docker官方插件，这样能极大有利于你的开发。
+我建议你下载[Visual Studio Code](https://code.visualstudio.com/)的[Docker官方插件](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker)，这样能极大有利于你的开发。
 
-<h3>8.1 怎样创建一个Docker镜像？</h3>
+<h3 id="6.1">6.1 怎样创建一个Docker镜像？</h3>
 
-在hello-world章节我们有解释过，Docker镜像是多层次的、自包含的文件，是可以用来创建Docker容器的模版，就像是静态的容器的一份克隆。
+在[hello-world章节](#4)我们有解释过，Docker镜像是多层次的、自包含的文件，是可以用来创建Docker容器的模版，就像是静态的容器的一份克隆。
 
-在把你的程序创建成一个镜像之前，你必须要清楚定义这个镜像的版本。例如，基于Nginx的官方镜像，你可以通过如下命令启动容器：
+在把你的程序创建成一个镜像之前，你必须要清楚定义这个镜像的版本。例如，基于[Nginx的官方镜像](https://hub.docker.com/_/nginx)，你可以通过如下命令启动容器：
 
-COPY
+```shell
+docker container run --rm --detach --name default-nginx --publish 8080:80 nginx
+Unable to find image 'nginx:latest' locally
+latest: Pulling from library/nginx
+07aded7c29c6: Pull complete
+bbe0b7acc89c: Pull complete
+44ac32b0bba8: Pull complete
+91d6e3e593db: Pull complete
+8700267f2376: Pull complete
+4ce73aa6e9b0: Pull complete
+Digest: sha256:06e4235e95299b1d6d595c5ef4c41a9b12641f6683136c18394b858967cd1506
+Status: Downloaded newer image for nginx:latest
+5451c55a1b74be3f97445b8254526cc0e01da65c923d6fa5da5f8ab9af1ce2ea
+
+# CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                  NAMES
+# 5451c55a1b74        nginx               "/docker-entrypoint.…"   8 seconds ago       Up 8 seconds        0.0.0.0:8080->80/tcp   default-nginx
+```
 
 现在，你可以在浏览器中访问`http://127.0.0.1:8080`，你会得到一个默认的响应界面。
 
 ![](/img/posts/docker-handbook-2021-17.jpg)
+
+> 冯兄话吉：记得把127.0.0.1修改为Docker所在宿主机的IP。
 
 这很好，但是如果你想自定义制作一个像官方那样的Nginx镜像呢？坦白来说，这种场景是会遇到的。我们来学习怎么制作它。
 
@@ -925,14 +943,24 @@ COPY
 
 现在，在那个目录中创建一个名称为Dockerfile的文件，文件中定义的命令会执行怎样创建一个容器。Dockerfile的内容是：
 
-COPY
+```shell
+FROM ubuntu:latest
+
+EXPOSE 80
+
+RUN apt-get update && \
+    apt-get install nginx -y && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+CMD ["nginx", "-g", "daemon off;"]
+```
 
 镜像是多层的文件系统，在Dockerfile文件中，你写的每一行（称之为instructions）为镜像创建了一层。
 
 - 每一个有效的Dockerfile都以`FROM`命令开头，该命令设定了你目标镜像的基础镜像。通过设置`ubuntu:latest`基础镜像，你可以在自定义的镜像中获取ubuntu系统的完美功能，你可以使用`apt-get`命令方便的进行包的安装。
 - `EXPOSE`命令表示端口需要被发布。使用该指标后你仍然需要使用`--publish`命令发布端口，它仅仅起到了一个文档的作用来指示运行你镜像的人。它还有其他的作用，在这里就不讨论了。
-- Dockerfile中的`RUN`命令在容器的shell中执行命令。`apt-get update && apt-get install nginx -y`命令首先更新包版本然后安装nginx。`apt-get clean && rm -rf /var/lib/apt/list/*`命令用来清理包缓存，因为你不需要在镜像中有不必要的垃圾。这两个命令在Ubuntu系统中是两个常见的操作，没什么特殊的。这里的`RUN`命令写成了`shell`的形式，它也可以写成`shell`的形式，你可以访问官方的文档获取更多的信息。
-- 最后`CMD`命令设置镜像默认执行的命令。命令以`exec`的形式包含了三个部分。`nginx`表示可执行的nginx程序，`-g`和`daemon off`是nginx程序的可选参数表示让nginx以单进程的方式在容器内运行，`CMD`也可以用`shell`的形式来写，你可以官方文档获取更多信息。
+- Dockerfile中的`RUN`命令在容器的shell中执行命令。`apt-get update && apt-get install nginx -y`命令首先更新包版本然后安装nginx。`apt-get clean && rm -rf /var/lib/apt/list/*`命令用来清理包缓存，因为你不需要在镜像中有不必要的垃圾。这两个命令在Ubuntu系统中是两个常见的操作，没什么特殊的。这里的`RUN`命令写成了`shell`的形式，它也可以写成`shell`的形式，你可以访问[官方的文档](https://docs.docker.com/engine/reference/builder/#run)获取更多的信息。
+- 最后`CMD`命令设置镜像默认执行的命令。命令以`exec`的形式包含了三个部分。`nginx`表示可执行的nginx程序，`-g`和`daemon off`是nginx程序的可选参数表示让nginx以单进程的方式在容器内运行，`CMD`也可以用`shell`的形式来写，你可以[官方文档](https://docs.docker.com/engine/reference/builder/#cmd)获取更多信息。
 
 现在，你有一个有效的Dockerfile可以用来创建镜像。可以容器相关的命令一样，镜像相关的命令语法如下：
 
@@ -940,9 +968,27 @@ COPY
 
 想要创建你刚刚写的Dockerfile的镜像，在`custom-nginx`目录中打开终端，执行如下命令：
 
-`docker image build .`
+```shell
+docker image build .
 
-COPY
+# Sending build context to Docker daemon  3.584kB
+# Step 1/4 : FROM ubuntu:latest
+#  ---> d70eaf7277ea
+# Step 2/4 : EXPOSE 80
+#  ---> Running in 9eae86582ec7
+# Removing intermediate container 9eae86582ec7
+#  ---> 8235bd799a56
+# Step 3/4 : RUN apt-get update &&     apt-get install nginx -y &&     apt-get clean && rm -rf /var/lib/apt/lists/*
+#  ---> Running in a44725cbb3fa
+### LONG INSTALLATION STUFF GOES HERE ###
+# Removing intermediate container a44725cbb3fa
+#  ---> 3066bd20292d
+# Step 4/4 : CMD ["nginx", "-g", "daemon off;"]
+#  ---> Running in 4792e4691660
+# Removing intermediate container 4792e4691660
+#  ---> 3199372aa3fc
+# Successfully built 3199372aa3fc
+```
 
 为了执行镜像的构建，后台进程需要知道特定的信息，比如Dockerfile的名称和执行的上下文，命令的含义是：
 
@@ -951,13 +997,24 @@ COPY
 
 现在，你可以运行你刚刚构建的镜像。你可以使用`container run`命令和刚才构建镜像时得到的构建进程返回的镜像ID一起使用。我执行返回的ID是COPY，表示镜像成功构建。
 
-COPY
+```shell
+docker container run --rm --detach --name custom-nginx-packaged --publish 8080:80 3199372aa3fc
+
+# ec09d4e1f70c903c3b954c8d7958421cdd1ae3d079b57f929e44131fbf8069a0
+
+docker container ls
+
+# CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                  NAMES
+# ec09d4e1f70c        3199372aa3fc        "nginx -g 'daemon of…"   23 seconds ago      Up 22 seconds       0.0.0.0:8080->80/tcp   custom-nginx-packaged
+```
+
+> 冯兄话吉：上面命令中最后的镜像ID要改为你刚刚构建的镜像ID。
 
 你可以访问`http://127.0.0.1:8000`验证容器时否启动成功。
 
-![](/img/posts/docker-handbook-2021-18.jpg)
+![](/img/posts/docker-handbook-2021-17.jpg)
 
-<h3>8.2 怎样给镜像打标签？</h3>
+<h3 id="6.2">6.2 怎样给镜像打标签？</h3>
 
 和容器一样，你可以不使用随机生成的ID而给镜像设置自定义的标识。对于一个镜像来说，这叫做打标签而不是重命名。`--tag`或者`-t`参数可以用来打标签。
 
@@ -967,11 +1024,28 @@ COPY
 
 repository是镜像的名称，image tag表示一个特定的构建或者版本。
 
-拿官方镜像mysql为例，如果你想让运行特定版本，例如5.7的mysql容器，你可以执行`docker container run mysql:5.7`，这里mysql就是镜像名称，5.7是对应的标签。
+拿[官方镜像mysql](https://hub.docker.com/_/mysql)为例，如果你想让运行特定版本，例如5.7的mysql容器，你可以执行`docker container run mysql:5.7`，这里`mysql`就是镜像名称，`5.7`是对应的标签。
 
 如果你想定义custom-nginx:packaged这样自定义的标签，你可以在执行构建命令的时候这样：
 
-COPY
+```shell
+docker image build --tag custom-nginx:packaged .
+
+Sending build context to Docker daemon  1.052MB
+Step 1/4 : FROM ubuntu:latest
+ ---> 597ce1600cf4
+Step 2/4 : EXPOSE 80
+ ---> Using cache
+ ---> 5c8cabcce264
+Step 3/4 : RUN apt-get update &&     apt-get install nginx -y &&     apt-get clean && rm -rf /var/lib/apt/lists/*
+ ---> Using cache
+ ---> 46f355762489
+Step 4/4 : CMD ["nginx", "-g", "daemon off;"]
+ ---> Using cache
+ ---> e1b5f20aceb8
+Successfully built e1b5f20aceb8
+Successfully tagged custom-nginx:packaged
+```
 
 现在你可以使用custom-nginx标识代替随机的串来引用你的镜像。
 
@@ -983,11 +1057,17 @@ COPY
 
 `docker image tag <image repository>:<image tag> <new image repository>:<new image tag>`
 
-<h3>8.3 怎样展示和删除镜像？</h3>
+<h3 id="6.3">6.3 怎样展示和删除镜像？</h3>
 
 和`container ls`命令一样，你可以使用`image ls`命令展示出你本地的所有镜像：
 
-COPY
+```shell
+docker image ls
+
+# REPOSITORY     TAG        IMAGE ID       CREATED         SIZE
+# <none>         <none>     3199372aa3fc   7 seconds ago   132MB
+# custom-nginx   packaged   f8837621b99d   4 minutes ago   132MB
+```
 
 这里展示的镜像可以使用`image rm`命令删除，基本的语法如下：
 
@@ -995,19 +1075,33 @@ COPY
 
 这里镜像的标识可以镜像ID，也可以是镜像名称，如果是名称的话必须带上标签。例如要删除custom-nginx:package镜像，你可以执行如下命令：
 
-`docker image rm custom-nginx:package`
+```shell
+docker image rm custom-nginx:packaged
 
-COPY
+Untagged: custom-nginx:packaged
+Deleted: sha256:e1b5f20aceb8a56a683f23fc57d46d14d1e473a5c45ac57e05f6c55aa6282229
+Deleted: sha256:46f355762489b70eb78ee04c46cdc20797343388320c90d2a2a61a381d740f27
+Deleted: sha256:6be04f9858cd868a92ca44b1a51b42843b726c6093b8a4d88d9ae90631135841
+Deleted: sha256:5c8cabcce264e95c534f7e906c62631b4f95d0c663fde83b67e0d838195629ae
+```
 
 你也可以使用`image prune`命令来清理所有未打标签的未使用的镜像。
 
-`docker image prune --force`
+```shell
+docker image prune --force
 
-COPY
+# Deleted Images:
+# deleted: sha256:ba9558bdf2beda81b9acc652ce4931a85f0fc7f69dbc91b4efc4561ef7378aff
+# deleted: sha256:ad9cc3ff27f0d192f8fa5fadebf813537e02e6ad472f6536847c4de183c02c81
+# deleted: sha256:f1e9b82068d43c1bb04ff3e4f0085b9f8903a12b27196df7f1145aa9296c85e7
+# deleted: sha256:ec16024aa036172544908ec4e5f842627d04ef99ee9b8d9aaa26b9c2a4b52baa
+
+# Total reclaimed space: 59.19MB
+```
 
 `--force`或者`-f`参数可以让你跳过时否确认的问题。你也可以使用`--all`或者`-a`命令删除本地所有缓存的镜像。
 
-<h3>8.4 怎样理解多层镜像？</h3>
+<h3 id="6.4">6.4 怎样理解多层镜像？</h3>
 
 从这本书的一开始，我就说容器是一个多层的文件。在这一部分中，我将证明镜像的不同层和它们在镜像的构建中起到的重要作用。
 
@@ -1015,7 +1109,19 @@ COPY
 
 你可以使用`image history`命令来展示一个镜像的不同层次，custom-nginx镜像的不同层可以使用如下命令展示：
 
-COPY
+```shell
+docker image history custom-nginx:packaged
+
+# IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+# 7f16387f7307        5 minutes ago       /bin/sh -c #(nop)  CMD ["nginx" "-g" "daemon…   0B                             
+# 587c805fe8df        5 minutes ago       /bin/sh -c apt-get update &&     apt-get ins…   60MB                
+# 6fe4e51e35c1        6 minutes ago       /bin/sh -c #(nop)  EXPOSE 80                    0B                  
+# d70eaf7277ea        17 hours ago        /bin/sh -c #(nop)  CMD ["/bin/bash"]            0B                  
+# <missing>           17 hours ago        /bin/sh -c mkdir -p /run/systemd && echo 'do…   7B                  
+# <missing>           17 hours ago        /bin/sh -c [ -z "$(apt-get indextargets)" ]     0B                  
+# <missing>           17 hours ago        /bin/sh -c set -xe   && echo '#!/bin/sh' > /…   811B                
+# <missing>           17 hours ago        /bin/sh -c #(nop) ADD file:435d9776fdd3a1834…   72.9MB
+```
 
 这个镜像一共有8个层，最上面的是最新的层，越往下是越基础的层。最上面的层也就是你用来运行容器的层。
 
@@ -1028,13 +1134,13 @@ COPY
 
 我们可以看到，镜像实际上是由很多只读层组成的，每一层记录着由特定的指令所触发对改变。当你运行一个镜像为容器时，实际上是基于最上层创建了一个可写入层。
 
-这种分层模型的实现是由一个叫做联合文件系统(Union File System)的技术实现的，这里的联合指的是集合理论中的联合，根据维基百科：
+这种分层模型的实现是由一个叫做联合文件系统(Union File System)的技术实现的，这里的联合指的是集合理论中的联合，根据[维基百科](https://en.wikipedia.org/wiki/UnionFS)：
 
 > 它允许不同文件系统的文件或者目录，也称之为分支，覆盖重叠在一起形成统一的单个文件系统。相同目录的文件合并后会都出现新的虚拟文件系统合并分支的同一个目录中。
 
 利用这个技术，Docker能够避免数据重复并且能够利用前一个创建的层作为cache构建下一个层。这样就会形成小巧的、有效的镜像，你可以在任何地方使用。
 
-<h3>8.5 怎样从源代码构建NGINX？</h3>
+<h3 id="6.5">6.5 怎样从源代码构建NGINX？</h3>
 
 在上一部分中，我们学习了`FROM,EXPOSE,RUN,CMD`等命令，接下来我们学习更多的命令。
 
@@ -1044,17 +1150,49 @@ COPY
 
 在写代码之前，我们首先理一下构建的过程。这次镜像的构建步骤有这些：
 
-- 获取一个正确的基础镜像进行构建。例如ubuntu。
+- 获取一个正确的基础镜像进行构建。例如[ubuntu](https://hub.docker.com/_/ubuntu)。
 - 在基础镜像中安装必要的依赖。
-- 将nginx-1.19.2.tar.gz包复制到基础镜像中。
+- 将`nginx-1.19.2.tar.gz`包复制到基础镜像中。
 - 解压源代码压缩包并删除压缩包。
-- 配置构建参数，使用make命令编译并安装程序。
+- 配置构建参数，使用`make`命令编译并安装程序。
 - 删除解压后到源代码。
-- 运行可执行nginx。
+- 运行可执行`nginx`。
 
 这些步骤清楚之后，我们打开之前到Dockerfile，更新为：
 
-COPY
+```shell
+FROM ubuntu:latest
+
+RUN apt-get update && \
+    apt-get install build-essential\ 
+                    libpcre3 \
+                    libpcre3-dev \
+                    zlib1g \
+                    zlib1g-dev \
+                    libssl1.1 \
+                    libssl-dev \
+                    -y && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+COPY nginx-1.19.2.tar.gz .
+
+RUN tar -xvf nginx-1.19.2.tar.gz && rm nginx-1.19.2.tar.gz
+
+RUN cd nginx-1.19.2 && \
+    ./configure \
+        --sbin-path=/usr/bin/nginx \
+        --conf-path=/etc/nginx/nginx.conf \
+        --error-log-path=/var/log/nginx/error.log \
+        --http-log-path=/var/log/nginx/access.log \
+        --with-pcre \
+        --pid-path=/var/run/nginx.pid \
+        --with-http_ssl_module && \
+    make && make install
+
+RUN rm -rf /nginx-1.19.2
+
+CMD ["nginx", "-g", "daemon off;"]
+```
 
 你可以看到，Dockerfile中的命令就是我们上面写的几个步骤。
 
@@ -1062,13 +1200,45 @@ COPY
 - `RUN`命令安装源码构建NGINX依赖的基础包。
 - `COPY`是一个新的命令。这个命令表示将nginx-1.19.2.tar.gz压缩包复制到镜像中。基本的语法是`COPY <source> <destination>`，这里的source是本地文件系统，destination是镜像。`.`表示复制的目的地，也就是镜像中的工作目录，如果没有特殊制定，默认该目录是根目录`/`。
 - 第二个`run`命令从压缩包解压文件并且删除压缩包。
-- 压缩包中是一个目录nginx-1.19.2包含着nginx源代码。因此下一步你不必须要`cd`到这个目录再执行构建的程序。你可以阅读[COPY]()这篇文章了解关于这个主题的更多内容。
+- 压缩包中是一个目录nginx-1.19.2包含着nginx源代码。因此下一步你不必须要`cd`到这个目录再执行构建的程序。你可以阅读[怎么在Linux系统基于源代码上安装并卸载软件](https://itsfoss.com/install-software-from-source-code/)这篇文章了解关于这个主题的更多内容。
 - 一旦你构建并且安装成功，你可以使用`rm`命令删除nginx-1.19.2这个目录。
 - 最后一步你像之前以一样用单进程的方式启动NGINX。
 
 现在你可以使用下面的命令构建镜像：
 
-COPY
+```shell
+docker image build --tag custom-nginx:built .
+
+# Step 1/7 : FROM ubuntu:latest
+#  ---> d70eaf7277ea
+# Step 2/7 : RUN apt-get update &&     apt-get install build-essential                    libpcre3                     libpcre3-dev                     zlib1g                     zlib1g-dev                     libssl-dev                     -y &&     apt-get clean && rm -rf /var/lib/apt/lists/*
+#  ---> Running in 2d0aa912ea47
+### LONG INSTALLATION STUFF GOES HERE ###
+# Removing intermediate container 2d0aa912ea47
+#  ---> cbe1ced3da11
+# Step 3/7 : COPY nginx-1.19.2.tar.gz .
+#  ---> 7202902edf3f
+# Step 4/7 : RUN tar -xvf nginx-1.19.2.tar.gz && rm nginx-1.19.2.tar.gz
+ ---> Running in 4a4a95643020
+### LONG EXTRACTION STUFF GOES HERE ###
+# Removing intermediate container 4a4a95643020
+#  ---> f9dec072d6d6
+# Step 5/7 : RUN cd nginx-1.19.2 &&     ./configure         --sbin-path=/usr/bin/nginx         --conf-path=/etc/nginx/nginx.conf         --error-log-path=/var/log/nginx/error.log         --http-log-path=/var/log/nginx/access.log         --with-pcre         --pid-path=/var/run/nginx.pid         --with-http_ssl_module &&     make && make install
+#  ---> Running in b07ba12f921e
+### LONG CONFIGURATION AND BUILD STUFF GOES HERE ###
+# Removing intermediate container b07ba12f921e
+#  ---> 5a877edafd8b
+# Step 6/7 : RUN rm -rf /nginx-1.19.2
+#  ---> Running in 947e1d9ba828
+# Removing intermediate container 947e1d9ba828
+#  ---> a7702dc7abb7
+# Step 7/7 : CMD ["nginx", "-g", "daemon off;"]
+#  ---> Running in 3110c7fdbd57
+# Removing intermediate container 3110c7fdbd57
+#  ---> eae55f7369d3
+# Successfully built eae55f7369d3
+# Successfully tagged custom-nginx:built
+```
 
 代码没有问题，但是我们有一些地方可以改进。
 
@@ -1077,39 +1247,182 @@ COPY
 
 打开之前到Dockerfile并更新内容：
 
-COPY
+```shell
+FROM ubuntu:latest
+
+RUN apt-get update && \
+    apt-get install build-essential\ 
+                    libpcre3 \
+                    libpcre3-dev \
+                    zlib1g \
+                    zlib1g-dev \
+                    libssl1.1 \
+                    libssl-dev \
+                    -y && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+ARG FILENAME="nginx-1.19.2"
+ARG EXTENSION="tar.gz"
+
+ADD https://nginx.org/download/${FILENAME}.${EXTENSION} .
+
+RUN tar -xvf ${FILENAME}.${EXTENSION} && rm ${FILENAME}.${EXTENSION}
+
+RUN cd ${FILENAME} && \
+    ./configure \
+        --sbin-path=/usr/bin/nginx \
+        --conf-path=/etc/nginx/nginx.conf \
+        --error-log-path=/var/log/nginx/error.log \
+        --http-log-path=/var/log/nginx/access.log \
+        --with-pcre \
+        --pid-path=/var/run/nginx.pid \
+        --with-http_ssl_module && \
+    make && make install
+
+RUN rm -rf /${FILENAME}}
+
+CMD ["nginx", "-g", "daemon off;"]
+```
 
 除了13、14行使用的`ARG`命令和16行使用的`ADD`命令外，新的的代码和之前的几乎一样。更新的内容如下：
 
-- `ARG`命令让可以像其他语言一样声明一个变量，其他地方可以像使用`${argumentname}`这样使用。这里我把文件名nginx-1.19.2和文件扩展名tar.gz定义为两个变量，这样如果改变了nginx的版本或者改变了压缩方式就只有一个地方改变。代码中我给变量设置了默认值，变量的值可以通过`image build`命令的参数传递，你可以在官方文档中了解更多。
+- `ARG`命令让可以像其他语言一样声明一个变量，其他地方可以像使用`${argumentname}`这样使用。这里我把文件名nginx-1.19.2和文件扩展名tar.gz定义为两个变量，这样如果改变了nginx的版本或者改变了压缩方式就只有一个地方改变。代码中我给变量设置了默认值，变量的值可以通过`image build`命令的参数传递，你可以在[官方文档](https://docs.docker.com/engine/reference/builder/#arg)中了解更多。
 - `ADD`命令中，我使用变量动态构建了一个URL。COPY。使用`ARG`命令只改变一个地方就可以改变文件的版本或者后缀名。
 - `ADD`命令默认并不会解压网络中获取的资源，所以18行中使用了`tar`命令。
 
 其余的代码几乎没有改变，现在你应该懂得了参数的使用。我们来更新后的镜像：
 
-COPY
+```shell
+docker image build --tag custom-nginx:built .
+
+# Step 1/9 : FROM ubuntu:latest
+#  ---> d70eaf7277ea
+# Step 2/9 : RUN apt-get update &&     apt-get install build-essential                    libpcre3                     libpcre3-dev                     zlib1g                     zlib1g-dev                     libssl-dev                     -y &&     apt-get clean && rm -rf /var/lib/apt/lists/*
+#  ---> cbe1ced3da11
+### LONG INSTALLATION STUFF GOES HERE ###
+# Step 3/9 : ARG FILENAME="nginx-1.19.2"
+#  ---> Running in 33b62a0e9ffb
+# Removing intermediate container 33b62a0e9ffb
+#  ---> fafc0aceb9c8
+# Step 4/9 : ARG EXTENSION="tar.gz"
+#  ---> Running in 5c32eeb1bb11
+# Removing intermediate container 5c32eeb1bb11
+#  ---> 36efdf6efacc
+# Step 5/9 : ADD https://nginx.org/download/${FILENAME}.${EXTENSION} .
+# Downloading [==================================================>]  1.049MB/1.049MB
+#  ---> dba252f8d609
+# Step 6/9 : RUN tar -xvf ${FILENAME}.${EXTENSION} && rm ${FILENAME}.${EXTENSION}
+#  ---> Running in 2f5b091b2125
+### LONG EXTRACTION STUFF GOES HERE ###
+# Removing intermediate container 2f5b091b2125
+#  ---> 2c9a325d74f1
+# Step 7/9 : RUN cd ${FILENAME} &&     ./configure         --sbin-path=/usr/bin/nginx         --conf-path=/etc/nginx/nginx.conf         --error-log-path=/var/log/nginx/error.log         --http-log-path=/var/log/nginx/access.log         --with-pcre         --pid-path=/var/run/nginx.pid         --with-http_ssl_module &&     make && make install
+#  ---> Running in 11cc82dd5186
+### LONG CONFIGURATION AND BUILD STUFF GOES HERE ###
+# Removing intermediate container 11cc82dd5186
+#  ---> 6c122e485ec8
+# Step 8/9 : RUN rm -rf /${FILENAME}}
+#  ---> Running in 04102366960b
+# Removing intermediate container 04102366960b
+#  ---> 6bfa35420a73
+# Step 9/9 : CMD ["nginx", "-g", "daemon off;"]
+#  ---> Running in 63ee44b571bb
+# Removing intermediate container 63ee44b571bb
+#  ---> 4ce79556db1b
+# Successfully built 4ce79556db1b
+# Successfully tagged custom-nginx:built
+```
 
 现在，你可以使用custom-nginx:build镜像来运行一个容器。
 
+```shell
+docker container run --rm --detach --name custom-nginx-built --publish 8080:80 custom-nginx:built
+
+# 90ccdbc0b598dddc4199451b2f30a942249d85a8ed21da3c8d14612f17eed0aa
+
+docker container ls
+
+# CONTAINER ID        IMAGE                COMMAND                  CREATED             STATUS              PORTS                  NAMES
+# 90ccdbc0b598        custom-nginx:built   "nginx -g 'daemon of…"   2 minutes ago       Up 2 minutes        0.0.0.0:8080->80/tcp   custom-nginx-built
+```
+
 新的容器运行起来了，通过`http://127.0.0.1:8080`应该能够访问这个容器。
 
-COPY
+![](/img/posts/docker-handbook-2021-17.jpg)
 
-这里NGINX默认返回了一个页面，你可以访问官方文档来学习更多的指令。
+这里NGINX默认返回了一个页面，你可以访问[官方文档](https://docs.docker.com/engine/reference/builder/)来学习更多的指令。
 
-<h3>8.6 怎样优化一个Docker镜像？</h3>
+<h3 id="6.6">6.6 怎样优化一个Docker镜像？</h3>
 
 我们上一部分中构建的镜像是能够运行的，但是不是最优的。我们可以通过`image ls`命令来看一看镜像的大小：
 
-COPY
+```shell
+docker image ls
+
+# REPOSITORY         TAG       IMAGE ID       CREATED          SIZE
+# custom-nginx       built     1f3aaf40bb54   16 minutes ago   343MB
+```
 
 对于一个只包含NGINX的镜像太大了。如果你拉去官方的NGINX镜像查看大小，你会发现要小的多：
 
-COPY
+```shell
+docker image pull nginx:stable
+
+# stable: Pulling from library/nginx
+# a076a628af6f: Pull complete 
+# 45d7b5d3927d: Pull complete 
+# 5e326fece82e: Pull complete 
+# 30c386181b68: Pull complete 
+# b15158e9ebbe: Pull complete 
+# Digest: sha256:ebd0fd56eb30543a9195280eb81af2a9a8e6143496accd6a217c14b06acd1419
+# Status: Downloaded newer image for nginx:stable
+# docker.io/library/nginx:stable
+
+docker image ls
+
+# REPOSITORY         TAG       IMAGE ID       CREATED          SIZE
+# custom-nginx       built     1f3aaf40bb54   25 minutes ago   343MB
+# nginx              stable    b9e1dc12387a   11 days ago      133MB
+```
 
 为了找到根本原因，我们首先开看看Dockerfile：
 
-COPY
+```shell
+FROM ubuntu:latest
+
+RUN apt-get update && \
+    apt-get install build-essential\ 
+                    libpcre3 \
+                    libpcre3-dev \
+                    zlib1g \
+                    zlib1g-dev \
+                    libssl1.1 \
+                    libssl-dev \
+                    -y && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+ARG FILENAME="nginx-1.19.2"
+ARG EXTENSION="tar.gz"
+
+ADD https://nginx.org/download/${FILENAME}.${EXTENSION} .
+
+RUN tar -xvf ${FILENAME}.${EXTENSION} && rm ${FILENAME}.${EXTENSION}
+
+RUN cd ${FILENAME} && \
+    ./configure \
+        --sbin-path=/usr/bin/nginx \
+        --conf-path=/etc/nginx/nginx.conf \
+        --error-log-path=/var/log/nginx/error.log \
+        --http-log-path=/var/log/nginx/access.log \
+        --with-pcre \
+        --pid-path=/var/run/nginx.pid \
+        --with-http_ssl_module && \
+    make && make install
+
+RUN rm -rf /${FILENAME}}
+
+CMD ["nginx", "-g", "daemon off;"]
+```
 
 第三行中我们看到`RUN`命令安装了很多东西，尽管这些东西对于构建NGINX是必要的，但是对于运行NGINX就不全是的了。
 
@@ -1117,7 +1430,47 @@ COPY
 
 你可以更新Dockerfile为：
 
-COPY
+```shell
+FROM ubuntu:latest
+
+EXPOSE 80
+
+ARG FILENAME="nginx-1.19.2"
+ARG EXTENSION="tar.gz"
+
+ADD https://nginx.org/download/${FILENAME}.${EXTENSION} .
+
+RUN apt-get update && \
+    apt-get install build-essential \ 
+                    libpcre3 \
+                    libpcre3-dev \
+                    zlib1g \
+                    zlib1g-dev \
+                    libssl1.1 \
+                    libssl-dev \
+                    -y && \
+    tar -xvf ${FILENAME}.${EXTENSION} && rm ${FILENAME}.${EXTENSION} && \
+    cd ${FILENAME} && \
+    ./configure \
+        --sbin-path=/usr/bin/nginx \
+        --conf-path=/etc/nginx/nginx.conf \
+        --error-log-path=/var/log/nginx/error.log \
+        --http-log-path=/var/log/nginx/access.log \
+        --with-pcre \
+        --pid-path=/var/run/nginx.pid \
+        --with-http_ssl_module && \
+    make && make install && \
+    cd / && rm -rfv /${FILENAME} && \
+    apt-get remove build-essential \ 
+                    libpcre3-dev \
+                    zlib1g-dev \
+                    libssl-dev \
+                    -y && \
+    apt-get autoremove -y && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+CMD ["nginx", "-g", "daemon off;"]
+```
 
 你可以看到，第10一整行做了所有必要的工作。实际的流程是这样的：
 
@@ -1133,15 +1486,53 @@ COPY
 
 我们重新构建优化后的Dockerfile。
 
-COPY
+```shell
+docker image build --tag custom-nginx:built .
+
+# Sending build context to Docker daemon  1.057MB
+# Step 1/7 : FROM ubuntu:latest
+#  ---> f63181f19b2f
+# Step 2/7 : EXPOSE 80
+#  ---> Running in 006f39b75964
+# Removing intermediate container 006f39b75964
+#  ---> 6943f7ef9376
+# Step 3/7 : ARG FILENAME="nginx-1.19.2"
+#  ---> Running in ffaf89078594
+# Removing intermediate container ffaf89078594
+#  ---> 91b5cdb6dabe
+# Step 4/7 : ARG EXTENSION="tar.gz"
+#  ---> Running in d0f5188444b6
+# Removing intermediate container d0f5188444b6
+#  ---> 9626f941ccb2
+# Step 5/7 : ADD https://nginx.org/download/${FILENAME}.${EXTENSION} .
+# Downloading [==================================================>]  1.049MB/1.049MB
+#  ---> a8e8dcca1be8
+# Step 6/7 : RUN apt-get update &&     apt-get install build-essential                     libpcre3                     libpcre3-dev                     zlib1g                     zlib1g-dev                     libssl-dev                     -y &&     tar -xvf ${FILENAME}.${EXTENSION} && rm ${FILENAME}.${EXTENSION} &&     cd ${FILENAME} &&     ./configure         --sbin-path=/usr/bin/nginx         --conf-path=/etc/nginx/nginx.conf         --error-log-path=/var/log/nginx/error.log         --http-log-path=/var/log/nginx/access.log         --with-pcre         --pid-path=/var/run/nginx.pid         --with-http_ssl_module &&     make && make install &&     cd / && rm -rfv /${FILENAME} &&     apt-get remove build-essential                     libpcre3-dev                     zlib1g-dev                     libssl-dev                     -y &&     apt-get autoremove -y &&     apt-get clean && rm -rf /var/lib/apt/lists/*
+#  ---> Running in e5675cad1260
+### LONG INSTALLATION AND BUILD STUFF GOES HERE ###
+# Removing intermediate container e5675cad1260
+#  ---> dc7e4161f975
+# Step 7/7 : CMD ["nginx", "-g", "daemon off;"]
+#  ---> Running in b579e4600247
+# Removing intermediate container b579e4600247
+#  ---> 512aa6a95a93
+# Successfully built 512aa6a95a93
+# Successfully tagged custom-nginx:built
+
+docker image ls
+
+# REPOSITORY         TAG       IMAGE ID       CREATED              SIZE
+# custom-nginx       built     512aa6a95a93   About a minute ago   81.6MB
+# nginx              stable    b9e1dc12387a   11 days ago          133MB
+```
 
 你可以看到镜像的大小从343MB下降到了81.6MB。官方的镜像大小为133MB。这已经是很大的优化了，我们在下一部分中会更进一步。
 
-<h3>8.7 拥抱Alpine Linxu</h3>
+<h3 id="6.7">6.7 拥抱Alpine Linxu</h3>
 
-如果你已经了解容器一段时间了，你应该遇到过叫做Alpine Linux的东西，它是一个类似于Ubuntu、Debian或者Fedora的linux发行版。
+如果你已经了解容器一段时间了，你应该遇到过叫做[Alpine Linux](https://alpinelinux.org/)的东西，它是一个类似于[Ubuntu](https://ubuntu.com/)、[Debian](https://ubuntu.com/)或者[Fedora](https://getfedora.org/)的[Linux发行版](https://en.wikipedia.org/wiki/Linux)。
 
-Alpine的优点是基于`musl libc`和`busybox`并且非常轻量级。最新版本的Ubuntu镜像大小是28MB，而alpine只有2.8MB。
+Alpine的优点是基于`musl libc`和`busybox`并且非常轻量级。最新版本的[Ubuntu镜像](https://hub.docker.com/_/ubuntu)大小是28MB，而[alpine](https://hub.docker.com/_/ubuntu)只有2.8MB。
 
 除了轻量级之外，Alpine也具有安全性并且相比较其他Linux发行版非常适合作为容器的基础镜像。
 
@@ -1149,29 +1540,98 @@ Alpine的优点是基于`musl libc`和`busybox`并且非常轻量级。最新版
 
 更新Dockerfile如下：
 
-COPY
+```shell
+FROM alpine:latest
+
+EXPOSE 80
+
+ARG FILENAME="nginx-1.19.2"
+ARG EXTENSION="tar.gz"
+
+ADD https://nginx.org/download/${FILENAME}.${EXTENSION} .
+
+RUN apk add --no-cache pcre zlib && \
+    apk add --no-cache \
+            --virtual .build-deps \
+            build-base \ 
+            pcre-dev \
+            zlib-dev \
+            openssl-dev && \
+    tar -xvf ${FILENAME}.${EXTENSION} && rm ${FILENAME}.${EXTENSION} && \
+    cd ${FILENAME} && \
+    ./configure \
+        --sbin-path=/usr/bin/nginx \
+        --conf-path=/etc/nginx/nginx.conf \
+        --error-log-path=/var/log/nginx/error.log \
+        --http-log-path=/var/log/nginx/access.log \
+        --with-pcre \
+        --pid-path=/var/run/nginx.pid \
+        --with-http_ssl_module && \
+    make && make install && \
+    cd / && rm -rfv /${FILENAME} && \
+    apk del .build-deps
+
+CMD ["nginx", "-g", "daemon off;"]
+```
 
 代码和之前的没有什么差异，有差异的地方列出来如下：
 
 - 使用`apk add`而不是`apt-get install`命令安装依赖包。`--no-cache`参数表示下载的依赖包不会被缓存。同样适用了`apk del`而不是`apt-get remove`来卸载依赖包。
-- `apk add`命令的`--virtual`参数表示将多个包捆扎成单个包便于管理。那些仅仅是构建时候依赖的包被打上`.build-deps`的标签，后续可以通过`apk del .build-deps`命令删除。你可以在官方文档中了解更多关于virtuals参数的内容。
-- 这里包的名称可能有些不同。一般每一个Linux发行版都有自己的包仓库开放给大家寻找包。如果你知道你任务要依赖的包，你可以直接到目的发行版的仓库中还搜索它。你可以在[这里]()寻找Alpine Linux的包。
+- `apk add`命令的`--virtual`参数表示将多个包捆扎成单个包便于管理。那些仅仅是构建时候依赖的包被打上`.build-deps`的标签，后续可以通过`apk del .build-deps`命令删除。你可以在官方文档中了解更多关于[virtuals](https://docs.alpinelinux.org/user-handbook/0.1a/Working/apk.html#_virtuals)参数的内容。
+- 这里包的名称可能有些不同。一般每一个Linux发行版都有自己的包仓库开放给大家寻找包。如果你知道你任务要依赖的包，你可以直接到目的发行版的仓库中还搜索它。你可以在[这里](https://pkgs.alpinelinux.org/packages)寻找Alpine Linux的包。
 
 现在使用新的Dockerfile构建镜像，看看镜像的大小：
 
-COPY
+```shell
+docker image build --tag custom-nginx:built .
+
+# Sending build context to Docker daemon  1.055MB
+# Step 1/7 : FROM alpine:latest
+#  ---> 7731472c3f2a
+# Step 2/7 : EXPOSE 80
+#  ---> Running in 8336cfaaa48d
+# Removing intermediate container 8336cfaaa48d
+#  ---> d448a9049d01
+# Step 3/7 : ARG FILENAME="nginx-1.19.2"
+#  ---> Running in bb8b2eae9d74
+# Removing intermediate container bb8b2eae9d74
+#  ---> 87ca74f32fbe
+# Step 4/7 : ARG EXTENSION="tar.gz"
+#  ---> Running in aa09627fe48c
+# Removing intermediate container aa09627fe48c
+#  ---> 70cb557adb10
+# Step 5/7 : ADD https://nginx.org/download/${FILENAME}.${EXTENSION} .
+# Downloading [==================================================>]  1.049MB/1.049MB
+#  ---> b9790ce0c4d6
+# Step 6/7 : RUN apk add --no-cache pcre zlib &&     apk add --no-cache             --virtual .build-deps             build-base             pcre-dev             zlib-dev             openssl-dev &&     tar -xvf ${FILENAME}.${EXTENSION} && rm ${FILENAME}.${EXTENSION} &&     cd ${FILENAME} &&     ./configure         --sbin-path=/usr/bin/nginx         --conf-path=/etc/nginx/nginx.conf         --error-log-path=/var/log/nginx/error.log         --http-log-path=/var/log/nginx/access.log         --with-pcre         --pid-path=/var/run/nginx.pid         --with-http_ssl_module &&     make && make install &&     cd / && rm -rfv /${FILENAME} &&     apk del .build-deps
+#  ---> Running in 0b301f64ffc1
+### LONG INSTALLATION AND BUILD STUFF GOES HERE ###
+# Removing intermediate container 0b301f64ffc1
+#  ---> dc7e4161f975
+# Step 7/7 : CMD ["nginx", "-g", "daemon off;"]
+#  ---> Running in b579e4600247
+# Removing intermediate container b579e4600247
+#  ---> 3e186a3c6830
+# Successfully built 3e186a3c6830
+# Successfully tagged custom-nginx:built
+
+docker image ls
+
+# REPOSITORY         TAG       IMAGE ID       CREATED         SIZE
+# custom-nginx       built     3e186a3c6830   8 seconds ago   12.8MB
+```
 
 之前Ubuntu版本的大小是81.6MB，Alpine版本的大小下降到12.8MB，小了很多。Alpine和Ubuntu不同的地方出来`apk`包管理不一样之外还有一些其他的内容，但是并不重要。如果你使用遇到困难可以在网上寻找答案。
 
-<h3>8.8 怎样创建一个可执行Docker镜像？</h3>
+<h3 id="6.8">6.8 怎样创建一个可执行Docker镜像？</h3>
 
-在之前的章节中你使用过了fhsinchy/rmbyext镜像，这一部分中你会学习怎样制作一个可执行的镜像。
+在之前的章节中你使用过了[fhsinchy/rmbyext镜像](https://hub.docker.com/r/fhsinchy/rmbyext)，这一部分中你会学习怎样制作一个可执行的镜像。
 
 首先打开之前在本书中克隆的仓库，rmbyext应用的代码就在同名的目录中。
 
 在开始写Dockerfile之前，思考一下最终的输出应该是什么样的，在我看来应该是这样的：
 
-- 镜像应该要提前安装好Python。
+- 镜像应该要提前安装好[Python](https://hub.docker.com/_/python)。
 - 应该包含rmbyext脚本。
 - 应该设置一个脚本运行的工作目录。
 - rmbyext脚本应该设置为镜像的入口，这样镜像可以把文件扩展名作为参数传递。
@@ -1187,32 +1647,85 @@ COPY
 
 现在，在rmbyext目录中创建一个Dockerfile文件，写入如下代码：
 
-COPY
+```shell
+FROM python:3-alpine
+
+WORKDIR /zone
+
+RUN apk add --no-cache git && \
+    pip install git+https://github.com/fhsinchy/rmbyext.git#egg=rmbyext && \
+    apk del git
+
+ENTRYPOINT [ "rmbyext" ]
+```
 
 解释如下：
 
-- `FROM`命令设置python作为基础镜像，提供python脚本运行的环境。`3-alpine`标签表示你使用Alpine的Python3版本。
+- `FROM`命令设置[python](https://hub.docker.com/_/python)作为基础镜像，提供python脚本运行的环境。`3-alpine`标签表示你使用Alpine的Python3版本。
 - `WORKDIR`命令设置`/zone`作为工作目录，这里工作目录的选择完全是随机的，我使用的是`/zone`，你可以自己设定目录。
 - rmbyext是从Github中安装的，git是安装时的依赖。第5行的`RUN`命令安装了git并且用git和pip装了rmbyext脚本，随后git被删除。
 - 最后在第9行设置rmbyext脚本为镜像入口。
 
 在整个文件中，第9行价将普通的镜像转化为了可执行镜像。现在你可以通过下面的命令构建镜像：
 
-COPY
+```shell
+docker image build --tag rmbyext .
+
+# Sending build context to Docker daemon  2.048kB
+# Step 1/4 : FROM python:3-alpine
+# 3-alpine: Pulling from library/python
+# 801bfaa63ef2: Already exists 
+# 8723b2b92bec: Already exists 
+# 4e07029ccd64: Already exists 
+# 594990504179: Already exists 
+# 140d7fec7322: Already exists 
+# Digest: sha256:7492c1f615e3651629bd6c61777e9660caa3819cf3561a47d1d526dfeee02cf6
+# Status: Downloaded newer image for python:3-alpine
+#  ---> d4d4f50f871a
+# Step 2/4 : WORKDIR /zone
+#  ---> Running in 454374612a91
+# Removing intermediate container 454374612a91
+#  ---> 7f7e49bc98d2
+# Step 3/4 : RUN apk add --no-cache git &&     pip install git+https://github.com/fhsinchy/rmbyext.git#egg=rmbyext &&     apk del git
+#  ---> Running in 27e2e96dc95a
+### LONG INSTALLATION STUFF GOES HERE ###
+# Removing intermediate container 27e2e96dc95a
+#  ---> 3c7389432e36
+# Step 4/4 : ENTRYPOINT [ "rmbyext" ]
+#  ---> Running in f239bbea1ca6
+# Removing intermediate container f239bbea1ca6
+#  ---> 1746b0cedbc7
+# Successfully built 1746b0cedbc7
+# Successfully tagged rmbyext:latest
+
+docker image ls
+
+# REPOSITORY         TAG        IMAGE ID       CREATED         SIZE
+# rmbyext            latest     1746b0cedbc7   4 minutes ago   50.9MB
+```
 
 这里我没有提供给镜像提供任何tag，所以默认的tag是latest。你可以像之前章节那样运行这个镜像，记得引用你设置的镜像名字而不是这里的fhsinchy/rmbyext。
 
-<h3>8.9 怎样在线共享你的镜像？</h3>
+<h3 id="6.9">6.9 怎样在线共享你的镜像？</h3>
 
-现在你知道了怎么制作一个镜像，是时候分享给这个世界了。分享镜像很简单，你只需要具有一个在线镜像仓库的账户，这里我们使用Docker Hub。
+现在你知道了怎么制作一个镜像，是时候分享给这个世界了。分享镜像很简单，你只需要具有一个在线镜像仓库的账户，这里我们使用[Docker Hub](https://hub.docker.com/)。
 
-导航到注册页并注册一个免费用户。免费用户可以上传不限制的公共仓库和一个私有仓库。
+导航到注册页并[注册](https://hub.docker.com/signup)一个免费用户。免费用户可以上传不限制的公共仓库和一个私有仓库。
 
 创建用户之后，你需要使用docker CLI登陆，打开终端执行如下命令：
 
-`docker login`
+```shell
+docker login
 
-COPY
+# Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
+# Username: fhsinchy
+# Password: 
+# WARNING! Your password will be stored unencrypted in /home/fhsinchy/.docker/config.json.
+# Configure a credential helper to remove this warning. See
+# https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+#
+# Login Succeeded
+```
 
 弹出框中要求你输入用户名和密码，如果输入正确，你就能够成功登陆你的账户。
 
@@ -1224,7 +1737,46 @@ COPY
 
 为了上传镜像，你必须遵照`<docker hub username>/<image name>:<image tag>`语法。我的用户名是fhsinchy，因此命令如下：
 
-COPY
+```shell
+docker image build --tag fhsinchy/custom-nginx:latest --file Dockerfile.built .
+
+# Step 1/9 : FROM ubuntu:latest
+#  ---> d70eaf7277ea
+# Step 2/9 : RUN apt-get update &&     apt-get install build-essential                    libpcre3                     libpcre3-dev                     zlib1g                     zlib1g-dev                     libssl-dev                     -y &&     apt-get clean && rm -rf /var/lib/apt/lists/*
+#  ---> cbe1ced3da11
+### LONG INSTALLATION STUFF GOES HERE ###
+# Step 3/9 : ARG FILENAME="nginx-1.19.2"
+#  ---> Running in 33b62a0e9ffb
+# Removing intermediate container 33b62a0e9ffb
+#  ---> fafc0aceb9c8
+# Step 4/9 : ARG EXTENSION="tar.gz"
+#  ---> Running in 5c32eeb1bb11
+# Removing intermediate container 5c32eeb1bb11
+#  ---> 36efdf6efacc
+# Step 5/9 : ADD https://nginx.org/download/${FILENAME}.${EXTENSION} .
+# Downloading [==================================================>]  1.049MB/1.049MB
+#  ---> dba252f8d609
+# Step 6/9 : RUN tar -xvf ${FILENAME}.${EXTENSION} && rm ${FILENAME}.${EXTENSION}
+#  ---> Running in 2f5b091b2125
+### LONG EXTRACTION STUFF GOES HERE ###
+# Removing intermediate container 2f5b091b2125
+#  ---> 2c9a325d74f1
+# Step 7/9 : RUN cd ${FILENAME} &&     ./configure         --sbin-path=/usr/bin/nginx         --conf-path=/etc/nginx/nginx.conf         --error-log-path=/var/log/nginx/error.log         --http-log-path=/var/log/nginx/access.log         --with-pcre         --pid-path=/var/run/nginx.pid         --with-http_ssl_module &&     make && make install
+#  ---> Running in 11cc82dd5186
+### LONG CONFIGURATION AND BUILD STUFF GOES HERE ###
+# Removing intermediate container 11cc82dd5186
+#  ---> 6c122e485ec8
+# Step 8/9 : RUN rm -rf /${FILENAME}}
+#  ---> Running in 04102366960b
+# Removing intermediate container 04102366960b
+#  ---> 6bfa35420a73
+# Step 9/9 : CMD ["nginx", "-g", "daemon off;"]
+#  ---> Running in 63ee44b571bb
+# Removing intermediate container 63ee44b571bb
+#  ---> 4ce79556db1b
+# Successfully built 4ce79556db1b
+# Successfully tagged fhsinchy/custom-nginx:latest
+```
 
 在命令中，fhsinchy/custom-nginx是镜像仓库，latest是标签，镜像名称可以根据你的喜欢设定并且一旦镜像上传就不能更改。tag你可以随时修改，一般表示应用的版本或者不同的构建。
 
@@ -1238,7 +1790,19 @@ COPY
 
 具体到这个例子，你可以使用如下命令：
 
-COPY
+```shell
+docker image push fhsinchy/custom-nginx:latest
+
+# The push refers to repository [docker.io/fhsinchy/custom-nginx]
+# 4352b1b1d9f5: Pushed 
+# a4518dd720bd: Pushed 
+# 1d756dc4e694: Pushed 
+# d7a7e2b6321a: Pushed 
+# f6253634dc78: Mounted from library/ubuntu 
+# 9069f84dbbe9: Mounted from library/ubuntu 
+# bacd3af13903: Mounted from library/ubuntu 
+# latest: digest: sha256:ffe93440256c9edb2ed67bf3bba3c204fec3a46a36ac53358899ce1a9eee497a size: 1788
+```
 
 根据镜像的大小，上传的过程可能要花费一点时间。一旦镜像上传成功，你就可以在你的仓库主页中找到它。
 
