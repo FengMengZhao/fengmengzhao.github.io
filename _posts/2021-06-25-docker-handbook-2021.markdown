@@ -219,32 +219,32 @@ Docker能够运行在不同的主流操作系统macOS、Windows和Linux上，在
 ```shell
 docker run hello-world
 
-# Unable to find image 'hello-world:latest' locally
-# latest: Pulling from library/hello-world
-# 0e03bdcc26d7: Pull complete 
-# Digest: sha256:4cf9c47f86df71d48364001ede3a4fcd85ae80ce02ebad74156906caff5378bc
-# Status: Downloaded newer image for hello-world:latest
-# 
-# Hello from Docker!
-# This message shows that your installation appears to be working correctly.
-# 
-# To generate this message, Docker took the following steps:
-#  1. The Docker client contacted the Docker daemon.
-#  2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
-#     (amd64)
-#  3. The Docker daemon created a new container from that image which runs the
-#     executable that produces the output you are currently reading.
-#  4. The Docker daemon streamed that output to the Docker client, which sent it
-#     to your terminal.
-#
-# To try something more ambitious, you can run an Ubuntu container with:
-#  $ docker run -it ubuntu bash
-# 
-# Share images, automate workflows, and more with a free Docker ID:
-#  https://hub.docker.com/
-#
-# For more examples and ideas, visit:
-#  https://docs.docker.com/get-started/
+Unable to find image 'hello-world:latest' locally
+latest: Pulling from library/hello-world
+2db29710123e: Pull complete
+Digest: sha256:9ade9cc2e26189a19c2e8854b9c8f1e14829b51c55a630ee675a5a9540ef6ccf
+Status: Downloaded newer image for hello-world:latest
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/get-started/
 ```
 
 [hello-world](https://hub.docker.com/_/hello-world)镜像是Docker提供的一个很小的容器化程序，它是很简单的[hello.c](https://github.com/docker-library/hello-world/blob/master/hello.c)程序，在终端打印出Hello Worl字符串。
@@ -302,10 +302,10 @@ docker ps -a
 
 ```
 uname -a
-# Linux alpha-centauri 5.8.0-22-generic #23-Ubuntu SMP Fri Oct 9 00:34:40 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux
+# Linux DESKTOP-N5K2GI1 5.10.16.3-microsoft-standard-WSL2 #1 SMP Fri Apr 2 22:23:49 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
 
 docker run alpine uname -a
-# Linux f08dbbe9199b 5.8.0-22-generic #23-Ubuntu SMP Fri Oct 9 00:34:40 UTC 2020 x86_64 Linux
+# Linux 9c2c71a183ee 5.10.16.3-microsoft-standard-WSL2 #1 SMP Fri Apr 2 22:23:49 UTC 2021 x86_64 Linux
 ```
 
 上面的代码中，我先在宿主机上执行了`uname -a`命令，获取宿主机操作系统的内核详情。然后第二行运行了一个[Alpine Linux](https://alpinelinux.org/)容器执行了同样的命令。
@@ -313,6 +313,8 @@ docker run alpine uname -a
 从输出的结果可以看出来，容器实际上使用了宿主机操作系统的内核，这也证明了容器虚拟化了宿主机的操作系统而不是自身也拥有一个。
 
 如果你使用Windows机器，你会发现所有的容器都是使用WSL2内核，这是因为WSL2Windows上Docker的后台服务。在macOS系统上，默认的后台服务是一个基于[HiperKit](https://github.com/moby/hyperkit) hypervisor的VM。
+
+> 冯兄话吉：冯兄(译者)的操作环境正式WSL2。
 
 <h3 id="4.2">4.2 什么是镜像？</h3>
 
@@ -376,8 +378,8 @@ Docker在本地找不到拉取镜像的时候，默认会去Docker Hub仓库下�
 ```
 Unable to find image 'hello-world:latest' locally
 latest: Pulling from library/hello-world
-0e03bdcc26d7: Pull complete
-Digest: sha256:d58e752213a51785838f9eed2b7a498ffa1cb3aa7f946dda11af39286c3db9a9
+2db29710123e: Pull complete
+Digest: sha256:9ade9cc2e26189a19c2e8854b9c8f1e14829b51c55a630ee675a5a9540ef6ccf
 Status: Downloaded newer image for hello-world:latest
 ```
 
@@ -420,13 +422,23 @@ image name可以是任何本地或者远程仓库上的镜像名称。例如，�
 ```
 docker container run --publish 8080:80 fhsinchy/hello-dock
 
-# /docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
-# /docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
-# /docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
-# 10-listen-on-ipv6-by-default.sh: Getting the checksum of /etc/nginx/conf.d/default.conf
-# 10-listen-on-ipv6-by-default.sh: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
-# /docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
-# /docker-entrypoint.sh: Configuration complete; ready for start up
+Unable to find image 'fhsinchy/hello-dock:latest' locally
+latest: Pulling from fhsinchy/hello-dock
+0a6724ff3fcd: Pull complete
+1d7c87af3754: Pull complete
+9668ffa91d19: Pull complete
+e81a2f5037c1: Pull complete
+991b5ddb4d9e: Pull complete
+9f4fab0aaa1b: Pull complete
+Digest: sha256:852a90695e942a8aefe5883cb9681a3fbedfdf89f64468e22fa30e04766e5f2e
+Status: Downloaded newer image for fhsinchy/hello-dock:latest
+/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+10-listen-on-ipv6-by-default.sh: Getting the checksum of /etc/nginx/conf.d/default.conf
+10-listen-on-ipv6-by-default.sh: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
 ```
 
 命令行很好理解，需要解释的`--publish 8080:80`参数会在下一部分内容中解释。
@@ -444,6 +456,8 @@ docker container run --publish 8080:80 fhsinchy/hello-dock
 现在可以在浏览器中访问http://127.0.0.1:8080。
 
 ![](/img/posts/docker-handbook-2021-15.jpg)
+
+> 冯兄话吉：这里127.0.0.1代表启动docker服务的宿主机IP，如果你在宿主机上启动的虚拟机或者WSL，需要替换为VM的IP。
 
 你可以使用ctrl + c命令停止容器，命令行终端将会停止进程或者关闭整个终端。
 
@@ -599,7 +613,7 @@ docker container start hello-dock-container
 
 `container start`命令默认情况下，保留之前的端口配置启动任何后台容器，所以如果你现在访问`http://127.0.0.1:8080`，就能够像之前那样访问到`hello-dock`应用。
 
-![](/img/posts/docker-handbook-2021-16.jpg)
+![](/img/posts/docker-handbook-2021-15.jpg)
 
 现在说下重启运行中容器的场景，要用到`container restart`命令，语法和`container start`命令类似。
 
@@ -704,7 +718,7 @@ docker container run --rm --detach --publish 8888:80 --name hello-dock-volatile 
 
 使用`container ls`命令查看容器是否启动：
 
-```
+```shell
 docker container ls
 
 # CONTAINER ID   IMAGE                 COMMAND                  CREATED              STATUS              PORTS                  NAMES
@@ -714,7 +728,7 @@ docker container ls
 
 现在可以停掉这个容器并使用`container ls --all`名称查看确认：
 
-```
+```shell
 docker container stop hello-dock-volatile
 
 # hello-dock-volatile
@@ -740,23 +754,24 @@ docker container ls --all
 
 举一个例子，如果你使用`docker container run ubuntu`启动一个ubuntu镜像的容器，命令行上你会看不到任何输出。但是如果你加上`-it`参数，你就能够直接在命令行中操作这个Ubuntu容器。
 
-````
+```shell
 docker container run --rm -it ubuntu
 
-# root@dbb1f56b9563:/# cat /etc/os-release
-# NAME="Ubuntu"
-# VERSION="20.04.1 LTS (Focal Fossa)"
-# ID=ubuntu
-# ID_LIKE=debian
-# PRETTY_NAME="Ubuntu 20.04.1 LTS"
-# VERSION_ID="20.04"
-# HOME_URL="https://www.ubuntu.com/"
-# SUPPORT_URL="https://help.ubuntu.com/"
-# BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
-# PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
-# VERSION_CODENAME=focal
-# UBUNTU_CODENAME=focal
-````
+root@573b5a48e7a8:/# cat /etc/os-release
+NAME="Ubuntu"
+VERSION="20.04.3 LTS (Focal Fossa)"
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME="Ubuntu 20.04.3 LTS"
+VERSION_ID="20.04"
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+VERSION_CODENAME=focal
+UBUNTU_CODENAME=focal
+root@573b5a48e7a8:/#
+```
 
 上面，我们执行命令`cat /etc/os-release`得到相应的输出，说明我们确实是和Ubuntu容器在进行交互。
 
@@ -767,7 +782,7 @@ docker container run --rm -it ubuntu
 
 当你像以命令行交互的方式运行一个容器的时候，你需要使用`-it`。你可以这样启动node容器：
 
-```
+```shell
 docker container run -it node
 
 # Welcome to Node.js v15.0.0.
@@ -780,11 +795,11 @@ docker container run -it node
 
 <h3 id="7.11">7.11 怎样在容器内执行命令？</h3>
 
-在上面的章节，我们运行了一个Alpine Linux容器，并且执行了一个命令：
+在[Docker运行Hello World - Docker基本介绍](#4)章节，我们运行了一个Alpine Linux容器，并且执行了一个命令：
 
 ```
 docker run alpine uname -a
-# Linux f08dbbe9199b 5.8.0-22-generic #23-Ubuntu SMP Fri Oct 9 00:34:40 UTC 2020 x86_64 Linux
+# Linux 9c2c71a183ee 5.10.16.3-microsoft-standard-WSL2 #1 SMP Fri Apr 2 22:23:49 UTC 2021 x86_64 Linux
 ```
 
 在上面的命令中，我在容器Alpine Linux容器中执行了`uname -a`命令。像这种的场景（启动一个容器的时候，需要在容器内执行一个命令）很常见。
@@ -845,6 +860,8 @@ ls
 
 `rmbyext pdf`
 
+> 冯兄话吉：如果你不想安装`pip`，只要有Python环境就可以了。克隆项目`git clone https://github.com/fhsinchy/rmbyext.git`，找到对应的`rmbyext.py`用Python执行即可。在冯兄译者的操作环境中先进入测试文件目录，执行：`sudo python3 ../rmbyext.py pdf`。
+
 一个可执行的镜像也应该像`rmbyext`脚本文件一样，接收一个文件后缀的参数，能够删除后缀结尾的文件。
 
 [fhsinchy/rmbyext](https://hub.docker.com/r/fhsinchy/rmbyext)镜像和上面的程序类似，它包含了`rmbyext`脚本，并且配置了执行脚本时删除容器内`/zone`目录下的文件。
@@ -867,7 +884,7 @@ COPY
 
 我们例子中的源端目录是`/home/fhsinchy/the-zone`，这个目录在命令行中是打开的，`$(pwd)`表示了之前提到的包含.pdf和.txt文件的当前工作目录。
 
-你可以在这里学习到更多的命令行用法。
+你可以在[这里](https://www.gnu.org/software/bash/manual/html_node/Command-Substitution.html)学习到更多的命令行替换的用法。
 
 `-v`或者`--volume`参数对于`container run`命令是有效的，同样对于`container create`也是有效的。我们将在接下来的章节中详细研究volume这个概念，所以现在如果不太理解，不用太担心。
 
