@@ -1806,6 +1806,10 @@ docker image push fhsinchy/custom-nginx:latest
 
 根据镜像的大小，上传的过程可能要花费一点时间。一旦镜像上传成功，你就可以在你的仓库主页中找到它。
 
+> 冯兄话吉：如果要上传镜像到远程仓库，给镜像重新打包时候必须遵照`<docker hub username>/<image name>:<image tag>`语法，也就是镜像名必须以你`https://hub.docker.com/`上注册的用户名最为开头。比如之前你打的`nginx`镜像是`nginx-custom:built`，你需要执行`docker tag custom-nginx:built arefmzhao/custom-nginx:built_Alpine`(这里tag由built改为built_Alpine，tag可以随意修改)，然后`docker login`正确登录后就可以使用命令`docker push arefmzhao/custom-nginx:built_Alpine`推送到`arefmzhao`这个用户下面。上传后访问[主页](https://hub.docker.com/u/arefmzhao)如图：
+
+![](/img/posts/docker-handbook-2021-26.jpg)
+
 ---
 
 <h2>9. 怎样容器化一个Javascript应用？</h2>
