@@ -1812,48 +1812,122 @@ docker image push fhsinchy/custom-nginx:latest
 
 ---
 
-<h2>9. 怎样容器化一个Javascript应用？</h2>
+<h2 id="7">7. 怎样容器化一个Javascript应用？</h2>
 
 现在你学习了怎样创建一个镜像，接下来做一些更相关的内容。
 
-在接下来的章节你将会书写之前用过的`fhsinchy/hello-dock`镜像的源代码。在容器化这个简单应用的过程中，你将会了解卷（volume）和多步构建（two-stage builds）两个Docker重要的概念。
+在接下来的章节你将会书写之前用过的[fhsinchy/hello-dock](https://hub.docker.com/r/fhsinchy/hello-dock)镜像的源代码。在容器化这个简单应用的过程中，你将会了解卷（`volume`）和多步构建（`multi stage builds`）两个Docker重要的概念。
 
-<h3 id="9.1">9.1 怎么写Dockerfile？</h3>
+<h3 id="7.1">7.1 怎么写Dockerfile？</h3>
 
 打开你克隆本书的仓库目录，`hello-dock`应用的代码就在同名的子目录中。
 
-这是一个使用`vitejs/vite`的非常简单的JavaScript项目，要了解接下来的内容你不需要懂JavaScript或者vite，只要对Node.js和npm有简单的了解就足够了。
+这是一个使用[vitejs/vite](https://github.com/vitejs/vite)的非常简单的JavaScript项目，要了解接下来的内容你不需要懂JavaScript或者vite，只要对[Node.js](https://nodejs.org/)和[npm](https://nodejs.org/)有简单的了解就足够了。
 
 就像之前章节的其他项目一样，你首先要对应用怎么运行有一个规划，在我看来，规划应该是：
 
-- 获取一个运行JavaScript的基础镜像，例如node。
+- 获取一个运行JavaScript的基础镜像，例如[node](https://hub.docker.com/_/node)。
 - 在镜像中设置默认的工作目录。
-- 复制package.json文件到镜像中。
+- 复制`package.json`文件到镜像中。
 - 安装必要的依赖。
 - 复制其他的项目文件。
 - 通过执行`npm run dev`启动vite dev服务。
 
 这样的规划通常来自于应用的开发人员，如果你本身是一个开发人员，你应该已经对应用怎么运行有很好的理解了。
 
-如果将上述的规划放在Dockerfile.dev中，内容应该是这样的：
+如果将上述的规划放在`Dockerfile.dev`中，内容应该是这样的：
 
-COPY
+```shell
+FROM node:lts-alpine
+
+EXPOSE 3000
+
+USER node
+
+RUN mkdir -p /home/node/app
+
+WORKDIR /home/node/app
+
+COPY ./package.json .
+RUN npm install
+
+COPY . .
+
+CMD [ "npm", "run", "dev" ]
+```
 
 上述命令的解释如下：
 
-- `FROM`命令表示指定Node.js镜像作为基础镜像，该镜像中你可以运行任何的JavaScript应用。`lts-alpine`标签表示你使用的是Alpine的镜像版本，这是一个支持长久维护的镜像版本。所有的tag和文档都可以在node hub页面找到。
-- `USER`命令设置该镜像默认的user为node。默认情况Docker以root用户运行容器，但是根据Docker和Node.js的最佳实践这样会带来安全上的问题，所以最好尽可能用非root用户。这样node镜像拥有了一个非root的用户叫做node，你可以使用`USER`命令来设置默认的用户。
-- `RUN mkdir -p /home/node/app/`命令使用node用户在家目录中创建了一个叫app的目录。Linux中一般非root用户的家目录默认是`/home/<username>`。
-- `WORKDIR`命令设置默认的工作目录为新创建的`/home/node/app`目录。镜像默认的工作目录是root，你也不想一些不必要的文件散落在root目录是吧？因此你改变了默认的工作目录为更有意义的目录`/home/node/app`或者其他你喜欢的目录。接下来的copy、ADD和CMD等命令都是在该工作目录下执行的。
-- `COPY`指令复制package.json文件，该文件中包含了应用必要的依赖信息。`RUN`命令执行`npm install`命令，该命令是node项目中使用package.json来安装依赖包的默认命令。`.`代表工作目录。
+- `FROM`命令表示指定Node.js镜像作为基础镜像，该镜像中你可以运行任何的JavaScript应用。`lts-alpine`标签表示你使用的是Alpine的镜像版本，这是一个支持长久维护的镜像版本。所有的tag和文档都可以在[node](https://hub.docker.com/_/node)的hub页面找到。
+- `USER`命令设置该镜像默认的user为`node`。默认情况Docker以root用户运行容器，但是根据[Docker和Node.js的最佳实践](https://github.com/nodejs/docker-node/blob/master/docs/BestPractices.md)所示这样会带来安全上的问题，所以最好尽可能用非root用户。这样node镜像拥有了一个非root的用户叫做`node`，你可以使用`USER`命令来设置默认的用户。
+- `RUN mkdir -p /home/node/app/`命令使用node用户在家目录中创建了一个叫`app`的目录。Linux中一般非root用户的家目录默认是`/home/<username>`。
+- `WORKDIR`命令设置默认的工作目录为新创建的`/home/node/app`目录。镜像默认的工作目录是root，你也不想一些不必要的文件散落在root目录是吧？因此你改变了默认的工作目录为更有意义的目录`/home/node/app`或者其他你喜欢的目录。接下来的`COPY`、`ADD`和`CMD`等命令都是在该工作目录下执行的。
+- `COPY`指令复制`package.json`文件，该文件中包含了应用必要的依赖信息。`RUN`命令执行`npm install`命令，该命令是node项目中使用package.json来安装依赖包的默认命令。`.`代表工作目录。
 - 第二个`COPY`命令表示复制文件系统中当前目录(`.`)剩余的内容到Docker镜像的工作目录(`.`)中。
 - 最后`CMD`命令用`exec`的格式设置该镜像默认的运行命令为`npm run dev`。
-- vite dev服务默认运行的端口是3000，因此用`EXPOSE`命令加以说明是一个很好的选择。
+- `vite` dev服务默认运行的端口是`3000，`因此用`EXPOSE`命令加以说明是一个很好的选择。
 
 现在使用该Dockerfile.dev文件来构建一个镜像，你可以执行如下指令：
 
 ```shell
-COPY
+Sending build context to Docker daemon  30.21kB
+Step 1/9 : FROM node:lts-alpine
+lts-alpine: Pulling from library/node
+6a428f9f83b0: Pull complete
+117b1bf70a74: Pull complete
+a19603468f90: Pull complete
+1d2672489abb: Pull complete
+Digest: sha256:6e52e0b3bedfb494496488514d18bee7fd503fd4e44289ea012ad02f8f41a312
+Status: Downloaded newer image for node:lts-alpine
+ ---> ee0f6dca428d
+Step 2/9 : EXPOSE 3000
+ ---> Running in b84f92345310
+Removing intermediate container b84f92345310
+ ---> 62bad2323eb1
+Step 3/9 : USER node
+ ---> Running in 8b2a2f5c2cf4
+Removing intermediate container 8b2a2f5c2cf4
+ ---> ce491fc872e7
+Step 4/9 : RUN mkdir -p /home/node/app
+ ---> Running in ef00a4c8e5ba
+Removing intermediate container ef00a4c8e5ba
+ ---> 4704a2a978b5
+Step 5/9 : WORKDIR /home/node/app
+ ---> Running in 3ce3646c769e
+Removing intermediate container 3ce3646c769e
+ ---> ec9d8664d283
+Step 6/9 : COPY ./package.json .
+ ---> 44c0db178033
+Step 7/9 : RUN npm install
+ ---> Running in 8a475cd9eccf
+
+> esbuild@0.8.57 postinstall /home/node/app/node_modules/esbuild
+> node install.js
+
+npm notice created a lockfile as package-lock.json. You should commit this file.
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@~2.3.2 (node_modules/chokidar/node_modules/fsevents):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@2.3.2: wanted {"os":"darwin","arch":"any"} (current: {"os":"linux","arch":"x64"})
+npm WARN hello-dock@0.0.0 No description
+npm WARN hello-dock@0.0.0 No repository field.
+npm WARN hello-dock@0.0.0 No license field.
+
+added 281 packages from 277 contributors and audited 283 packages in 115.576s
+
+31 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+Removing intermediate container 8a475cd9eccf
+ ---> 917dbe53bca4
+Step 8/9 : COPY . .
+ ---> 1249c2a1115e
+Step 9/9 : CMD [ "npm", "run", "dev" ]
+ ---> Running in 034f6aa8f2dc
+Removing intermediate container 034f6aa8f2dc
+ ---> 0fcff97a7e2f
+Successfully built 0fcff97a7e2f
+Successfully tagged hello-dock:dev
 ```
 
 因为Dockerfile文件名不是默认的Dockerfile，因此你需要使用`--file`参数来手动指定文件。你可以使用下面的命令来运行一个容器：
@@ -1866,12 +1940,12 @@ docker container run \
 --name hello-dock-dev \
 hello-dock:dev
 
-COPY
+# 21b9b1499d195d85e81f0e8bce08f43a64b63d589c5f15cbbd0b9c0cb07ae268
 ```
 
 现在可以通过`http://127.0.0.1:3000`来访问hello-dock应用了。
 
-![](/img/posts/docker-handbook-2021-19.jpg)
+![](/img/posts/docker-handbook-2021-15.jpg)
 
 恭喜你成功运行了第一个容器化的应用。你的代码没有问题，但是一些地方还有很大提高的地方，我们首先来看第一个问题。
 
