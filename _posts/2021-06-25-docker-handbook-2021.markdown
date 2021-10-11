@@ -197,7 +197,7 @@ Docker能够运行在不同的主流操作系统macOS、Windows和Linux上，在
     - [Fedora系统上安装Docker](https://docs.docker.com/engine/install/fedora/)
     - [Centos系统上安装Docker](https://docs.docker.com/engine/install/centos/)
 - 如果官方文档中没有你使用发行版的说明，你需要按照[二进制编译安装的指示](https://docs.docker.com/engine/install/binaries/)进行安装。
-- 无论你怎么样安装，一些重要的针对[Linux系统安装后必须执行的步骤](https://docs.docker.com/engine/install/linux-postinstall/)是很重要的。
+- 无论你怎么样安装，一些针对[Linux系统安装后必须执行的步骤](https://docs.docker.com/engine/install/linux-postinstall/)是很重要的。
 - 在你完成了Docker的安装，你还需要安装Docker Composed，你可以从官方文档中获取[安装Docker Composed的说明](https://docs.docker.com/compose/install/)。
 
 安装完成后，打开命令行终端并且执行`docker --version`和`docker-compose --version`命令来验证Docker的安装是否成功。
@@ -282,11 +282,11 @@ docker ps -a
 
 容器和虚拟机使用不同的方法虚拟化硬件，两者的主要不同是虚拟化方法的不同。
 
-虚拟机通常被一个叫做Hypervisor的程序创建并管理，例如[Oracle VM VirtualBox](https://www.virtualbox.org/)、[VMware](https://www.vmware.com/)、[KVM](https://www.linux-kvm.org/)和微软[Hyper-V](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/about/)等等。这个hypervisor程序处在宿主机操作系统和虚拟机之间，承担中间通信的职责。
+虚拟机通常被一个叫做Hypervisor的程序创建并管理，例如[Oracle VM VirtualBox](https://www.virtualbox.org/)、[VMware](https://www.vmware.com/)、[KVM](https://www.linux-kvm.org/)和微软[Hyper-V](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/about/)等等。这个Hypervisor程序处在宿主机操作系统和虚拟机之间，承担中间通信的职责。
 
 ![](/img/posts/docker-handbook-2021-07.svg)
 
-在虚拟机中运行的程序和本地操作系统（gust operating system）通信，本地操作系统和hypervisor程序通信，hypervisor程序再向宿主机操作系统从硬件中申请必要的资源来运行程序。
+在虚拟机中运行的程序和本地操作系统（gust operating system）通信，本地操作系统和Hypervisor程序通信，Hypervisor程序再向宿主机操作系统从硬件中申请必要的资源来运行程序。
 
 从上面可以看出，虚拟机中运行的程序和宿主基础硬件之间有一个长长的通信链，即使是虚拟机中程序申请很小的资源，由于本地操作系统的存在也增加了明显的性能消耗。
 
@@ -312,9 +312,9 @@ docker run alpine uname -a
 
 从输出的结果可以看出来，容器实际上使用了宿主机操作系统的内核，这也证明了容器虚拟化了宿主机的操作系统而不是自身也拥有一个。
 
-如果你使用Windows机器，你会发现所有的容器都是使用WSL2内核，这是因为WSL2Windows上Docker的后台服务。在macOS系统上，默认的后台服务是一个基于[HiperKit](https://github.com/moby/hyperkit) hypervisor的VM。
+如果你使用Windows机器，你会发现所有的容器都是使用WSL2内核，这是因为WSL2提供Windows上Docker的后台服务。在macOS系统上，默认的后台服务是一个基于[HiperKit](https://github.com/moby/hyperkit) Hypervisor的VM。
 
-> 冯兄话吉：冯兄(译者)的操作环境正式WSL2。
+> 冯兄话吉：冯兄(译者)的操作环境正是WSL2。
 
 <h3 id="4.2">4.2 什么是镜像？</h3>
 
@@ -324,7 +324,7 @@ docker run alpine uname -a
 
 容器其实就是运行时的镜像，当你从互联网上获取一个镜像并且运行这个镜像的时候，你实际上基于只读镜像层新创建了一个临时可写入层。
 
-镜像的概念随着本书的深入会越来越清晰，现在需要记住的是，镜像是一个多层次的、只读的，将你的应用打包为系某一状态的文件。
+镜像的概念会随着本书的深入会越来越清晰，现在需要记住的是，镜像是一个多层次的、只读的，将你的应用打包为指定某一状态的文件。
 
 <h3 id="4.3">4.3 什么是Docker仓库（Docker Registry）？</h3>
 
@@ -366,7 +366,7 @@ Docker引擎包含三个主要部分：
 
 这张图基于Docker官方网站的一张稍微作出改动，当你执行命令的时候，发生的事情如下：
 
-1. 你执行docker run hello-world命令，这里的hello-world是Docker镜像的名字。
+1. 你执行`docker run hello-world`命令，这里的hello-world是Docker镜像的名字。
 2. Docker客户端转发命令到Docker后台进程，说要获取hello-world镜像并创建一个容器。
 3. Docker后台进程从本地仓库中寻找镜像，但是没有找到，日记中会打印出：`Unable to find image 'hello-world':latest`。
 4. Docker后台进程会去默认的Docker Hub仓库中下载最新的镜像，日志中会打印出：`latest: pulling from library/hello-world`。
@@ -389,7 +389,7 @@ Status: Downloaded newer image for hello-world:latest
 
 <h2 id="5">5. Docker容器基本操作</h2>
 
-在前面的章节中，我们学习了Docker的基础概念并且使用docker run命令运行了一个Docker容器。
+在前面的章节中，你学习了Docker的基础概念并且使用docker run命令运行了一个Docker容器。
 
 在这一部分中，你们将会学习到详细的Docker容器操作。容器操作是你每天必须执行的基本任务，所以正确的理解各种命令很关键。
 
@@ -457,7 +457,7 @@ Status: Downloaded newer image for fhsinchy/hello-dock:latest
 
 ![](/img/posts/docker-handbook-2021-15.jpg)
 
-> 冯兄话吉：这里127.0.0.1代表启动docker服务的宿主机IP，如果你在宿主机上启动的虚拟机或者WSL，需要替换为VM的IP。
+> 冯兄话吉：这里127.0.0.1代表启动docker服务的宿主机IP，如果你在宿主机上启动的虚拟机或者WSL，需要替换为VM的IP。后续文章中给出的`http://127.0.0.1`访问页面都要注意IP地址替换的问题。
 
 你可以使用ctrl + c命令停止容器，命令行终端将会停止进程或者关闭整个终端。
 
@@ -490,11 +490,11 @@ docker container ls
 # 9f21cb777058        fhsinchy/hello-dock   "/docker-entrypoint.…"   5 seconds ago       Up 5 seconds        0.0.0.0:8080->80/tcp   gifted_sammet
 ```
 
-一个名称为`gifted_sammet`的容器在运行中，它再5秒钟之前被创建，并且已经正常启动了5秒钟。
+一个名称为`gifted_sammet`的容器在运行中，它在5秒钟之前被创建，并且已经正常启动了5秒钟。
 
 容器的ID是`9f21cb777058`，这个ID是完整容器ID的前12个字符，完整的ID是`9f21cb77705810797c4b847dbd330d9c732ffddba14fb435470567a7a3f46cdc`，含有64个字符。当前面使用`docker container run`运行容器的时候，完整的容器ID就输出在了控制台。
 
-`port`列表示宿主机8080端口执行容器的80端口。`gifted_sammet`名字是docker生成的，根据平台不同，这个名字可能也不同。
+`port`列表示宿主机8080端口指向容器的80端口。`gifted_sammet`名字是docker生成的，根据平台不同，这个名字可能也不同。
 
 `container ls`命令仅仅展示出了目前正在运行的容器，如果想列出来历史运行过的容器，使用`--all`或者`-a`参数。
 
@@ -623,7 +623,7 @@ docker container restart hello-dock-container-2
 # hello-dock-container-2
 ```
 
-二者不同的地方在于，重启容器（restart）是先停掉容器在启动，而启动（start）容器就直接启动。
+二者不同的地方在于，重启容器（restart）是先停掉容器再启动，而启动（start）容器就直接启动。
 
 对于停止状态的容器，二者都可以使用。但是对于运行中的容器，只能使用`docker restart`命令。
 
@@ -647,7 +647,7 @@ docker container ls --all
 # 2e7ef5098bab        fhsinchy/hello-dock   "/docker-entrypoint.…"   30 seconds ago      Created                                 hello-dock
 ```
 
-通过上面`container ls --all`命令展示所有容器，我们看到一个基于镜像`fhsinchy/hello-dock`的名称是`hello-dock`的容器。目前容器的状态是`Created`，说明这个容器没有运行，没有参数`--all`容器也不会展示出来。
+通过上面`container ls --all`命令展示所有容器，我们看到一个基于镜像`fhsinchy/hello-dock`的名称是`hello-dock`的容器。目前容器的状态是`Created`，说明这个容器没有运行，使用参数`--all`容器也不会展示出来。
 
 容器创建后，我们可以用`container start`命令来启动它：
 
@@ -746,9 +746,9 @@ docker container ls --all
 
 镜像不都是这么简单的，它可以封装进去整个Linux的发行版。
 
-流行的Linux发型版，例如[Ubuntu](https://ubuntu.com/)、[Fedora](https://fedora.org/)和[Debian](https://debian.org/)在官方的仓库中都有Docker镜像。编程语言，像[python](https://hub.docker.com/_/python)、[php](https://hub.docker.com/_/php)、[go](https://hub.docker.com/_/golang)，过着运行时环境[node](https://hub.docker.com/_/node)和[deno](https://hub.docker.com/r/hayd/deno)都有自己的官方镜像。
+流行的Linux发型版，例如[Ubuntu](https://ubuntu.com/)、[Fedora](https://fedora.org/)和[Debian](https://debian.org/)在官方的仓库中都有Docker镜像。编程语言，像[python](https://hub.docker.com/_/python)、[php](https://hub.docker.com/_/php)、[go](https://hub.docker.com/_/golang)，或者运行时环境[node](https://hub.docker.com/_/node)和[deno](https://hub.docker.com/r/hayd/deno)都有自己的官方镜像。
 
-这些镜像不仅仅是做好了提前的配置，默认会配置执行一个shell。对于操作系统镜像来说，可能是一个`sh`或者`bash`，对于一个编程语言或者运行时环境，可能是语言自身的shell。
+这些镜像不仅仅是做了提前的一些配置，还默认会配置执行一个shell。对于操作系统镜像来说，可能是一个`sh`或者`bash`，对于一个编程语言或者运行时环境，可能是语言自身的shell。
 
 我们都知道，shell是命令行交互式程序。如果一个镜像配置执行这样一个程序，这样的镜像称之为交互式的镜像。他们在启动容器`docker run`的时候需要一个`-it`参数。
 
@@ -778,7 +778,7 @@ root@573b5a48e7a8:/#
 `-it`参数能够让你和容器内的交互式程序进行交互。这个参数实际上是有两部分组成在一起。
 
 - `-i`参数或者`--interactive`绑定连接终端到容器的输入流中，因此你可以在终端中输入。
-- `-t`或者`--tty`参数保证你获取格式化后的内容，并且通过分配一个伪tty让你有一个很好的终端体验。
+- `-t`或者`--tty`参数保证输出的内容格式化，并且通过分配一个伪tty让你有一个很好的终端体验。
 
 当你像以命令行交互的方式运行一个容器的时候，你需要使用`-it`。你可以这样启动node容器：
 
@@ -929,8 +929,6 @@ Status: Downloaded newer image for nginx:latest
 现在，你可以在浏览器中访问`http://127.0.0.1:8080`，你会得到一个默认的响应界面。
 
 ![](/img/posts/docker-handbook-2021-17.jpg)
-
-> 冯兄话吉：记得把127.0.0.1修改为Docker所在宿主机的IP。
 
 这很好，但是如果你想自定义制作一个像官方那样的Nginx镜像呢？坦白来说，这种场景是会遇到的。我们来学习怎么制作它。
 
