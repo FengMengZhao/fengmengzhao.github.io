@@ -830,13 +830,15 @@ docker container run --rm busybox echo -n my-secret | base64
 
 这里的处理逻辑上，`docker run`命令任何在image name后面的内容都作为参数传递给容器的默认`entry point`。
 
-所谓的`entry point`就是一个镜像的入口。除了可执行镜像（在下面[怎样操作可执行镜像](#7.12)章节说明）外，大部分镜像使用shell或者`sh`作为默认的`entry point`。因此任何有效的shell命令都可以作为参数传递。
+所谓的`entry point`就是一个镜像的入口。除了可执行镜像（在下面[怎样操作可执行镜像](#5.12)章节说明）外，大部分镜像使用`shell`或者`sh`作为默认的`entry point`。因此任何有效的shell命令都可以作为参数传递。
 
 <h3 id="5.12">5.12 怎样操作可执行镜像？</h3>
 
-之前我们有简单提到可执行容器，这些容器的目的是样程序一样可执行。
+之前我们有简单提到可执行容器，这些容器的目的是像程序一样可执行。
 
-看一看我的[rmbyext](https://github.com/fhsinchy/rmbyext)项目，这是一个简单的Python脚本，能够递归删除给定扩展名的文件。可以访问仓库了解更详细的信息。
+看一看我的[rmbyext](https://github.com/fhsinchy/rmbyext)项目，这是一个简单的Python脚本，能够递归删除给定扩展名的文件。可以访问仓库了解更详细的信息：
+
+[![](/img/posts/docker-handbook-2021-17.jpg)](https://github.com/fhsinchy/rmbyext)
 
 如果你已经安装了Git和Python，可以执行下面的命令安装这个脚本：
 
