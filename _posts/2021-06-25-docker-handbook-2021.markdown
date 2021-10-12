@@ -838,7 +838,7 @@ docker container run --rm busybox echo -n my-secret | base64
 
 看一看我的[rmbyext](https://github.com/fhsinchy/rmbyext)项目，这是一个简单的Python脚本，能够递归删除给定扩展名的文件。可以访问仓库了解更详细的信息：
 
-[![](/img/posts/docker-handbook-2021-17.jpg)](https://github.com/fhsinchy/rmbyext)
+[![](/img/posts/docker-handbook-2021-26.jpg)](https://github.com/fhsinchy/rmbyext)
 
 如果你已经安装了Git和Python，可以执行下面的命令安装这个脚本：
 
