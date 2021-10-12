@@ -2426,34 +2426,54 @@ docker container ls
 docker volume create <volume name>
 ```
 
-创建一个名称为notes-db-data的实名卷，可以执行以下命令：
+创建一个名称为`notes-db-data`的实名卷，可以执行以下命令：
 
 ```shell
 docker volume create notes-db-data
-COPY
+
+# notes-db-data
+
+docker volume ls
+
+# DRIVER    VOLUME NAME
+# local     notes-db-data
 ```
 
-实名卷可以挂载到notes-db容器的目录`/var/lib/postgresql/data`目录上，要进行挂载，首先停止并删除notes-db容器：
+实名卷可以挂载到`notes-db`容器的目录`/var/lib/postgresql/data`目录上，要进行挂载，首先停止并删除`notes-db`容器：
 
 ```shell
 docker container stop notes-db
 
-COPY
+# notes-db
+
+docker container rm notes-db
+
+# notes-db
 ```
 
 现在运行一个新的容器，用--volume或者-v参数进行挂载：
 
 ```shell
-COPY
+docker container run \
+    --detach \
+    --volume notes-db-data:/var/lib/postgresql/data \
+    --name=notes-db \
+    --env POSTGRES_DB=notesdb \
+    --env POSTGRES_PASSWORD=secret \
+    --network=notes-api-network \
+    postgres:12
+935b934076402f2f62b1f885d90026cba58137a1a333c370d1a1a86524f6fb30
 ```
 
-现在使用inspect命令查看notes-db容器的挂载是否成功：
+现在使用`inspect`命令查看`notes-db`容器的挂载是否成功：
 
 ```shell
-COPY
+docker container inspect --format='{{range .Mounts}} {{ .Name }} {{end}}' notes-db
+
+#  notes-db-data
 ```
 
-现在notes-db-data的数据将会安全的持久化到卷中并且后面可以复用。这里也可以使用绑定挂载来代替实名卷，只是这种场景我更喜欢使用实名卷。
+现在`notes-db-data`的数据将会安全的持久化到卷中并且后面可以复用。这里也可以使用绑定挂载来代替实名卷，只是这种场景我更喜欢使用实名卷。
 
 <h3 id="9.3">9.3 怎样在Docker中查看容器的日志？</h3>
 
@@ -2463,10 +2483,66 @@ COPY
 docker container logs <container identifier>
 ```
 
-获取notes-db-container的日志，你可以执行下面的命令：
+获取`notes-db`container的日志，你可以执行下面的命令：
 
 ```shell
-COPY
+docker container logs notes-db
+
+The files belonging to this database system will be owned by user "postgres".
+This user must also own the server process.
+
+The database cluster will be initialized with locale "en_US.utf8".
+The default database encoding has accordingly been set to "UTF8".
+The default text search configuration will be set to "english".
+
+Data page checksums are disabled.
+
+fixing permissions on existing directory /var/lib/postgresql/data ... ok
+creating subdirectories ... ok
+selecting dynamic shared memory implementation ... posix
+selecting default max_connections ... 100
+selecting default shared_buffers ... 128MB
+selecting default time zone ... Etc/UTC
+creating configuration files ... ok
+running bootstrap script ... ok
+performing post-bootstrap initialization ... ok
+syncing data to disk ... ok
+
+
+Success. You can now start the database server using:
+
+    pg_ctl -D /var/lib/postgresql/data -l logfile start
+
+initdb: warning: enabling "trust" authentication for local connections
+You can change this by editing pg_hba.conf or using the option -A, or
+--auth-local and --auth-host, the next time you run initdb.
+waiting for server to start....2021-10-12 09:05:44.718 UTC [48] LOG:  starting PostgreSQL 12.8 (Debian 12.8-1.pgdg110+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 10.2.1-6) 10.2.1 20210110, 64-bit
+2021-10-12 09:05:44.768 UTC [48] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2021-10-12 09:05:44.994 UTC [49] LOG:  database system was shut down at 2021-10-12 09:05:43 UTC
+2021-10-12 09:05:45.046 UTC [48] LOG:  database system is ready to accept connections
+ done
+server started
+CREATE DATABASE
+
+
+/usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+
+waiting for server to shut down...2021-10-12 09:05:46.331 UTC [48] LOG:  received fast shutdown request
+.2021-10-12 09:05:46.379 UTC [48] LOG:  aborting any active transactions
+2021-10-12 09:05:46.381 UTC [48] LOG:  background worker "logical replication launcher" (PID 55) exited with exit code 1
+2021-10-12 09:05:46.381 UTC [50] LOG:  shutting down
+2021-10-12 09:05:46.750 UTC [48] LOG:  database system is shut down
+ done
+server stopped
+
+PostgreSQL init process complete; ready for start up.
+
+2021-10-12 09:05:46.888 UTC [1] LOG:  starting PostgreSQL 12.8 (Debian 12.8-1.pgdg110+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 10.2.1-6) 10.2.1 20210110, 64-bit
+2021-10-12 09:05:46.888 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2021-10-12 09:05:46.888 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2021-10-12 09:05:47.019 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2021-10-12 09:05:47.203 UTC [76] LOG:  database system was shut down at 2021-10-12 09:05:46 UTC
+2021-10-12 09:05:47.255 UTC [1] LOG:  database system is ready to accept connections
 ```
 
 从57行的日志可以看出来数据库服务已经启动并且等待外部的连接。有参数`--follow|-f`可以让你把终端的输出重定向到日志文件中，得到一个持续到输出的文档。
@@ -2490,19 +2566,43 @@ docker network connect notes-api-network notes-db
 进入你下载的项目目录，进入`notes-api/api`目录，创建一个新的Dockerfile文件，copy下面的内容进去：
 
 ```shell
-COPY
+# stage one
+FROM node:lts-alpine as builder
+
+# install dependencies for node-gyp
+RUN apk add --no-cache python make g++
+
+WORKDIR /app
+
+COPY ./package.json .
+RUN npm install --only=prod
+
+# stage two
+FROM node:lts-alpine
+
+EXPOSE 3000
+ENV NODE_ENV=production
+
+USER node
+RUN mkdir -p /home/node/app
+WORKDIR /home/node/app
+
+COPY . .
+COPY --from=builder /app/node_modules  /home/node/app/node_modules
+
+CMD [ "node", "bin/www" ]
 ```
 
 这是一个多阶段的构建，第1阶段使用`node-gyp`进行构建和安装依赖，第2阶段用来运行应用。我简单介绍下相关步骤：
 
 - 阶段1，使用`node:lts-alpine`作为基础镜像并且使用`builder`最为阶段1的阶段名称。
-- 第5行，我们安装python、make和g++，`node-gyp`工具运行需要这3个依赖包。
+- 第5行，我们安装`python`、`make`和`g++`，`node-gyp`工具运行需要这3个依赖包。
 - 第7行，我么是`/app`作为工作目录。
-- 第9和10行，我们复制package.json文件到工作目录中并且安装所有的依赖。
+- 第9和10行，我们复制`package.json`文件到工作目录中并且安装所有的依赖。
 - 阶段2，仍然使用`node:lts-alpine`最为基础镜像。
-- 第16行，我们设置NODE_ENV环境变量为production，要让API正常运行，这个设置相当重要。
+- 第16行，我们设置`NODE_ENV`环境变量为`production`，要让API正常运行，这个设置相当重要。
 - 第18到20行，我们设置默认的用户为node，创建`/home/node/app`目录并且设置该目录为工作目录。
-- 第22行，我们复制所有的项目文件，第23行，我们从`builder`阶段复制了node_modules目录，该目录中包含所有运行依赖的构建阶段的包。
+- 第22行，我们复制所有的项目文件，第23行，我们从`builder`阶段复制了`node_modules`目录，该目录中包含所有运行依赖的构建阶段的包。
 - 第25行，我们设置了默认的启动命令。
 
 根据Dockerfile构建镜像，执行下面的命令：
@@ -2510,7 +2610,105 @@ COPY
 ```shell
 docker image build --tag notes-api .
 
-COPY
+Sending build context to Docker daemon  37.38kB
+Step 1/14 : FROM node:lts-alpine as builder
+ ---> ee0f6dca428d
+Step 2/14 : RUN apk add --no-cache python make g++
+ ---> Running in 68e2bb1a2f38
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.11/main/x86_64/APKINDEX.tar.gz
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.11/community/x86_64/APKINDEX.tar.gz
+(1/21) Installing binutils (2.33.1-r1)
+(2/21) Installing gmp (6.1.2-r1)
+(3/21) Installing isl (0.18-r0)
+(4/21) Installing libgomp (9.3.0-r0)
+(5/21) Installing libatomic (9.3.0-r0)
+(6/21) Installing mpfr4 (4.0.2-r1)
+(7/21) Installing mpc1 (1.1.0-r1)
+(8/21) Installing gcc (9.3.0-r0)
+(9/21) Installing musl-dev (1.1.24-r3)
+(10/21) Installing libc-dev (0.7.2-r0)
+(11/21) Installing g++ (9.3.0-r0)
+(12/21) Installing make (4.2.1-r2)
+(13/21) Installing libbz2 (1.0.8-r1)
+(14/21) Installing expat (2.2.9-r1)
+(15/21) Installing libffi (3.2.1-r6)
+(16/21) Installing gdbm (1.13-r1)
+(17/21) Installing ncurses-terminfo-base (6.1_p20200118-r4)
+(18/21) Installing ncurses-libs (6.1_p20200118-r4)
+(19/21) Installing readline (8.0.1-r0)
+(20/21) Installing sqlite-libs (3.30.1-r2)
+(21/21) Installing python2 (2.7.18-r0)
+Executing busybox-1.31.1-r10.trigger
+OK: 212 MiB in 37 packages
+Removing intermediate container 68e2bb1a2f38
+ ---> 986e49e94c73
+Step 3/14 : WORKDIR /app
+ ---> Running in f0f0f4656ace
+Removing intermediate container f0f0f4656ace
+ ---> 851dfc6767fc
+Step 4/14 : COPY ./package.json .
+ ---> 1e545000fd96
+Step 5/14 : RUN npm install --only=prod
+ ---> Running in 6647d1ff3261
+npm WARN deprecated @hapi/joi@17.1.1: Switch to 'npm install joi'
+npm WARN deprecated @hapi/formula@2.0.0: Moved to 'npm install @sideway/formula'
+npm WARN deprecated @hapi/address@4.1.0: Moved to 'npm install @sideway/address'
+npm WARN deprecated @hapi/pinpoint@2.0.0: Moved to 'npm install @sideway/pinpoint'
+npm WARN deprecated node-pre-gyp@0.11.0: Please upgrade to @mapbox/node-pre-gyp: the non-scoped node-pre-gyp package is deprecated and only the @mapbox scoped package will recieve updates in the future
+npm WARN deprecated sane@4.1.0: some dependency vulnerabilities fixed, support for node < 10 dropped, and newer ECMAScript syntax/features added
+npm WARN deprecated request-promise-native@1.0.9: request-promise-native has been deprecated because it extends the now deprecated request package, see https://github.com/request/request/issues/3142
+npm WARN deprecated request@2.88.2: request has been deprecated, see https://github.com/request/request/issues/3142
+npm WARN deprecated har-validator@5.1.5: this library is no longer supported
+npm WARN deprecated uuid@3.4.0: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+npm WARN deprecated resolve-url@0.2.1: https://github.com/lydell/resolve-url#deprecated
+npm WARN deprecated urix@0.1.0: Please see https://github.com/lydell/urix#deprecated
+npm notice created a lockfile as package-lock.json. You should commit this file.
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@^2.1.2 (node_modules/jest-haste-map/node_modules/fsevents):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@2.3.2: wanted {"os":"darwin","arch":"any"} (current: {"os":"linux","arch":"x64"})
+npm WARN notes-api@ No description
+npm WARN notes-api@ No repository field.
+npm WARN notes-api@ No license field.
+
+added 270 packages from 220 contributors and audited 1159 packages in 97.357s
+
+4 packages are looking for funding
+  run `npm fund` for details
+
+found 20 vulnerabilities (7 moderate, 13 high)
+  run `npm audit fix` to fix them, or `npm audit` for details
+Removing intermediate container 6647d1ff3261
+ ---> bd0ec09c1fe5
+Step 6/14 : FROM node:lts-alpine
+ ---> ee0f6dca428d
+Step 7/14 : EXPOSE 3000
+ ---> Using cache
+ ---> 62bad2323eb1
+Step 8/14 : ENV NODE_ENV=production
+ ---> Running in 815df9f36de5
+Removing intermediate container 815df9f36de5
+ ---> 8b8f5bb002c4
+Step 9/14 : USER node
+ ---> Running in 0192718e8951
+Removing intermediate container 0192718e8951
+ ---> 1ca7806f6ccf
+Step 10/14 : RUN mkdir -p /home/node/app
+ ---> Running in 2e60b90beda2
+Removing intermediate container 2e60b90beda2
+ ---> ca808882bd72
+Step 11/14 : WORKDIR /home/node/app
+ ---> Running in d6c16b514ffb
+Removing intermediate container d6c16b514ffb
+ ---> 23efd3c64dbe
+Step 12/14 : COPY . .
+ ---> e9a07ac8e9c8
+Step 13/14 : COPY --from=builder /app/node_modules  /home/node/app/node_modules
+ ---> 641798a416af
+Step 14/14 : CMD [ "node", "bin/www" ]
+ ---> Running in a5ccf9b8c68c
+Removing intermediate container a5ccf9b8c68c
+ ---> 23749f0a35c9
+Successfully built 23749f0a35c9
+Successfully tagged notes-api:latest
 ```
 
 在使用构建出来的镜像运行容器之前，确保数据库容器是运行的并且已经附接在notes-api-network网络下。
@@ -2518,34 +2716,118 @@ COPY
 ```shell
 docker container inspect notes-db
 
-COPY
+# [
+#     {
+#         ...
+#         "State": {
+#             "Status": "running",
+#             "Running": true,
+#             "Paused": false,
+#             "Restarting": false,
+#             "OOMKilled": false,
+#             "Dead": false,
+#             "Pid": 11521,
+#             "ExitCode": 0,
+#             "Error": "",
+#             "StartedAt": "2021-01-26T06:55:44.928510218Z",
+#             "FinishedAt": "2021-01-25T14:19:31.316854657Z"
+#         },
+#         ...
+#         "Mounts": [
+#             {
+#                 "Type": "volume",
+#                 "Name": "notes-db-data",
+#                 "Source": "/var/lib/docker/volumes/notes-db-data/_data",
+#                 "Destination": "/var/lib/postgresql/data",
+#                 "Driver": "local",
+#                 "Mode": "z",
+#                 "RW": true,
+#                 "Propagation": ""
+#             }
+#         ],
+#         ...
+#         "NetworkSettings": {
+#             ...
+#             "Networks": {
+#                 "bridge": {
+#                     "IPAMConfig": null,
+#                     "Links": null,
+#                     "Aliases": null,
+#                     "NetworkID": "e4c7ce50a5a2a49672155ff498597db336ecc2e3bbb6ee8baeebcf9fcfa0e1ab",
+#                     "EndpointID": "2a2587f8285fa020878dd38bdc630cdfca0d769f76fc143d1b554237ce907371",
+#                     "Gateway": "172.17.0.1",
+#                     "IPAddress": "172.17.0.2",
+#                     "IPPrefixLen": 16,
+#                     "IPv6Gateway": "",
+#                     "GlobalIPv6Address": "",
+#                     "GlobalIPv6PrefixLen": 0,
+#                     "MacAddress": "02:42:ac:11:00:02",
+#                     "DriverOpts": null
+#                 },
+#                 "notes-api-network": {
+#                     "IPAMConfig": {},
+#                     "Links": null,
+#                     "Aliases": [
+#                         "37755e86d627"
+#                     ],
+#                     "NetworkID": "06579ad9f93d59fc3866ac628ed258dfac2ed7bc1a9cd6fe6e67220b15d203ea",
+#                     "EndpointID": "5b8f8718ec9a5ec53e7a13cce3cb540fdf3556fb34242362a8da4cc08d37223c",
+#                     "Gateway": "172.18.0.1",
+#                     "IPAddress": "172.18.0.2",
+#                     "IPPrefixLen": 16,
+#                     "IPv6Gateway": "",
+#                     "GlobalIPv6Address": "",
+#                     "GlobalIPv6PrefixLen": 0,
+#                     "MacAddress": "02:42:ac:12:00:02",
+#                     "DriverOpts": {}
+#                 }
+#             }
+#         }
+#     }
+# ]
 ```
 
-为了方便展示，这里我省略了一些信息。在我的系统中，notes-db容器是运行的，该容器挂载了notes-db-data卷并且附接在桥接网络notes-api-network下。
+为了方便展示，这里我省略了一些信息。在我的系统中，`notes-db`容器是运行的，该容器挂载了`notes-db-data`卷并且附接在桥接网络`notes-api-network`下。
 
 确保所有的都正确后，你可以用下面的命令运行一个新的容器：
 
 ```shell
-COPY
+docker container run \
+    --detach \
+    --name=notes-api \
+    --env DB_HOST=notes-db \
+    --env DB_DATABASE=notesdb \
+    --env DB_PASSWORD=secret \
+    --publish=3000:3000 \
+    --network=notes-api-network \
+    notes-api
+
+# a037399446fe41362cf3e485478585f20e0d3f702b2fcda62fdfb01b63ed5e0a
 ```
 
 你应该能够自己能够理解这个长长的命令，因此我只对环境变量做简单的说明。
 
 notes-api容器需要设置三个环境变量，它们时：
 
-- DB_HOST-这个是数据库服务的主机名。由于数据库服务和API都附接在同一个自定义的桥接网络下，数据库服务可以使用容器名称notes-db来进行引用。
-- DB_DATABASE-API使用的数据库。在运行数据库服务的时候，我们通过环境变量POSTGRES_DB设置了默认的数据库名称为notesdb，正是我们使用的这个。
-- DB_PASSWORD-连接数据库的密码。这个变量也是通过之前的环境变量POSTGRES_PASSWORD设置过。
+- `DB_HOST`-这个是数据库服务的主机名。由于数据库服务和API都附接在同一个自定义的桥接网络下，数据库服务可以使用容器名称`notes-db`来进行引用。
+- `DB_DATABASE`-API使用的数据库。在[运行数据库服务](#9.1)部分，我们通过环境变量`POSTGRES_DB`设置了默认的数据库名称为`notesdb`，正是我们使用的这个。
+- `DB_PASSWORD`-连接数据库的密码。这个变量也是通过[之前](#9.1)的环境变量`POSTGRES_PASSWORD`设置过。
 
 查看应用是否正常启动，可以使用下面的命令：
 
 ```shell
-COPY
+docker container ls
+
+# CONTAINER ID   IMAGE         COMMAND                  CREATED          STATUS          PORTS                    NAMES
+# f9ece420872d   notes-api     "docker-entrypoint.s…"   12 minutes ago   Up 12 minutes   0.0.0.0:3000->3000/tcp   notes-api
+# 37755e86d627   postgres:12   "docker-entrypoint.s…"   17 hours ago     Up 14 minutes   5432/tcp                 notes-db
 ```
 
 现在，容器在运行中，你可以通过`http://127.0.0.1:3000/`来访问一下API。
 
 ![](/img/posts/docker-handbook-2021-23.jpg)
+
+> 冯兄话吉：上图所示服务不能正常访问，需执行后续的数据初始化工作才能正常，上面看到的页面是正常的。
 
 该API共有5个路由，你可以在`/notes-api/api/api/routes/notes.js`查看。
 
