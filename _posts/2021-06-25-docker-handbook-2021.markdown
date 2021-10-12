@@ -838,7 +838,7 @@ docker container run --rm busybox echo -n my-secret | base64
 
 看一看我的[rmbyext](https://github.com/fhsinchy/rmbyext)项目，这是一个简单的Python脚本，能够递归删除给定扩展名的文件。可以访问仓库了解更详细的信息：
 
-[![](/img/posts/docker-handbook-2021-26.jpg)](https://github.com/fhsinchy/rmbyext)
+[![](/img/posts/docker-handbook-2021-27.jpg)](https://github.com/fhsinchy/rmbyext)
 
 如果你已经安装了Git和Python，可以执行下面的命令安装这个脚本：
 
@@ -1125,14 +1125,14 @@ docker image history custom-nginx:packaged
 
 这个镜像一共有8个层，最上面的是最新的层，越往下是越基础的层。最上面的层也就是你用来运行容器的层。
 
-我们来进一步看看从镜像COPY到COPY，最后四个IMAG是`<missing>`的层我们忽略不看。
+我们来进一步看看从镜像`d70eaf7277ea`到`7f16387f7307`，最后四个IMAG是`<missing>`的层我们忽略不看。
 
-- COPY是由COPY创建的，表示Ubuntu系统默认的shell加载成功。
-- COPY是由COPY创建的，代表Dockerfile中的第二行语句。
-- COPY是由COPY创建的，代表Dockerfile中的第三行语句。你也可以在镜像创建的执行中该镜像安装所有的包后有60M的大小。
-- 最后最上层的镜像由COPY创建，设置该镜像默认执行的命令。
+- `d70eaf7277ea`是由`/bin/sh -c #(nop)  CMD ["/bin/bash"]`创建的，表示Ubuntu系统默认的shell加载成功。
+- `6fe4e51e35c1`是由`/bin/sh -c #(nop)  EXPOSE 80`创建的，代表Dockerfile中的第二行语句。
+- `587c805fe8df`是由`/bin/sh -c apt-get update && apt-get install nginx -y && apt-get clean && rm -rf /var/lib/apt/lists/*`创建的，代表Dockerfile中的第三行语句。你也可以在镜像创建的执行中该镜像安装所有的包后有60M的大小。
+- 最后最上层的镜像`7f16387f7307`是由`/bin/sh -c #(nop)  CMD ["nginx", "-g", "daemon off;"]`创建，设置该镜像默认执行的命令。
 
-我们可以看到，镜像实际上是由很多只读层组成的，每一层记录着由特定的指令所触发对改变。当你运行一个镜像为容器时，实际上是基于最上层创建了一个可写入层。
+我们可以看到，镜像实际上是由很多只读层组成的，每一层记录着由特定的指令所触发的改变。当你运行一个镜像为容器时，实际上是基于最上层创建了一个可写入层。
 
 这种分层模型的实现是由一个叫做联合文件系统(Union File System)的技术实现的，这里的联合指的是集合理论中的联合，根据[维基百科](https://en.wikipedia.org/wiki/UnionFS)：
 
@@ -1146,7 +1146,7 @@ docker image history custom-nginx:packaged
 
 这一部分中我们还是创建一个自定义的NGINX镜像，但是不是用`apt-get`包管理的方式进行安装，而是从源代码构建一个NGINX。
 
-为了从源代码构建NGINX，你首先需要拿到NGINX的源代码。如果你克隆了我的项目，在custom-nginx目录中你就会找到nginx-1.19.2.tar.gz包，我们将使用这个nginx源代码包就行构建NGINX。
+为了从源代码构建NGINX，你首先需要拿到NGINX的源代码。如果你克隆了我的项目，在custom-nginx目录中你就会找到nginx-1.19.2.tar.gz包，我们将使用这个nginx源代码包进行构建NGINX。
 
 在写代码之前，我们首先理一下构建的过程。这次镜像的构建步骤有这些：
 
@@ -1155,7 +1155,7 @@ docker image history custom-nginx:packaged
 - 将`nginx-1.19.2.tar.gz`包复制到基础镜像中。
 - 解压源代码压缩包并删除压缩包。
 - 配置构建参数，使用`make`命令编译并安装程序。
-- 删除解压后到源代码。
+- 删除解压后的源代码。
 - 运行可执行`nginx`。
 
 这些步骤清楚之后，我们打开之前到Dockerfile，更新为：
@@ -1200,7 +1200,7 @@ CMD ["nginx", "-g", "daemon off;"]
 - `RUN`命令安装源码构建NGINX依赖的基础包。
 - `COPY`是一个新的命令。这个命令表示将nginx-1.19.2.tar.gz压缩包复制到镜像中。基本的语法是`COPY <source> <destination>`，这里的source是本地文件系统，destination是镜像。`.`表示复制的目的地，也就是镜像中的工作目录，如果没有特殊制定，默认该目录是根目录`/`。
 - 第二个`run`命令从压缩包解压文件并且删除压缩包。
-- 压缩包中是一个目录nginx-1.19.2包含着nginx源代码。因此下一步你不必须要`cd`到这个目录再执行构建的程序。你可以阅读[怎么在Linux系统基于源代码上安装并卸载软件](https://itsfoss.com/install-software-from-source-code/)这篇文章了解关于这个主题的更多内容。
+- 压缩包中是一个目录nginx-1.19.2包含着nginx源代码。因此下一步你需要`cd`到这个目录再执行构建的程序。你可以阅读[怎么在Linux系统基于源代码上安装并卸载软件](https://itsfoss.com/install-software-from-source-code/)这篇文章了解关于这个主题的更多内容。
 - 一旦你构建并且安装成功，你可以使用`rm`命令删除nginx-1.19.2这个目录。
 - 最后一步你像之前以一样用单进程的方式启动NGINX。
 
@@ -1287,10 +1287,10 @@ CMD ["nginx", "-g", "daemon off;"]
 除了13、14行使用的`ARG`命令和16行使用的`ADD`命令外，新的的代码和之前的几乎一样。更新的内容如下：
 
 - `ARG`命令让可以像其他语言一样声明一个变量，其他地方可以像使用`${argumentname}`这样使用。这里我把文件名nginx-1.19.2和文件扩展名tar.gz定义为两个变量，这样如果改变了nginx的版本或者改变了压缩方式就只有一个地方改变。代码中我给变量设置了默认值，变量的值可以通过`image build`命令的参数传递，你可以在[官方文档](https://docs.docker.com/engine/reference/builder/#arg)中了解更多。
-- `ADD`命令中，我使用变量动态构建了一个URL。COPY。使用`ARG`命令只改变一个地方就可以改变文件的版本或者后缀名。
+- `ADD`命令中，我使用变量动态构建了一个URL。`https://nginx.org/download/${FILENAME}.${EXTENSION}`构建镜像的时候会替换为`https://nginx.org/download/nginx-1.19.2.tar.gz`这样。使用`ARG`命令只改变一个地方就可以改变文件的版本或者后缀名。
 - `ADD`命令默认并不会解压网络中获取的资源，所以18行中使用了`tar`命令。
 
-其余的代码几乎没有改变，现在你应该懂得了参数的使用。我们来更新后的镜像：
+其余的代码几乎没有改变，现在你应该懂得了参数的使用。你可以使用更新后的代码重新构建镜像：
 
 ```shell
 docker image build --tag custom-nginx:built .
@@ -1478,9 +1478,9 @@ CMD ["nginx", "-g", "daemon off;"]
 - 第18行，下载源代码包并解压后删除。
 - 从第19行到28行，NGINX被配置、构建并安装在系统中。
 - 第29行，从下载的压缩包中解压出来的文件被删除。
-- 从第30行到36行，所有不必要的依赖包被卸载并清理的缓存。`libpcre3`和`zlib1g`包作为NGINX运行时以来被保留。
+- 从第30行到36行，所有不必要的依赖包被卸载并清理的缓存。`libpcre3`和`zlib1g`包作为NGINX运行时依赖被保留。
 
-你可能会问为什么在这一个`RUN`命令中要做这么多的操作，而不是像之前那样分为多个`RUN`命令，因为分开时错误的。
+你可能会问为什么在这一个`RUN`命令中要做这么多的操作，而不是像之前那样分为多个`RUN`命令，因为分开是错误的。
 
 如果你安装包和删除包在分开的`RUN`命令中，它们将存在于镜像的不同层中。尽管最终的镜像也不会有删除的包，但是包含安装的镜像层也会反应到最终镜像的大小上。因此，要确保这些改变发生在同一个镜像层中。
 
@@ -2034,7 +2034,23 @@ COPY
 
 这种方法是多阶段构建，为了执行这样的构建，在你的hello-dock目录中创建一个新的Dockerfile，写入如下内容：
 
-COPY
+```shell
+FROM node:lts-alpine as builder
+
+WORKDIR /app
+
+COPY ./package.json ./
+RUN npm install
+
+COPY . .
+RUN npm run build
+
+FROM nginx:stable-alpine
+
+EXPOSE 80
+
+COPY --from=builder /app/dist /usr/share/nginx/html
+```
 
 这个Dockefile除了新增的一些行外和之前的很类似，命令解释如下：
 
@@ -2048,7 +2064,77 @@ COPY
 
 ```shell
 docker image build --tag hello-dock:prod .
-COPY
+
+Sending build context to Docker daemon  30.21kB
+Step 1/9 : FROM node:lts-alpine as builder
+ ---> ee0f6dca428d
+Step 2/9 : WORKDIR /app
+ ---> Running in 080b01d9e2d8
+Removing intermediate container 080b01d9e2d8
+ ---> 15bb688eb4c4
+Step 3/9 : COPY ./package.json ./
+ ---> 5fd5b06115ea
+Step 4/9 : RUN npm install
+ ---> Running in 18572629426e
+
+> esbuild@0.8.57 postinstall /app/node_modules/esbuild
+> node install.js
+
+npm notice created a lockfile as package-lock.json. You should commit this file.
+npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@~2.3.2 (node_modules/chokidar/node_modules/fsevents):
+npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@2.3.2: wanted {"os":"darwin","arch":"any"} (current: {"os":"linux","arch":"x64"})
+npm WARN hello-dock@0.0.0 No description
+npm WARN hello-dock@0.0.0 No repository field.
+npm WARN hello-dock@0.0.0 No license field.
+
+added 281 packages from 277 contributors and audited 283 packages in 74.227s
+
+31 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+Removing intermediate container 18572629426e
+ ---> 878ba2ac11bc
+Step 5/9 : COPY . .
+ ---> 58d5a0ee61a6
+Step 6/9 : RUN npm run build
+ ---> Running in a2822f75d72a
+
+> hello-dock@0.0.0 build /app
+> vite build
+
+- Building production bundle...
+
+[write] dist/index.html 0.39kb, brotli: 0.15kb
+[write] dist/_assets/docker-handbook-github.3adb4865.webp 12.32kb
+[write] dist/_assets/index.8504976b.js 46.40kb, brotli: 16.66kb
+- Building production bundle...
+
+[write] dist/_assets/style.0637ccc5.css 0.16kb, brotli: 0.10kb
+Build completed in 2.57s.
+
+Removing intermediate container a2822f75d72a
+ ---> fb55c941aa54
+Step 7/9 : FROM nginx:stable-alpine
+stable-alpine: Pulling from library/nginx
+4e9f2cdf4387: Pull complete
+6cac039d45af: Pull complete
+7bbb5e46b36d: Pull complete
+39f6d17c9d38: Pull complete
+a5f9fd374d3b: Pull complete
+7d84628ff318: Pull complete
+Digest: sha256:2012644549052fa07c43b0d19f320c871a25e105d0b23e33645e4f1bcf8fcd97
+Status: Downloaded newer image for nginx:stable-alpine
+ ---> 4146b18ae794
+Step 8/9 : EXPOSE 80
+ ---> Running in 01b01b69c2a9
+Removing intermediate container 01b01b69c2a9
+ ---> f8d96c5e9afa
+Step 9/9 : COPY --from=builder /app/dist /usr/share/nginx/html
+ ---> b9d79b0c84b7
+Successfully built b9d79b0c84b7
+Successfully tagged hello-dock:prod
 ```
 
 镜像创建后，你可以通过执行下面的命令来运行容器：
@@ -2061,12 +2147,12 @@ docker container run \
 --publish 8080:80 \
 hello-dock:prod
 
-COPY
+# a2f7cd2244eddf7cb139e223c87fbf35c5d07026ba299f1f6523d00c46e56334
 ```
 
 可用通过`http://127.0.0.1`来访问启动的服务。
 
-![](/img/posts/docker-handbook-2021-22.jpg)
+![](/img/posts/docker-handbook-2021-15.jpg)
 
 这里你可以看到hello-dock应用。多阶段构建在构建许多依赖的大项目的时候非常有用，如果能够很好的配置，多阶段构建的镜像非常的小并且优化。
 
@@ -2074,7 +2160,7 @@ COPY
 
 如果你了解过git，你可能会知道.gitignore文件，该文件中包含的一系列文件和目录将会从git仓库中忽略掉。
 
-同样，Docker也有一个类似概念，`.dockerignore`文件中包含一系列的文件和目录会在镜像构建时候忽略，你可以在hello-dock目录中找到.dockerignore。
+同样，Docker也有一个类似概念，`.dockerignore`文件中包含一系列的文件和目录会在镜像构建时候忽略，你可以在hello-dock目录中找到`.dockerignore`。
 
 ```shell
 .git
@@ -2083,7 +2169,7 @@ COPY
 node_modules
 ```
 
-这个`.dockerignore`只适用在build阶段，.dockerignore中的文件和目录在COPY命令时会被忽略，但是如果你要进行目录挂载，.dockerignore就没有任何作用。我会在有必要的项目中添加.dockerignore文件。
+这个`.dockerignore`只适用在build阶段，`.dockerignore`中的文件和目录在`COPY`命令时会被忽略，但是如果你要进行目录挂载，`.dockerignore`就没有任何作用。我会在有必要的项目中添加`.dockerignore`文件。
 
 ---
 
@@ -2093,29 +2179,32 @@ node_modules
 
 因此本书的这一部分你会熟悉Docker网络并能够协作一个小的多容器项目。
 
-从之前的章节中你会了解到容器时一个隔离的环境。现在假设你有一个基于Express.js的notes-api应用和一个postgres数据库服务分别在两个容器上运行。
+从之前的章节中你会了解到容器时一个隔离的环境。现在假设你有一个基于[Express.js](https://expressjs.com/)的notes-api应用和一个[PostgreSQL](https://www.postgresql.org/)数据库服务分别在两个容器上运行。
 
-这两个容器彼此间时完全隔离的并且批次意识不到对方的存在，那么两个容器之间这门能够连接起来，是不是很困难？
+这两个容器彼此间时完全隔离的并且彼此意识不到对方的存在。**那么两个容器之间如何能够连接起来，是不是很困难？**
 
 你可能会想到这个问题的两个解决方案，它们是：
 
 - 通过暴露的端口访问数据库服务。
 - 通过数据库服务器的IP和默认端口访问数据库服务。
 
-第一个方案需要postgres容器暴露一个端口，notes-api通过这个暴露的端口例如5432进行连接。如果你在notes-api容器中使用`127.0.0.1:5432`来连接数据库服务，你会发现note-api无法找到数据库服务。
+第一个方案需要`postgres`容器暴露一个端口，`notes-api`通过这个暴露的端口例如`5432`进行连接。如果你在`notes-api`容器中使用`127.0.0.1:5432`来连接数据库服务，你会发现`note-api`无法找到数据库服务。
 
-原因是当你在note-api容器中使用`127.0.0.1`时，你实际上在访问当前容器的localhost，postgres服务在notes-api容器中并不存在，这样也就连接不上。
+原因是当你在`note-api`容器中使用`127.0.0.1`时，你实际上在访问当前容器的`localhost`，`postgres`服务在`notes-api`容器中并不存在，这样也就连接不上。
 
-第二种方案你可能会想用`container inspect`命令找到postgres数据库容器的实际IP地址并且使用IP和端口进行连接。假设postgres数据库服务容器的名称是notes-api-db-server，你可以通过下面的命令，很方便的获得容器的IP地址：
+第二种方案你可能会想用`container inspect`命令找到`postgres`数据库容器的实际IP地址并且使用IP和端口进行连接。假设`postgres`数据库服务容器的名称是`notes-api-db-server`，你可以通过下面的命令，很方便的获得容器的IP地址：
 
 ```shell
+docker container inspect --format='{{range .NetworkSettings.Networks}} {{.IPAddress}} {{end}}' notes-api-db-server
+
+#  172.17.0.2
 ```
 
-现在已知postgres默认的端口是5432，notes-api容器可以方便的通过`172.17.0.2:5432`连接到数据库服务。
+现在已知`postgres`默认的端口是`5432`，`notes-api`容器可以方便的通过`172.17.0.2:5432`连接到数据库服务。
 
 这种办法也存在问题，实际上使用容器的IP来连接容器是不被推荐的。并且，假设容器被销毁或者被重新创建，容器的IP是会发生改变的，跟踪这些变化的IP是一件很繁琐的事情。
 
-现在否定了原始问题的所有答案，我们给出正确的答案：将要互联的容器放在一个用户自定义的桥接网络中。
+现在否定了原始问题的所有答案，我们给出正确的答案：**将要互联的容器放在一个用户自定义的桥接网络中。**
 
 <h3 id="8.1">8.1 Docker网络基础</h3>
 
@@ -2125,18 +2214,22 @@ node_modules
 
 ```shell
 docker network ls
-COPY
+
+# NETWORK ID     NAME      DRIVER    SCOPE
+# c2e59f2b96bd   bridge    bridge    local
+# 124dccee067f   host      host      local
+# 506e3822bf1f   none      null      local
 ```
 
-你能够看到系统中有三个网络，现在看下表格中的DRIVER列，该列表示网络的类型。
+你能够看到系统中有三个网络，现在看下表格中的`DRIVER`列，该列表示网络的类型。
 
 默认，Docker有5种网络drivers，它们是：
 
-- 桥接（bridge）-Docker中的默认网络类型，这种类型适合使用在独立运行的容器并且容器间需要相互通信。
-- 主机（host）-完全移除了网络的隔离。只要在主机网络下的任何容器都连接到了宿主机网络下。
-- 无（none）-这种类型容器之间的网络连接，我还没有发现该中类型的任何用处。
-- overlay-这种类型跨主机连接多个Docker daemon，不在本书的讨论范围之内。
-- macvlan-它允许给容器分配MAC地址，是容器模拟一个物理设备。
+- 桥接（`bridge`）-Docker中的默认网络类型，这种类型适合使用在独立运行的容器并且容器间需要相互通信。
+- 主机（`host`）-完全移除了网络的隔离。只要在主机网络下的任何容器都连接到了宿主机网络下。
+- 无（`none`）-这种类型容器之间的网络连接，我还没有发现该中类型的任何用处。
+- `overlay`-这种类型跨主机连接多个Docker daemon，不在本书的讨论范围之内。
+- `macvlan`-它允许给容器分配MAC地址，是容器模拟一个物理设备。
 
 也有第三方的插件允许你整合Docker和特殊的网络栈。在上面5中网络类型中，在本书中你只需要了解桥接网络类型。
 
@@ -2146,22 +2239,30 @@ COPY
 
 ```shell
 docker network ls
-COPY
+
+# NETWORK ID     NAME      DRIVER    SCOPE
+# c2e59f2b96bd   bridge    bridge    local
+# 124dccee067f   host      host      local
+# 506e3822bf1f   none      null      local
 ```
 
-可以看到，Docker有一个默认的桥接网络名字叫做bridge，你运行的容器都会自动附接在这个桥接网络下：
+可以看到，Docker有一个默认的桥接网络名字叫做`bridge`，你运行的容器都会自动附接在这个桥接网络下：
 
 ```shell
-COPY
+docker container run --rm --detach --name hello-dock --publish 8080:80 fhsinchy/hello-dock
+# a37f723dad3ae793ce40f97eb6bb236761baa92d72a2c27c24fc7fda0756657d
+
+docker network inspect --format='{{range .Containers}} {{.Name}} {{end}}' bridge #原文中是连在一起的，更好的格式化输出，分开
+# hello-dock
 ```
 
 之前有讲到过，附接在这个默认桥接网络下的所有容器相互间可以通过IP通信。
 
-一个自定义的桥接网络相比较默认桥接有一些额外的功能，根据官方文档，额外的功能如下：
+一个自定义的桥接网络相比较默认桥接有一些额外的功能，根据[官方文档](https://docs.docker.com/network/bridge/#differences-between-user-defined-bridges-and-the-default-bridge)，额外的功能如下：
 
-- 自定义桥接网络提供容器间自动DNS解析功能。这意味着在同一个自定义桥接网络下的容器间可以通过容器名称通信。因此如果你有两个容器分别是notes-api和notes-db，那么API容器就可以通过note-db容器名字来连接数据库容器。
-- 自定义桥接网络提供更好的容器间的隔离。所有附接在默认桥接网络下的容器可能会彼此冲突，自定义桥接网络下的容器能确保更好的隔离。
-- 容器能够随时附接在或者从自定义桥接中断开连接。在容器的生命周期中你可以随时附接在或者断开于自定义桥接网络中，从自定义桥接网络中断开容器连接的方法是，首先要停掉容器，然后重新运行容器并指定网络参数。
+- **自定义桥接网络提供容器间自动DNS解析功能。**这意味着在同一个自定义桥接网络下的容器间可以通过容器名称通信。因此如果你有两个容器分别是`notes-api`和`notes-db`，那么API容器就可以通过note-db容器名字来连接数据库容器。
+- **自定义桥接网络提供更好的容器间的隔离。**所有附接在默认桥接网络下的容器可能会彼此冲突，自定义桥接网络下的容器能确保更好的隔离。
+- **容器能够随时附接在或者从自定义桥接中断开连接。**在容器的生命周期中你可以随时附接在或者断开于自定义桥接网络中，从自定义桥接网络中断开容器连接的方法是，首先要停掉容器，然后重新运行容器并指定网络参数。
 
 现在你了解了足够多自定义桥接网络的内容，是时候自己动手创建一个了，可以使用`network create`命令来创建网络，基本的语法如下：
 
@@ -2173,7 +2274,16 @@ docker network create <network name>
 
 ```shell
 docker network create skynet
-COPY
+
+# 7bd5f351aa892ac6ec15fed8619fc3bbb95a7dcdd58980c28304627c8f7eb070
+
+docker network ls
+
+# NETWORK ID     NAME     DRIVER    SCOPE
+# be0cab667c4b   bridge   bridge    local
+# 124dccee067f   host     host      local
+# 506e3822bf1f   none     null      local
+# 7bd5f351aa89   skynet   bridge    local
 ```
 
 上面可以看到一个指定名称的网络被创建，目前没有容器附连在这个网络下面，下一部分你会学习如何附接一个容器到一个网络。
@@ -2189,11 +2299,18 @@ docker network connect <network identifier> <container identifier>
 为了能够将`hello-dock`容器附接在`skynet`网络下，你可以执行下面的命令：
 
 ```shell
-docker network connnect skynet hell-dock
-COPY
+docker network connect skynet hello-dock
+
+docker network inspect --format='{{range .Containers}} {{.Name}} {{end}}' skynet
+
+#  hello-dock
+
+docker network inspect --format='{{range .Containers}} {{.Name}} {{end}}' bridge
+
+#  hello-dock
 ```
 
-从上面我们执行两条network inspect的输出中可以看到，hello-dock容器已经附接在skynet和默认bridge桥接网络下了。
+从上面我们执行两条`network inspect`的输出中可以看到，`hello-dock`容器已经附接在`skynet`和默认`bridge`桥接网络下了。
 
 第二种附接容器在网络下的方法是使用命令`container run|create`命令的`--network`参数，基本的语法如下：
 
@@ -2205,10 +2322,24 @@ COPY
 
 ```shell
 docker container run --network skynet --rm --name alpine-box -it alpine sh
-COPY
+
+docker container run --network skynet --rm --name alpine-box -it alpine sh
+/ # ping hello-dock
+PING hello-dock (172.18.0.2): 56 data bytes
+64 bytes from 172.18.0.2: seq=0 ttl=64 time=0.055 ms
+64 bytes from 172.18.0.2: seq=1 ttl=64 time=0.052 ms
+64 bytes from 172.18.0.2: seq=2 ttl=64 time=0.065 ms
+64 bytes from 172.18.0.2: seq=3 ttl=64 time=0.050 ms
+64 bytes from 172.18.0.2: seq=4 ttl=64 time=0.076 ms
+64 bytes from 172.18.0.2: seq=5 ttl=64 time=0.054 ms
+64 bytes from 172.18.0.2: seq=6 ttl=64 time=0.064 ms
+^C
+--- hello-dock ping statistics ---
+7 packets transmitted, 7 packets received, 0% packet loss
+round-trip min/avg/max = 0.050/0.059/0.076 ms
 ```
 
-你可以看到，在alpine-box容器中运行`ping hello-dock`能成功联通，因为二容器同在自定义的桥接网络中且具备自动DNS解析的功能。
+你可以看到，在`alpine-box`容器中运行`ping hello-dock`能成功联通，因为二容器同在自定义的桥接网络中且具备自动DNS解析的功能。
 
 需要注意的是，要想让自定义DNS解析功能成功，你必须给容器设定自定的名称，用自动生成的容器名称在自定义DNS解析时是无效的。
 
