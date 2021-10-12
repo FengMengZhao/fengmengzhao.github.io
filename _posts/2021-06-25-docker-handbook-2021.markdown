@@ -2379,13 +2379,13 @@ docker network rm skynet
 
 <h2 id="9">9. 怎样容器化配置一个多容器JavaScript应用？</h2>h
 
-现在你学习了足够多的Docker网络知识，在这一部分中，你会学习到如何容器化配置一个完整的多容器项目，该项目包括一个基于Express.js的notes-api和PostgreSQL。
+现在你学习了足够多的Docker网络知识，在这一部分中，你会学习到如何容器化配置一个完整的多容器项目，该项目包括一个基于Express.js的`notes-api`和PostgreSQL。
 
 在这个项目当中，一共有两个容器需要你用网络将它们连在一起。此外，你将会学习到如环境变量和实名卷（named volume）的概念，我们开始吧。
 
 <h3 id="9.1">9.1 怎样运行一个数据库服务？</h3>
 
-该项目的数据库服务是PostgreSQL，使用的是官方的镜像。
+该项目的数据库服务是PostgreSQL，使用的是[官方镜像](https://hub.docker.com/_/postgres)。
 
 根据官方文档，如果运行官方镜像，你必须提供`POSTGRES_PASSWORD`环境变量，我还同时使用`POSTGRES_DB`环境变量作为默认的数据库名称。PostgreSQL默认使用的端口是5432，因此你也需要发布该端口。
 
@@ -2393,15 +2393,22 @@ docker network rm skynet
 
 ```shell
 docker container run \
---detach \
---name=notes-db \
---env POSTGRES_DB=notesdb \
---env POSTGRES_PASSWORD=secret \
---network=notes-api-network \
-postgres:12
+    --detach \
+    --name=notes-db \
+    --env POSTGRES_DB=notesdb \
+    --env POSTGRES_PASSWORD=secret \
+    --network=notes-api-network \
+    postgres:12
 
-COPY
+# a7b287d34d96c8e81a63949c57b83d7c1d71b5660c87f5172f074bd1606196dc
+
+docker container ls
+
+# CONTAINER ID   IMAGE         COMMAND                  CREATED              STATUS              PORTS      NAMES
+# a7b287d34d96   postgres:12   "docker-entrypoint.s…"   About a minute ago   Up About a minute   5432/tcp   notes-db
 ```
+
+> 冯兄话吉：`container run`命令中的`--network`参数不会自动创建网络，因此要用命令`docker network create notes-api-network`手动创建指定的网络参数。
 
 `--env`参数用在`container run`和`container create`命令中为运行的容器设置环境变量。上面可以看到数据库容器创建成功并且在运行中。
 
