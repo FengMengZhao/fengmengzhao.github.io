@@ -245,7 +245,8 @@ git config --global credential.helper store
 ```
 git config http.proxy http://127.0.0.1:10809 #设置某个仓库代理
 git config --global http.proxy http://127.0.0.1:10809 #设置全局仓库代理
-git config --unset http.proxy #取消设置代理
+git config --unset http.proxy #取消本仓库设置代理
+git config --global --unset http.proxy #取消全局设置代理
 git config --global --list #查看全局设置列表
 git config --local --list #查看本仓库设置列表
 ```
