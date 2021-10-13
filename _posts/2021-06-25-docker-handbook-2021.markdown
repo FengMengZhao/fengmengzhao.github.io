@@ -2848,47 +2848,79 @@ docker container exec notes-api npm run db:migrate
 COPY
 ```
 
-如果你想用命令行交互的方式在容器内执行命令，必须要使用`-it`参数。例如你想在运行中的notes-api容器中启动交互式shell，你可以执行下面的命令：
+如果你想用命令行交互的方式在容器内执行命令，必须要使用`-it`参数。例如你想在运行中的`notes-api`容器中启动交互式`shell`，你可以执行下面的命令：
 
 ```shell
-COPY
+docker container exec -it notes-api sh
+
+# / # uname -a
+# Linux a037399446fe 5.10.16.3-microsoft-standard-WSL2 #1 SMP Fri Apr 2 22:23:49 UTC 2021 x86_64 Linux
 ```
 
 <h3 id="9.7">9.7 怎样写管理Docker的脚本？</h3>
 
-管理一个多容器带有卷和网络的多容器项目意味着有很多命令，为了简化这个过程，我通常用简单的shell scripts和Makefile。
+管理一个多容器带有卷和网络的多容器项目意味着有很多命令，为了简化这个过程，我通常用简单的`shell scripts`和`Makefile`。
 
-你可以在notes-api目录中找打4个shell scripts，它们分别是：
+你可以在`notes-api`目录中找打4个shell scripts，它们分别是：
 
-- boot.sh-用来启动已经存在的容器。
-- build.sh-用来创建并运行容器，如果必要的话也会创建卷和网络。
-- destroy.js-删除该项目所有容器、卷及网络。
-- stop.js-停掉所有的容器。
+- `boot.sh`-用来启动已经存在的容器。
+- `build.sh`-用来创建并运行容器，如果必要的话也会创建卷和网络。
+- `destroy.js`-删除该项目所有容器、卷及网络。
+- `stop.js`-停掉所有的容器。
 
-有一个Makefile包含了4个目标叫做start、stop、build和destory，每一个目标都是调用上面4个shell scripts。
+有一个`Makefile`包含了4个目标叫做`start`、`stop`、`build`和`destory`，每一个目标都是调用上面4个shell scripts。
 
-如果系统中容器处于运行态，执行`make stop`命令应该停掉所有的容器。执行`make destory`应该停掉所有的容器并且删除所有的相关内容。确保你在notes-api目录中：
-
-```shell
-make destory
-COPY
-```
-
-如果你遇到了permission denied的错误，你需要在脚本上执行`chmod +x`：
+如果系统中容器处于运行态，执行`make stop`命令应该停掉所有的容器。执行`make destory`应该停掉所有的容器并且删除所有的相关内容。确保你在`notes-api`目录中：
 
 ```shell
-COPY
+make destroy
+
+# ./shutdown.sh
+# stopping api container --->
+# notes-api
+# api container stopped --->
+
+# stopping db container --->
+# notes-db
+# db container stopped --->
+
+# shutdown script finished
+
+# ./destroy.sh
+# removing api container --->
+# notes-api
+# api container removed --->
+
+# removing db container --->
+# notes-db
+# db container removed --->
+
+# removing db data volume --->
+# notes-db-data
+# db data volume removed --->
+
+# removing network --->
+# notes-api-network
+# network removed --->
+
+# destroy script finished
 ```
 
-在这里不再解释这些脚本，因为它们都是一些if else指令加上见过很多次的Docker命令。如果你有了解Linux Shell，你应该能够理解脚本中的内容。
+如果你遇到了permission denied的错误，你需要在脚本上执行`sudo chmod +x *.sh`：
+
+```shell
+chmod +x boot.sh build.sh destroy.sh shutdown.sh
+```
+
+在这里不再解释这些脚本，因为它们都是一些`if-else`指令加上见过很多次的`Docker`命令。如果你有了解Linux Shell，你应该能够理解脚本中的内容。
 
 ---
 
 <h2 id="10">10. 怎样使用Docker-Compose？</h2>
 
-在上一章节，你学习了如何管理一个多容器的项目和解决相关的问题。存在有一个不用写那么多命令并且能够更方便管理多容器的工具，它叫做Docker Compose。
+在上一章节，你学习了如何管理一个多容器的项目和解决相关的问题。存在有一个不用写那么多命令并且能够更方便管理多容器的工具，它叫做[Docker Compose](https://docs.docker.com/compose/)。
 
-根据Docker官方文档，Docker Compose是一个定义并运行多容器的工具。使用Compose你可以用一个YAML文件配置相关应用服务，使用一行命令就可以做到创建并启动配置的所有的服务。
+根据Docker[官方文档](https://docs.docker.com/compose/)，Docker Compose是一个定义并运行多容器的工具。使用Compose你可以用一个YAML文件配置相关应用服务，使用一行命令就可以做到创建并启动配置的所有的服务。
 
 尽管Docker Compose可以运行在各种环境中，但是它更适合用在开发和测试环境中，不推荐在生产环境中使用。
 
@@ -2897,19 +2929,42 @@ COPY
 进入你复制本项目的目录，进入`notes-api/api`目录，创建一个命名为Dockerfile.dev的文件，将下面的代码复制进去：
 
 ```shell
-COPY
+# stage one
+FROM node:lts-alpine as builder
+
+# install dependencies for node-gyp
+RUN apk add --no-cache python make g++
+
+WORKDIR /app
+
+COPY ./package.json .
+RUN npm install
+
+# stage two
+FROM node:lts-alpine
+
+ENV NODE_ENV=development
+
+USER node
+RUN mkdir -p /home/node/app
+WORKDIR /home/node/app
+
+COPY . .
+COPY --from=builder /app/node_modules /home/node/app/node_modules
+
+CMD [ "./node_modules/.bin/nodemon", "--config", "nodemon.json", "bin/www" ]
 ```
 
-这里的代码基本上和上一章节的Dockerfile的代码一致，不同的地方在于：
+这里的代码基本上和上一章节的`Dockerfile`的代码一致，不同的地方在于：
 
 - 第10行，不使用`npm run install --only=prod`而是是哟个你`npm install`，因为我们也需要开发时的依赖。
-- 第15行，我们设置环境变量NODE_ENV为development而不是production。
-- 第24行，我们使用一个nodemon的工具进行API的热部署。
+- 第15行，我们设置环境变量`NODE_ENV`为`development`而不是`production`。
+- 第24行，我们使用一个[nodemon](https://nodemon.io/)的工具进行API的热部署。
 
 你已经知道这个项目共包含两个容器：
 
-- notes-db，一个PostgreSQL数据库服务。
-- notes-api，基于Express.js的REST API。
+- `notes-db`，一个PostgreSQL数据库服务。
+- `notes-api`，基于Express.js的REST API。
 
 在compose这里，应用中的每一个容器被定义为一个service，compose应用第一步是要定义这些service。
 
@@ -2918,17 +2973,46 @@ COPY
 进入notes-api目录并创建一个新的docker-compose.yaml文件，复制下面的代码到文件中：
 
 ```shell
-COPY
+version: "3.8"
+
+services: 
+    db:
+        image: postgres:12
+        container_name: notes-db-dev
+        volumes: 
+            - notes-db-dev-data:/var/lib/postgresql/data
+        environment:
+            POSTGRES_DB: notesdb
+            POSTGRES_PASSWORD: secret
+    api:
+        build:
+            context: ./api
+            dockerfile: Dockerfile.dev
+        image: notes-api:dev
+        container_name: notes-api-dev
+        environment: 
+            DB_HOST: db ## same as the database service name
+            DB_DATABASE: notesdb
+            DB_PASSWORD: secret
+        volumes: 
+            - /home/node/app/node_modules
+            - ./api:/home/node/app
+        ports: 
+            - 3000:3000
+
+volumes:
+    notes-db-dev-data:
+        name: notes-db-dev-data
 ```
 
-每一个有效的docker-compose.yaml文件在开头都会定义个一个版本，写作时最新的版本是3.8，你可以在[这里](http://www.baidu.com)找到最新的版本。
+每一个有效的`docker-compose.yaml`文件在开头都会定义个一个版本，写作时最新的版本是`3.8`，你可以在[这里](https://docs.docker.com/compose/compose-file/)找到最新的版本。
 
-YAML文件是用缩进定义不同的块，我将讲解每一个块的内容：
+`YAML`文件是用缩进定义不同的块，我将讲解每一个块的内容：
 
-- services块定义应用的每一个容器或者服务，该项目中的两个services分别是api和db。
-- db块定义了应用的db服务并且包含了启动容器的所有信息。每一个服务需要一个提前构建好的镜像或者一个Dockerfile来运行容器。对于该db服务使用的是官方的PostgreSQL镜像。
-- 和db服务不同，api服务没有预编译的镜像使用，因此我们使用Dockerfile.dev。
-- volumes块定义你需要的任何的卷。这里仅仅定义了db服务需要的notes-db-dev-data卷。
+- `services`块定义应用的每一个容器或者服务，该项目中的两个services分别是api和db。
+- `db`块定义了应用的db服务并且包含了启动容器的所有信息。每一个服务需要一个提前构建好的镜像或者一个`Dockerfile`来运行容器。对于该`db`服务使用的是官方的`PostgreSQL`镜像。
+- 和`db`服务不同，`api`服务没有预编译的镜像使用，因此我们使用`Dockerfile.dev`。
+- `volumes`块定义你需要的任何的卷。这里仅仅定义了db服务需要的`notes-db-dev-data`卷。
 
 现在你对docker-compose.yaml有一个整体的认识，我们进一步仔细看下单个服务。
 
@@ -2945,7 +3029,7 @@ db:
         POSTGRES_PASSWORD: secret
 ```
 
-- `image`内容定义了该容器的镜像仓库和tag，我们使用的是运行数据库容器的postgres:12镜像。
+- `image`内容定义了该容器的镜像仓库和tag，我们使用的是运行数据库容器的`postgres:12`镜像。
 - `container_name`内容定义了容器的名称，默认情况下容器名称定义为`<project directory name>_<service name>`语法格式。你可以用容器的名称`<container name>`进行覆写。
 - `volumes`数组内容定义了服务的卷映射，支持实名卷、匿名卷和挂载绑定。语法`<source>:<destination>`和你之前看到的一样。
 - `environment`内容定义的服务运行需要的不同环境变量。
@@ -3052,7 +3136,7 @@ docker-compose --file docker-compose.yaml up --detach
 # Creating notes-db-dev  ... done
 ```
 
-这里的`--detach|-d`参数和之前看到的参数功能一致，`--file|-f`参数当你需要指定命名非`docker-compose.yaml`文件时使用（这里使用是为了证明这个功能）。
+这里的`--detach|-d`参数和之前看到的参数功能一致，`--file|-f`参数当你需要指定命名非`docker-compose.yaml`文件时使用（这里用`-f`指定文件名是为了证明这个功能）。
 
 除了`up`命令之外还有`start`命令可以启动，二者的区别在于`start`命令不会创建缺失的容器，仅仅会启动已经存在的容器，和`container start`命令是一样的。
 
@@ -3063,12 +3147,11 @@ docker-compose --file docker-compose.yaml up --detach
 尽管Compose启动的容器也可以通过`container ls`命令来展示，有一个`ps`命令可以只展示出YAML文件中定义的容器。
 
 ```shell
-docker-compose ps
-
-#     Name                   Command               State           Ports         
-# -------------------------------------------------------------------------------
-# notes-api-dev   docker-entrypoint.sh ./nod ...   Up      0.0.0.0:3000->3000/tcp
-# notes-db-dev    docker-entrypoint.sh postgres    Up      5432/tcp
+ docker-compose ps
+    Name                   Command               State                    Ports
+-------------------------------------------------------------------------------------------------
+notes-api-dev   docker-entrypoint.sh ./nod ...   Up      0.0.0.0:3000->3000/tcp,:::3000->3000/tcp
+notes-db-dev    docker-entrypoint.sh postgres    Up      5432/tcp
 ```
 
 展示的内容没有`container ls`那么详尽，但是如果你同时运行很多的容器，这个语法还是很有用的。
@@ -3095,6 +3178,8 @@ docker-compose exec api npm run db:migrate
 # Batch 1 run: 1 migrations
 ```
 
+> 冯兄话吉：这里`exec`后面的参数是`<service name`而不是容器的标识。
+
 和`container exec`不同，你不需要`-it`参数来进行命令行交互，`docker-compose`自动给你做了。
 
 <h3 id="10.5">10.5 怎样在Docker Compose中查看运行的服务的日志？</h3>
@@ -3110,19 +3195,19 @@ docker-compose logs <service name>
 ```shell
 docker-compose logs api
 
-# Attaching to notes-api-dev
-# notes-api-dev | [nodemon] 2.0.7
-# notes-api-dev | [nodemon] reading config ./nodemon.json
-# notes-api-dev | [nodemon] to restart at any time, enter `rs`
-# notes-api-dev | [nodemon] or send SIGHUP to 1 to restart
-# notes-api-dev | [nodemon] ignoring: *.test.js
-# notes-api-dev | [nodemon] watching path(s): *.*
-# notes-api-dev | [nodemon] watching extensions: js,mjs,json
-# notes-api-dev | [nodemon] starting `node bin/www`
-# notes-api-dev | [nodemon] forking
-# notes-api-dev | [nodemon] child pid: 19
-# notes-api-dev | [nodemon] watching 18 files
-# notes-api-dev | app running -> http://127.0.0.1:3000
+Attaching to notes-api-dev
+notes-api-dev | [nodemon] 2.0.13
+notes-api-dev | [nodemon] reading config ./nodemon.json
+notes-api-dev | [nodemon] to restart at any time, enter `rs`
+notes-api-dev | [nodemon] or send SIGHUP to 1 to restart
+notes-api-dev | [nodemon] ignoring: *.test.js
+notes-api-dev | [nodemon] watching path(s): *.*
+notes-api-dev | [nodemon] watching extensions: js,mjs,json
+notes-api-dev | [nodemon] starting `node bin/www`
+notes-api-dev | [nodemon] forking
+notes-api-dev | [nodemon] child pid: 21
+notes-api-dev | [nodemon] watching 19 files
+notes-api-dev | app running -> http://127.0.0.1:3000
 ```
 
 这只是部分日志，你可以通过`-f|--follow`参数将日志流重定向到文件中，运行中服务后续的日志将持续不断输出到文件中直到你按下`ctrl + c`键或者关闭窗口，关闭或者退出日志窗口不会影响容器的运行。
@@ -3134,12 +3219,12 @@ docker-compose logs api
 ```shell
 docker-compose down --volumes
 
-# Stopping notes-api-dev ... done
-# Stopping notes-db-dev  ... done
-# Removing notes-api-dev ... done
-# Removing notes-db-dev  ... done
-# Removing network notes-api_default
-# Removing volume notes-db-dev-data
+Stopping notes-db-dev  ... done
+Stopping notes-api-dev ... done
+Removing notes-db-dev  ... done
+Removing notes-api-dev ... done
+Removing network notes-api_default
+Removing volume notes-db-dev-data
 ```
 
 `--volumes`参数表示你想删除所有定义在`volumes`块中的实名卷，你可以在[官方文档](https://docs.docker.com/compose/reference/down/)中了解更多`down`命令的参数。
@@ -3154,7 +3239,7 @@ docker-compose down --volumes
 
 在我们使用`docker-compose.yaml`文件启动项目之前，先让我们看一下该应用是如何工作的：
 
-![](/img/posts/docker-handbook-2021-24.jpg)
+![](/img/posts/docker-handbook-2021-24.svg)
 
 不像我们之前那样直接请求，该应用所有的请求先会到NGINX（让我们称之为路由）服务那里。
 
@@ -3164,7 +3249,9 @@ docker-compose down --volumes
 
 NGINX，在容器中运行，能够和整个应用中的不同服务进行通信。
 
-我不会在这里深入的解释NGINX的配置，改内容超出了本书的范围。如果你想看具体配置，查看文件`/notes-api/nginx/development.conf`和`/notes-api/nginx/development.production.conf`。`/notes-api/nginx/Dockerfile.dev`代码如下：
+我不会在这里深入的解释NGINX的配置，改内容超出了本书的范围。如果你想看具体配置，查看文件`/fullstack-notes-application/nginx/development.conf`和`/fullstack-notes-application/nginx/production.conf`。`/fullstack-notes-application/nginx/Dockerfile.dev`代码如下：
+
+> 冯兄话吉：上述路径原文指向有误。
 
 ```shell
 FROM nginx:stable-alpine
