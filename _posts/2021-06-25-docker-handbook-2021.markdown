@@ -876,7 +876,14 @@ bind mount能够实现容器宿主机（源端）目录和容器（目标端）�
 
 我们来使用一下bind mount，不直接使用脚本删除文件，使用镜像来进行操作：
 
-COPY
+```shell
+docker container run --rm -v $(pwd):/zone fhsinchy/rmbyext pdf
+
+# Removing: PDF
+# b.pdf
+# a.pdf
+# d.pdf
+```
 
 你可能已经猜到，我们在命令中使用了`-v $(pwd):/zone`参数。`-v`或者`--volume`参数用来为容器绑定一个挂载点，这个参数可以用冒号隔开的三部分组成，基本的语法是：
 
@@ -995,7 +1002,7 @@ docker image build .
 - `docker image build`是构建镜像的命令，后台进程会在上下中寻找名称为Dockerfile的文件。
 - 命令末尾的`.`设置build的上下文，也就是后台进程在构建过程中能访问的目录。
 
-现在，你可以运行你刚刚构建的镜像。你可以使用`container run`命令和刚才构建镜像时得到的构建进程返回的镜像ID一起使用。我执行返回的ID是COPY，表示镜像成功构建。
+现在，你可以运行你刚刚构建的镜像。你可以使用`container run`命令和刚才构建镜像时得到的构建进程返回的镜像ID一起使用。我执行返回的ID是`3199372aa3fc`，表示镜像成功构建。
 
 ```shell
 docker container run --rm --detach --name custom-nginx-packaged --publish 8080:80 3199372aa3fc
