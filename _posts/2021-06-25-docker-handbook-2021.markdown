@@ -46,7 +46,7 @@ comment: false
     - [6.9 怎样在线共享你的镜像？](#6.9)
 - [7. 怎样容器化一个Javascript应用？](#7)
     - [7.1 怎么写Dockerfile？](#7.1)
-    - [7.2 怎么在Docker中处理Bind Mounts(绑定挂载)？](#7.2)
+    - [7.2 怎么在Docker中进行Bind Mounts(绑定挂载)？](#7.2)
     - [7.3 怎么使用Docker的匿名卷？](#7.3)
     - [7.4 怎么在Docker中执行多阶段构建（Multi-Staged Builds）？](#7.4)
     - [7.5 怎么忽略掉不必要的文件？](#7.5)
@@ -1956,17 +1956,17 @@ hello-dock:dev
 
 恭喜你成功运行了第一个容器化的应用。你的代码没有问题，但是一些地方还有很大提高的空间，我们首先来看第一个问题。
 
-<h3 id="7.2">7.2 怎么在Docker中处理Bind Mounts(绑定挂载)？</h3>
+<h3 id="7.2">7.2 怎么在Docker中进行Bind Mounts(绑定挂载)？</h3>
 
 如果你之前有接触过前端的一些框架，你应该了解这些框架的development服务都有热部署的功能。那就是如果你源代码有所改变，服务端就会reload，任何修改都能够自动的立刻完成重新部署显现出来。
 
 但是如果你现在改变你的源代码，启动的服务不会有任何改变。这是因为你的修改发生在本地文件系统上，而你看到的页面的后台服务的代码是在容器内的文件系统上。
 
-![](/img/posts/docker-handbook-2021-20.jpg)($COPY$)
+![](/img/posts/docker-handbook-2021-20.svg)
 
-为来解决这个问题，你可以使用[bind mount]($COPY$)，能很容易的实现将本地文件系统的一个目录挂载到容器上。bind mount不是复制了一份本地文件系统中的内容，而是让容器可以直接引用本地文件系统上的内容。
+为来解决这个问题，你可以使用[bind mount](https://docs.docker.com/storage/bind-mounts/)，能很容易的实现将本地文件系统的一个目录挂载到容器上。bind mount不是复制了一份本地文件系统中的内容，而是让容器可以直接引用本地文件系统上的内容。
 
-![](/img/posts/docker-handbook-2021-21.jpg)($COPY$)
+![](/img/posts/docker-handbook-2021-21.svg)
 
 这样在你本地文件系统中改变的内容就会立马体现在容器中，触发vite development服务的热部署。容器中的任何改变也会反映在本地文件系统中。
 
@@ -1986,7 +1986,17 @@ docker container run \
 --volume $(pwd):/home/node/app \
 hello-dock:dev
 
-$COPY$
+# sh: 1: vite: not found
+# npm ERR! code ELIFECYCLE
+# npm ERR! syscall spawn
+# npm ERR! file sh
+# npm ERR! errno ENOENT
+# npm ERR! hello-dock@0.0.0 dev: `vite`
+# npm ERR! spawn ENOENT
+# npm ERR!
+# npm ERR! Failed at the hello-dock@0.0.0 dev script.
+# npm ERR! This is probably not a problem with npm. There is likely additional logging output above.
+# npm WARN Local package.json exists, but node_modules missing, did you mean to install?
 ```
 
 请注意，我省略了`--detach`参数是为了证明一个重要的内容，终端中可以看出，应用没有运行起来。
@@ -2015,8 +2025,7 @@ docker container run \
 --volume /home/node/app/node_modules \
 hello-dock:dev
 
-$COPY$
-```
+# 53d1cfdb3ef148eb6370e338749836160f75f076d0fbec3c2a9b059a8992de8b
 
 在这里，Docker将容器内node_modules整个目录和由Docker daemon管理的匿名卷目录绑定。
 
