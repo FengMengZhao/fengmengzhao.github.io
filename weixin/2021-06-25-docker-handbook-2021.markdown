@@ -247,7 +247,7 @@ For more examples and ideas, visit:
  https://docs.docker.com/get-started/
 ```
 
-[hello-world](https://hub.docker.com/_/hello-world)镜像是Docker提供的一个很小的容器化程序，它是很简单的[hello.c](https://github.com/docker-library/hello-world/blob/master/hello.c)程序，在终端打印出Hello Worl字符串。
+[hello-world](https://hub.docker.com/_/hello-world)镜像是Docker提供的一个很小的容器化程序，它是很简单的[hello.c](https://github.com/docker-library/hello-world/blob/master/hello.c)程序，在终端打印出Hello World字符串。
 
 在终端中，你可以执行使用`docker ps -a`命令来查看目前或者历史运行的Docker容器
 
@@ -280,7 +280,7 @@ docker ps -a
 
 就像虚拟机一样，容器之间以及容器和宿主机之间环境都是彼此隔离的。相比较虚拟机，容器也更加轻量级，因此同一个宿主机上可以同时跑多个容器，并且不影响宿主机的性能。
 
-容器和虚拟机使用不同的方法虚拟化硬件，两者的主要不同是虚拟化方法的不同。
+容器和虚拟机使用不同的方法进行虚拟化，两者的主要不同是虚拟化方法的不同。
 
 虚拟机通常被一个叫做Hypervisor的程序创建并管理，例如[Oracle VM VirtualBox](https://www.virtualbox.org/)、[VMware](https://www.vmware.com/)、[KVM](https://www.linux-kvm.org/)和微软[Hyper-V](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/about/)等等。这个Hypervisor程序处在宿主机操作系统和虚拟机之间，承担中间通信的职责。
 
@@ -290,7 +290,7 @@ docker ps -a
 
 从上面可以看出，虚拟机中运行的程序和宿主基础硬件之间有一个长长的通信链，即使是虚拟机中程序申请很小的资源，由于本地操作系统的存在也增加了明显的性能消耗。
 
-和虚拟机使用的虚拟方法不一样，容器使用更加聪明的方式。容器没有完整的本地操作系统，它通过运行时的容器服务使用宿主机操作系统，同时就像虚拟机那样保持环境的隔离性。
+和虚拟机使用的虚拟方法不一样，容器使用更加聪明的方式。容器没有完整的本地操作系统，它通过运行时的容器服务使用宿主机操作系统，同时又像虚拟机那样保持环境的隔离性。
 
 ![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/docker-handbook-2021-08.png)
 
@@ -350,7 +350,7 @@ Docker引擎包含三个主要部分：
 
 1. **Docker Daemon**：daemon进程（`dockerd`）在后台运行并且监听客户端的请求，它能够管理各种各样的Docker对像。
 2. **Docker Client**：客户端（`docker`）是一个命令行接口程序，主要负责传递用户的请求。
-3. **REST API**：REST接口是Docker后台程序和客户端之间的桥梁，用户输入的任务命令行请求都会通过接口传递到后代Docker Daemon那里。
+3. **REST API**：REST接口是Docker后台程序和客户端之间的桥梁，用户输入的任务命令行请求都会通过接口传递到后台Docker Daemon那里。
 
 根据官方[文档](https://docs.docker.com/get-started/overview/#docker-architecture)：
 
@@ -399,13 +399,17 @@ Status: Downloaded newer image for hello-world:latest
 
 之前的章节我们基于hello-world镜像，使用docker run命令启动了一个容器。基本的命令行语法是这样的：
 
-`docker run <image-name>`
+```shell
+docker run <image-name>
+```
 
 尽管这是一个很有效命令，Docker提供了更好的方式，可以将客户端命令传递给Docker后台进程。
 
 在Docker1.13之前，Docker只支持上面语法的命令。后来，Docker[重构](https://www.docker.com/blog/whats-new-in-docker-1-13/)了命令行语法：
 
-`docker <object> <command> <options>`
+```shell
+docker <object> <command> <options>
+```
 
 在这个语法中：
 
@@ -415,7 +419,9 @@ Status: Downloaded newer image for hello-world:latest
 
 参照上面的语法，run命令可以写成：
 
-`docker container run <image-name>`
+```shell
+docker container run <image-name>
+```
 
 image name可以是任何本地或者远程仓库上的镜像名称。例如，你也可以使用[fhsinchy/hello-dock](https://hub.docker.com/r/fhsinchy/hello-dock)这个镜像名称，这个镜像包含了一个简单的[vue.js](https://vuejs.org/)应用，运行容器内应用启动并监听80端口。想要运行这个镜像的容器，执行下面的命令：
 
@@ -449,7 +455,9 @@ Status: Downloaded newer image for fhsinchy/hello-dock:latest
 
 如果想要容器外部访问容器，需要将容器内部的端口发布到容器宿主机的网路上，语法`--publish`和`-p`如下：
 
-`--publish <host port>:<container port>`
+```shell
+--publish <host port>:<container port>
+```
 
 当你像刚才命令中那样指定`--publish 8080:80`参数，意味着任何访问宿主机8080端口的请求都会被转发到容器内到80端口。
 
@@ -469,7 +477,7 @@ Status: Downloaded newer image for fhsinchy/hello-dock:latest
 
 我们可以通过`--detach`参数让容器在后台启动，命令如下：
 
-```
+```shell
 docker container run --detach --publish 8080:80 fhsinchy/hello-dock
 
 # 9f21cb77705810797c4b847dbd330d9c732ffddba14fb435470567a7a3f46cdc
@@ -540,11 +548,15 @@ docker container ls
 
 你也可以使用`docker container rename`命令重命名一个容器，语法如下：
 
-`docker container rename <container identifier> <new name>`
+```shell
+docker container rename <container identifier> <new name>
+```
 
 重命名之前的名称为gifted_sammet的容器为hello-dock-container-2，命令如下：
 
-`docker container rename gifted_sammet hello-dock-container-2`
+```shell
+docker container rename gifted_sammet hello-dock-container-2
+```
 
 这个命令执行没有任何输出结果，不过你可以通过查看容器列表`container ls`确实是否修改成功
 
@@ -556,7 +568,9 @@ docker container ls
 
 有两个命令可以停止容器，第一个是`container stop`命令，基本的语法是：
 
-`docker container stop <container identifier>`
+```shell
+docker container stop <container identifier>
+```
 
 这里的container identifier可以是容器的名称或者ID。
 
@@ -587,7 +601,9 @@ docker container kill hello-dock-container-2
 
 在上面的章节中，我们系统中有停掉的容器，可以使用`container start`命令来启动停掉或者被杀死的容器，语法如下：
 
-`docker container start <container identifier>`
+```shell
+docker container start <container identifier>
+```
 
 可以使用`container ls --all`命令列出来所有的容器，找到状态是`Exited`的。
 
@@ -670,7 +686,9 @@ docker container ls
 
 可以是`container rm`移除停掉的容器，语法如下：
 
-`docker container rm <container-identifier>`
+```shell
+docker container rm <container-identifier>
+```
 
 想找出来哪些容器不是运行的状态，可以使用`container ls --all`命令并寻找`Exited`状态的容器。
 
@@ -818,7 +836,9 @@ echo -n my-secret | base64
 
 将命令传递给没有在运行的容器的基本语法是：
 
-`docker container run <image name> <command>`
+```shell
+docker container run <image name> <command>
+```
 
 使用`busybox`镜像运行容器，并让容器执行base64命令，可以这样启动：
 
@@ -842,11 +862,15 @@ docker container run --rm busybox echo -n my-secret | base64
 
 如果你已经安装了Git和Python，可以执行下面的命令安装这个脚本：
 
-`pip install git+https://github.com/fhsinchy/rmbyext.git#egg=rmbyext`
+```shell
+pip install git+https://github.com/fhsinchy/rmbyext.git#egg=rmbyext
+```
 
 如果你已经配置好了Python环境命令，在任意的命令行中，都可以使用一下命令：
 
-`rmbyext <file extension>`
+```shell
+rmbyext <file extension>
+```
 
 为了测试，在一个空目录中打开命令行并以不同的扩展创建多个文件。你可以使用touch命令来这样做，现在我们有了一个目录，目录中有如下文件：
 
@@ -887,7 +911,9 @@ docker container run --rm -v $(pwd):/zone fhsinchy/rmbyext pdf
 
 你可能已经猜到，我们在命令中使用了`-v $(pwd):/zone`参数。`-v`或者`--volume`参数用来为容器绑定一个挂载点，这个参数可以用冒号隔开的三部分组成，基本的语法是：
 
-`--volume <local file system directory absolute path>:<container file system directory path>:<read write access>`
+```shell
+--volume <local file system directory absolute path>:<container file system directory path>:<read write access>
+```
 
 参数中前两部分是必选的，第三部分可选。
 
@@ -971,7 +997,9 @@ CMD ["nginx", "-g", "daemon off;"]
 
 现在，你有一个有效的Dockerfile可以用来创建镜像。和容器相关的命令一样，镜像相关的命令语法如下：
 
-`docker image <command> <options>`
+```shell
+docker image <command> <options>
+```
 
 想要创建你刚刚写的Dockerfile的镜像，在`custom-nginx`目录中打开终端，执行如下命令：
 
@@ -1017,7 +1045,7 @@ docker container ls
 
 > 冯兄话吉：上面命令中最后的镜像ID要改为你刚刚构建的镜像ID。
 
-你可以访问`http://127.0.0.1:8000`验证容器时否启动成功。
+你可以访问`http://127.0.0.1:8000`验证容器是否启动成功。
 
 ![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/docker-handbook-2021-17.jpg)
 
@@ -1027,7 +1055,9 @@ docker container ls
 
 通用的语法如下：
 
-`--tag <image repository>:<image tag>`
+```shell
+--tag <image repository>:<image tag>
+```
 
 repository是镜像的名称，image tag表示一个特定的构建或者版本。
 
@@ -1058,11 +1088,15 @@ Successfully tagged custom-nginx:packaged
 
 如果你在构建的时候忘记给镜像打标签，可以使用`image tag`命令重打标签：
 
-`docker image tag <image id> <image repository>:<image tag>`
+```shell
+docker image tag <image id> <image repository>:<image tag>
+```
 
 或者使用
 
-`docker image tag <image repository>:<image tag> <new image repository>:<new image tag>`
+```shell
+docker image tag <image repository>:<image tag> <new image repository>:<new image tag>
+```
 
 <h3 id="6.3">6.3 怎样展示和删除镜像？</h3>
 
@@ -1078,7 +1112,9 @@ docker image ls
 
 这里展示的镜像可以使用`image rm`命令删除，基本的语法如下：
 
-`docker image rm <image identifier>`
+```shell
+docker image rm <image identifier>
+```
 
 这里镜像的标识可以镜像ID，也可以是镜像名称，如果是名称的话必须带上标签。例如要删除custom-nginx:package镜像，你可以执行如下命令：
 
@@ -1106,7 +1142,7 @@ docker image prune --force
 # Total reclaimed space: 59.19MB
 ```
 
-`--force`或者`-f`参数可以让你跳过时否确认的问题。你也可以使用`--all`或者`-a`命令删除本地所有缓存的镜像。
+`--force`或者`-f`参数可以让你跳过是否确认的问题。你也可以使用`--all`或者`-a`命令删除本地所有缓存的镜像。
 
 <h3 id="6.4">6.4 怎样理解多层镜像？</h3>
 
@@ -1392,7 +1428,7 @@ docker image ls
 # nginx              stable    b9e1dc12387a   11 days ago      133MB
 ```
 
-为了找到根本原因，我们首先开看看Dockerfile：
+为了找到根本原因，我们首先看看Dockerfile：
 
 ```shell
 FROM ubuntu:latest
@@ -1433,7 +1469,7 @@ CMD ["nginx", "-g", "daemon off;"]
 
 第三行中我们看到`RUN`命令安装了很多东西，尽管这些东西对于构建NGINX是必要的，但是对于运行NGINX就不全是的了。
 
-在我们安装的6个包中，仅仅有两个是运行NGINX必须的。它们是`libpcre3`和`zlib1g`。因此我们的想法是构建完成后卸载运行态不必要的包。
+在我们安装的6个包中，仅仅有两个是运行NGINX必须的。它们是`libpcre3`和`zlib1g`。因此我们的想法是构建完成后卸载运行时不必要的包。
 
 你可以更新Dockerfile为：
 
@@ -1583,7 +1619,7 @@ CMD ["nginx", "-g", "daemon off;"]
 
 代码和之前的没有什么差异，有差异的地方列出来如下：
 
-- 使用`apk add`而不是`apt-get install`命令安装依赖包。`--no-cache`参数表示下载的依赖包不会被缓存。同样适用了`apk del`而不是`apt-get remove`来卸载依赖包。
+- 使用`apk add`而不是`apt-get install`命令安装依赖包。`--no-cache`参数表示下载的依赖包不会被缓存。同样使用了`apk del`而不是`apt-get remove`来卸载依赖包。
 - `apk add`命令的`--virtual`参数表示将多个包捆扎成单个包便于管理。那些仅仅是构建时候依赖的包被打上`.build-deps`的标签，后续可以通过`apk del .build-deps`命令删除。你可以在官方文档中了解更多关于[virtuals](https://docs.alpinelinux.org/user-handbook/0.1a/Working/apk.html#_virtuals)参数的内容。
 - 这里包的名称可能有些不同。一般每一个Linux发行版都有自己的包仓库开放给大家寻找包。如果你知道你任务要依赖的包，你可以直接到目的发行版的仓库中还搜索它。你可以在[这里](https://pkgs.alpinelinux.org/packages)寻找Alpine Linux的包。
 
@@ -1649,7 +1685,7 @@ docker image ls
 - 设置一个容易访问的工作目录。
 - 安装Git以便从Github仓库上安装脚本。
 - 使用Git和pip安装脚本。
-- 删除运行态不必要依赖的的构建时依赖包。
+- 删除运行时不必要依赖的的构建时依赖包。
 - 设置rmbyext脚本作为镜像的入口。
 
 现在，在rmbyext目录中创建一个Dockerfile文件，写入如下代码：
@@ -1673,7 +1709,7 @@ ENTRYPOINT [ "rmbyext" ]
 - rmbyext是从Github中安装的，git是安装时的依赖。第5行的`RUN`命令安装了git并且用git和pip装了rmbyext脚本，随后git被删除。
 - 最后在第9行设置rmbyext脚本为镜像入口。
 
-在整个文件中，第9行价将普通的镜像转化为了可执行镜像。现在你可以通过下面的命令构建镜像：
+在整个文件中，第9行将普通的镜像转化为了可执行镜像。现在你可以通过下面的命令构建镜像：
 
 ```shell
 docker image build --tag rmbyext .
@@ -1738,7 +1774,9 @@ docker login
 
 为了能够在线分享镜像，镜像必要要打标签，你已经在上面的章节中学习了打tag，回想一下，基本的语法是：
 
-`--tag <image repository>:<image tag>`
+```shell
+--tag <image repository>:<image tag>
+```
 
 我们以共享custom-nginx镜像为例，在custom-nginx项目目录中打开一个新的命令行终端。
 
@@ -1793,7 +1831,9 @@ docker image build --tag fhsinchy/custom-nginx:latest --file Dockerfile.built .
 
 镜像创建之后，你就可以通过下面的命令上传它：
 
-`docker image push <image repository>:<image tag>`
+```shell
+docker image push <image repository>:<image tag>
+```
 
 具体到这个例子，你可以使用如下命令：
 
@@ -2026,8 +2066,9 @@ docker container run \
 hello-dock:dev
 
 # 53d1cfdb3ef148eb6370e338749836160f75f076d0fbec3c2a9b059a8992de8b
+```
 
-在这里，Docker将容器内node_modules整个目录和由Docker daemon管理的匿名卷目录绑定。
+在这里，Docker将容器内`node_modules`整个目录和由Docker daemon管理的匿名卷目录绑定。
 
 <h3 id="7.4">7.4 怎么在Docker中执行多阶段构建（Multi-Staged Builds）？</h3>
 
