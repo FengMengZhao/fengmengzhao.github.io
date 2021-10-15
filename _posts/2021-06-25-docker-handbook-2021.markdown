@@ -2026,8 +2026,9 @@ docker container run \
 hello-dock:dev
 
 # 53d1cfdb3ef148eb6370e338749836160f75f076d0fbec3c2a9b059a8992de8b
+```
 
-在这里，Docker将容器内node_modules整个目录和由Docker daemon管理的匿名卷目录绑定。
+在这里，Docker将容器内`node_modules`整个目录和由Docker daemon管理的匿名卷目录绑定。
 
 <h3 id="7.4">7.4 怎么在Docker中执行多阶段构建（Multi-Staged Builds）？</h3>
 
