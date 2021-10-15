@@ -284,7 +284,7 @@ docker ps -a
 
 虚拟机通常被一个叫做Hypervisor的程序创建并管理，例如[Oracle VM VirtualBox](https://www.virtualbox.org/)、[VMware](https://www.vmware.com/)、[KVM](https://www.linux-kvm.org/)和微软[Hyper-V](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/about/)等等。这个Hypervisor程序处在宿主机操作系统和虚拟机之间，承担中间通信的职责。
 
-![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/docker-handbook-2021-07.svg)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/docker-handbook-2021-07.png)
 
 在虚拟机中运行的程序和本地操作系统（gust operating system）通信，本地操作系统和Hypervisor程序通信，Hypervisor程序再向宿主机操作系统从硬件中申请必要的资源来运行程序。
 
@@ -292,7 +292,7 @@ docker ps -a
 
 和虚拟机使用的虚拟方法不一样，容器使用更加聪明的方式。容器没有完整的本地操作系统，它通过运行时的容器服务使用宿主机操作系统，同时就像虚拟机那样保持环境的隔离性。
 
-![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/docker-handbook-2021-08.svg)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/docker-handbook-2021-08.png)
 
 运行时的容器服务，也就是Docker，处在宿主机操作系统和容器之间，容器通过Docker和宿主机操作系统进行通信，从基础物理硬件获取程序运行的资源。
 
@@ -362,7 +362,7 @@ Docker引擎包含三个主要部分：
 
 好的，基础的概念已经了解了，我们开始把所学习的一切串起来，看看它们合在一起是怎么工作的。在我们详细讲解`docker run hello-world`命令背后到底发生什么之前，先看看我画的一张图：
 
-![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/docker-handbook-2021-12.svg)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/docker-handbook-2021-12.png)
 
 这张图基于Docker官方网站的一张稍微作出改动，当你执行命令的时候，发生的事情如下：
 
@@ -1962,11 +1962,11 @@ hello-dock:dev
 
 但是如果你现在改变你的源代码，启动的服务不会有任何改变。这是因为你的修改发生在本地文件系统上，而你看到的页面的后台服务的代码是在容器内的文件系统上。
 
-![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/docker-handbook-2021-20.svg)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/docker-handbook-2021-20.png)
 
 为来解决这个问题，你可以使用[bind mount](https://docs.docker.com/storage/bind-mounts/)，能很容易的实现将本地文件系统的一个目录挂载到容器上。bind mount不是复制了一份本地文件系统中的内容，而是让容器可以直接引用本地文件系统上的内容。
 
-![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/docker-handbook-2021-21.svg)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/docker-handbook-2021-21.png)
 
 这样在你本地文件系统中改变的内容就会立马体现在容器中，触发vite development服务的热部署。容器中的任何改变也会反映在本地文件系统中。
 
@@ -3255,7 +3255,7 @@ Removing volume notes-db-dev-data
 
 在我们使用`docker-compose.yaml`文件启动项目之前，先让我们看一下该应用是如何工作的：
 
-![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/docker-handbook-2021-24.svg)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/docker-handbook-2021-24.png)
 
 不像我们之前那样直接请求，该应用所有的请求先会到NGINX（让我们称之为路由）服务那里。
 
