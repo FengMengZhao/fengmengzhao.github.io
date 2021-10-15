@@ -247,7 +247,7 @@ For more examples and ideas, visit:
  https://docs.docker.com/get-started/
 ```
 
-[hello-world](https://hub.docker.com/_/hello-world)镜像是Docker提供的一个很小的容器化程序，它是很简单的[hello.c](https://github.com/docker-library/hello-world/blob/master/hello.c)程序，在终端打印出Hello Worl字符串。
+[hello-world](https://hub.docker.com/_/hello-world)镜像是Docker提供的一个很小的容器化程序，它是很简单的[hello.c](https://github.com/docker-library/hello-world/blob/master/hello.c)程序，在终端打印出Hello World字符串。
 
 在终端中，你可以执行使用`docker ps -a`命令来查看目前或者历史运行的Docker容器
 
@@ -280,7 +280,7 @@ docker ps -a
 
 就像虚拟机一样，容器之间以及容器和宿主机之间环境都是彼此隔离的。相比较虚拟机，容器也更加轻量级，因此同一个宿主机上可以同时跑多个容器，并且不影响宿主机的性能。
 
-容器和虚拟机使用不同的方法虚拟化硬件，两者的主要不同是虚拟化方法的不同。
+容器和虚拟机使用不同的方法进行虚拟化，两者的主要不同是虚拟化方法的不同。
 
 虚拟机通常被一个叫做Hypervisor的程序创建并管理，例如[Oracle VM VirtualBox](https://www.virtualbox.org/)、[VMware](https://www.vmware.com/)、[KVM](https://www.linux-kvm.org/)和微软[Hyper-V](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/about/)等等。这个Hypervisor程序处在宿主机操作系统和虚拟机之间，承担中间通信的职责。
 
@@ -290,7 +290,7 @@ docker ps -a
 
 从上面可以看出，虚拟机中运行的程序和宿主基础硬件之间有一个长长的通信链，即使是虚拟机中程序申请很小的资源，由于本地操作系统的存在也增加了明显的性能消耗。
 
-和虚拟机使用的虚拟方法不一样，容器使用更加聪明的方式。容器没有完整的本地操作系统，它通过运行时的容器服务使用宿主机操作系统，同时就像虚拟机那样保持环境的隔离性。
+和虚拟机使用的虚拟方法不一样，容器使用更加聪明的方式。容器没有完整的本地操作系统，它通过运行时的容器服务使用宿主机操作系统，同时又像虚拟机那样保持环境的隔离性。
 
 ![](/img/posts/docker-handbook-2021-08.png)
 
@@ -350,7 +350,7 @@ Docker引擎包含三个主要部分：
 
 1. **Docker Daemon**：daemon进程（`dockerd`）在后台运行并且监听客户端的请求，它能够管理各种各样的Docker对像。
 2. **Docker Client**：客户端（`docker`）是一个命令行接口程序，主要负责传递用户的请求。
-3. **REST API**：REST接口是Docker后台程序和客户端之间的桥梁，用户输入的任务命令行请求都会通过接口传递到后代Docker Daemon那里。
+3. **REST API**：REST接口是Docker后台程序和客户端之间的桥梁，用户输入的任务命令行请求都会通过接口传递到后台Docker Daemon那里。
 
 根据官方[文档](https://docs.docker.com/get-started/overview/#docker-architecture)：
 
