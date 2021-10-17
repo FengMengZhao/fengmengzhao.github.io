@@ -73,6 +73,7 @@ comment: false
     - [10.6 怎样在Docker Compose中停止运行的服务？](#10.6)
     - [10.7 怎样Compose一个全栈应用？](#10.7)
 - [11. 结论](#11)
+- [12. 译者注](#12)
 
 ---
 
@@ -2398,7 +2399,7 @@ round-trip min/avg/max = 0.050/0.059/0.076 ms
 
 你可以看到，在`alpine-box`容器中运行`ping hello-dock`能成功联通，因为二容器同在自定义的桥接网络中且具备自动DNS解析的功能。
 
-需要注意的是，要想让自定义DNS解析功能成功，你必须给容器设定自定的名称，用自动生成的容器名称在自定义DNS解析时是无效的。
+需要注意的是，要想让自定义DNS解析功能成功，你必须给容器设定自定的名称，用自动生成的容器名称在DNS解析时是无效的。
 
 <h3 id="8.4">8.4 怎样在Docker中将容器从网络中断开连接？</h3>
 
@@ -2540,7 +2541,7 @@ docker container inspect --format='{{range .Mounts}} {{ .Name }} {{end}}' notes-
 docker container logs <container identifier>
 ```
 
-获取`notes-db`container的日志，你可以执行下面的命令：
+获取`notes-db`容器的日志，你可以执行下面的命令：
 
 ```shell
 docker container logs notes-db
@@ -2602,11 +2603,11 @@ PostgreSQL init process complete; ready for start up.
 2021-10-12 09:05:47.255 UTC [1] LOG:  database system is ready to accept connections
 ```
 
-从57行的日志可以看出来数据库服务已经启动并且等待外部的连接。有参数`--follow|-f`可以让你把终端的输出重定向到日志文件中，得到一个持续到输出的文档。
+从57行的日志可以看出来数据库服务已经启动并且等待外部的连接。有参数`--follow|-f`可以让你把终端的输出重定向到日志文件中，得到一个持续输出的文档。
 
 <h3 id="9.4">9.4 怎样在Docker中创建一个网络并且将数据库容器附接到网络中？</h3>
 
-之前我们有学过，为了容器之间能够通信，怎样创建一个自定的网络并且将容器附接到网络中。首先在系统中创建一个名称为notes-api-network的网络：
+之前我们有学过，为了容器之间能够通信，需要创建一个自定义的网络并且将容器附接到网络中。首先在系统中创建一个名称为notes-api-network的网络：
 
 ```shell
 docker network create notes-api-network
@@ -2654,7 +2655,7 @@ CMD [ "node", "bin/www" ]
 
 - 阶段1，使用`node:lts-alpine`作为基础镜像并且使用`builder`最为阶段1的阶段名称。
 - 第5行，我们安装`python`、`make`和`g++`，`node-gyp`工具运行需要这3个依赖包。
-- 第7行，我么是`/app`作为工作目录。
+- 第7行，设置`/app`作为工作目录。
 - 第9和10行，我们复制`package.json`文件到工作目录中并且安装所有的依赖。
 - 阶段2，仍然使用`node:lts-alpine`最为基础镜像。
 - 第16行，我们设置`NODE_ENV`环境变量为`production`，要让API正常运行，这个设置相当重要。
@@ -2864,7 +2865,7 @@ docker container run \
 
 你应该能够自己能够理解这个长长的命令，因此我只对环境变量做简单的说明。
 
-notes-api容器需要设置三个环境变量，它们时：
+notes-api容器需要设置三个环境变量，它们是：
 
 - `DB_HOST`-这个是数据库服务的主机名。由于数据库服务和API都附接在同一个自定义的桥接网络下，数据库服务可以使用容器名称`notes-db`来进行引用。
 - `DB_DATABASE`-API使用的数据库。在[运行数据库服务](#9.1)部分，我们通过环境变量`POSTGRES_DB`设置了默认的数据库名称为`notesdb`，正是我们使用的这个。
@@ -2884,7 +2885,7 @@ docker container ls
 
 ![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/docker-handbook-2021-23.jpg)
 
-> 冯兄话吉：上图所示服务不能正常访问，需执行后续的数据初始化工作才能正常，上面看到的页面是正常的。
+> 冯兄话吉：上图所示服务不能正常访问，需执行后续的数据初始化工作才能正常，上面看到的页面是正常的（基于上面执行的命令）。
 
 该API共有5个路由，你可以在`/notes-api/api/api/routes/notes.js`查看。
 
@@ -2916,7 +2917,7 @@ docker container exec -it notes-api sh
 
 <h3 id="9.7">9.7 怎样写管理Docker的脚本？</h3>
 
-管理一个多容器带有卷和网络的多容器项目意味着有很多命令，为了简化这个过程，我通常用简单的`shell scripts`和`Makefile`。
+管理一个带有卷和网络的多容器项目意味着有很多命令，为了简化这个过程，我通常用简单的`shell scripts`和`Makefile`。
 
 你可以在`notes-api`目录中找打4个shell scripts，它们分别是：
 
@@ -3306,7 +3307,7 @@ Removing volume notes-db-dev-data
 
 NGINX，在容器中运行，能够和整个应用中的不同服务进行通信。
 
-我不会在这里深入的解释NGINX的配置，改内容超出了本书的范围。如果你想看具体配置，查看文件`/fullstack-notes-application/nginx/development.conf`和`/fullstack-notes-application/nginx/production.conf`。`/fullstack-notes-application/nginx/Dockerfile.dev`代码如下：
+我不会在这里深入的解释NGINX的配置，该内容超出了本书的范围。如果你想看具体配置，查看文件`/fullstack-notes-application/nginx/development.conf`和`/fullstack-notes-application/nginx/production.conf`。`/fullstack-notes-application/nginx/Dockerfile.dev`代码如下：
 
 > 冯兄话吉：上述路径原文指向有误。
 
@@ -3505,6 +3506,8 @@ docker-compose --file docker-compose.yaml up --detach
 
 尝试增加或者删除notes验证应用是否能正常工作。这个项目也可以用shell scripts和Makefile完成，可以尝试像之前章节那样不使用Docker Compose来运行项目。
 
+> 冯兄话吉：访问页面操作创建notes功能不能正常保存日记，是因为数据库没有执行初始化建表操作，使用命令`docker-compose exec api npm run db:migrate`即可完成初始化，重新保存日记，功能正常。
+
 ---
 
 <h2 id="11">11. 结论</h2>
@@ -3524,3 +3527,16 @@ docker-compose --file docker-compose.yaml up --detach
 > 知识分享是最基本的友谊，因为它能够让你在不失去任何东西的情况下赠人玫瑰。 -- Richard Stallman
 
 ---
+
+<h2 id="12">12. 译者注</h2>
+
+- 本书翻译原文：[https://www.freecodecamp.org/news/the-docker-handbook/](https://www.freecodecamp.org/news/the-docker-handbook/)
+- 原作者：`Farhan Hasin Chowdhury`
+- 原项目仓库：[https://github.com/fhsinchy/docker-handbook-projects/](https://github.com/fhsinchy/docker-handbook-projects/)
+- 译者：`冯兄话吉`
+- 译者项目克隆仓库：[https://github.com/FengMengZhao/the-docker-handbook/](https://github.com/FengMengZhao/the-docker-handbook/)
+- 译者gitee项目同步仓库（GitHub访问异常使用）：[https://gitee.com/fengmengzhao/the-docker-handbook/](https://gitee.com/fengmengzhao/the-docker-handbook/)
+
+---
+
+<p align="center" style="color: red">本书完</p>
