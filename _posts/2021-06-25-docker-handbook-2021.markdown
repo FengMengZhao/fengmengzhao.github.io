@@ -867,7 +867,7 @@ docker container run --rm busybox echo -n my-secret | base64
 pip install git+https://github.com/fhsinchy/rmbyext.git#egg=rmbyext
 ```
 
-如果你已经配置好了Python环境命令，在任意的命令行中，都可以使用一下命令：
+如果你已经配置好了Python环境命令，在任意的命令行中，都可以使用以下命令：
 
 ```shell
 rmbyext <file extension>
@@ -1918,6 +1918,8 @@ CMD [ "npm", "run", "dev" ]
 现在使用该Dockerfile.dev文件来构建一个镜像，你可以执行如下指令：
 
 ```shell
+docker image build --file Dockerfile.dev --tag hello-dock:dev .
+
 Sending build context to Docker daemon  30.21kB
 Step 1/9 : FROM node:lts-alpine
 lts-alpine: Pulling from library/node
@@ -2077,7 +2079,7 @@ hello-dock:dev
 
 在生产环境中，`npm run build`编译了所有的JavaScript代码为HTML、CSS和JavaScript文件。运行这些文件，你不在需要node或者其他运行时的依赖。你所需要的是一个像nginx的http服务器。
 
-为了创建在生产环境中运行应用的镜像，你可以按照按照一下步骤：
+为了创建在生产环境中运行应用的镜像，你可以按照按照以下步骤：
 
 - 使用node作为基础镜像构建应用。
 - 在node镜像中安装nginx并且使用它提供http服务。
@@ -2237,9 +2239,9 @@ node_modules
 
 因此本书的这一部分你会熟悉Docker网络并能够协作一个小的多容器项目。
 
-从之前的章节中你会了解到容器时一个隔离的环境。现在假设你有一个基于[Express.js](https://expressjs.com/)的notes-api应用和一个[PostgreSQL](https://www.postgresql.org/)数据库服务分别在两个容器上运行。
+从之前的章节中你会了解到容器是一个隔离的环境。现在假设你有一个基于[Express.js](https://expressjs.com/)的notes-api应用和一个[PostgreSQL](https://www.postgresql.org/)数据库服务分别在两个容器上运行。
 
-这两个容器彼此间时完全隔离的并且彼此意识不到对方的存在。**那么两个容器之间如何能够连接起来，是不是很困难？**
+这两个容器彼此间是完全隔离的并且彼此意识不到对方的存在。**那么两个容器之间如何能够连接起来，是不是很困难？**
 
 你可能会想到这个问题的两个解决方案，它们是：
 
@@ -2285,7 +2287,7 @@ docker network ls
 
 - 桥接（`bridge`）-Docker中的默认网络类型，这种类型适合使用在独立运行的容器并且容器间需要相互通信。
 - 主机（`host`）-完全移除了网络的隔离。只要在主机网络下的任何容器都连接到了宿主机网络下。
-- 无（`none`）-这种类型容器之间的网络连接，我还没有发现该中类型的任何用处。
+- 无（`none`）-这种类型容器之间的网络连接，我还没有发现这种类型的任何用处。
 - `overlay`-这种类型跨主机连接多个Docker daemon，不在本书的讨论范围之内。
 - `macvlan`-它允许给容器分配MAC地址，是容器模拟一个物理设备。
 

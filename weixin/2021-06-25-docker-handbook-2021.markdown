@@ -1918,6 +1918,8 @@ CMD [ "npm", "run", "dev" ]
 现在使用该Dockerfile.dev文件来构建一个镜像，你可以执行如下指令：
 
 ```shell
+docker image build --file Dockerfile.dev --tag hello-dock:dev .
+
 Sending build context to Docker daemon  30.21kB
 Step 1/9 : FROM node:lts-alpine
 lts-alpine: Pulling from library/node
@@ -2077,7 +2079,7 @@ hello-dock:dev
 
 在生产环境中，`npm run build`编译了所有的JavaScript代码为HTML、CSS和JavaScript文件。运行这些文件，你不在需要node或者其他运行时的依赖。你所需要的是一个像nginx的http服务器。
 
-为了创建在生产环境中运行应用的镜像，你可以按照按照一下步骤：
+为了创建在生产环境中运行应用的镜像，你可以按照按照以下步骤：
 
 - 使用node作为基础镜像构建应用。
 - 在node镜像中安装nginx并且使用它提供http服务。
