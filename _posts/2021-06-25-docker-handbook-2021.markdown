@@ -2891,7 +2891,7 @@ docker container ls
 
 该API共有5个路由，你可以在`/notes-api/api/api/routes/notes.js`查看。
 
-尽管容器在运行中，在正式使用之前仍然有最后一件事情要做。你必要要进行必要的数据库迁移来设置数据库中的表，在容器中执行`npm run db:migrate`来完成。
+尽管容器在运行中，在正式使用之前仍然有最后一件事情要做。你必需要进行必要的数据库迁移来设置数据库中的表，在容器中执行`npm run db:migrate`来完成。
 
 <h3 id="9.6">9.6 怎样在运行的容器中执行命令？</h3>
 
@@ -2921,7 +2921,7 @@ docker container exec -it notes-api sh
 
 管理一个带有卷和网络的多容器项目意味着有很多命令，为了简化这个过程，我通常用简单的`shell scripts`和`Makefile`。
 
-你可以在`notes-api`目录中找打4个shell scripts，它们分别是：
+你可以在`notes-api`目录中找到4个shell scripts，它们分别是：
 
 - `boot.sh`-用来启动已经存在的容器。
 - `build.sh`-用来创建并运行容器，如果必要的话也会创建卷和网络。
