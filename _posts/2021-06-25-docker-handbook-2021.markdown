@@ -3017,7 +3017,7 @@ CMD [ "./node_modules/.bin/nodemon", "--config", "nodemon.json", "bin/www" ]
 
 这里的代码基本上和上一章节的`Dockerfile`的代码一致，不同的地方在于：
 
-- 第10行，不使用`npm run install --only=prod`而是是哟个你`npm install`，因为我们也需要开发时的依赖。
+- 第10行，不使用`npm run install --only=prod`而是使用`npm install`，因为我们也需要开发时的依赖。
 - 第15行，我们设置环境变量`NODE_ENV`为`development`而不是`production`。
 - 第24行，我们使用一个[nodemon](https://nodemon.io/)的工具进行API的热部署。
 
@@ -3134,7 +3134,7 @@ volumes:
 
 <h3 id="10.2">10.2 Docker Compose中如何启动服务？</h3>
 
-有多种方法可以启动应以在YAML文件中的服务，首先要学习的是`up`命令，`up`命令会一口气构建缺失的镜像、创建并启动容器。
+有多种方法可以启动定义在YAML文件中的服务，首先要学习的是`up`命令，`up`命令会一口气构建缺失的镜像、创建并启动容器。
 
 在你执行命令之前，确保你打开终端的目录中有`docker-compose.yaml`文件，这对于你要执行的`docker-compose`命令来说很重要。
 
@@ -3293,7 +3293,7 @@ Removing volume notes-db-dev-data
 
 <h3 id="10.7">10.7 怎样Compose一个全栈应用？</h3>
 
-在这一章节总我们将给notes API增加一个前端并且将之转化为一个全栈的应用。这里不会再解释`Dockerfile.dev`(除了nginx服务外)，因为它们在之前的章节已经出现过多次。
+在这一章节中我们将给notes API增加一个前端并且将之转化为一个全栈的应用。这里不会再解释`Dockerfile.dev`(除了nginx服务外)，因为它们在之前的章节已经出现过多次。
 
 如果你克隆过项目仓库，进入`fullstack-notes-application`目录，项目根目录下的每一个目录都包含代码和服务及其相关的`Dockerfile`。
 
@@ -3301,7 +3301,7 @@ Removing volume notes-db-dev-data
 
 ![](/img/posts/docker-handbook-2021-24.png)
 
-不像我们之前那样直接请求，该应用所有的请求先会到NGINX（让我们称之为路由）服务那里。
+不像我们之前那样直接请求，该应用所有的请求会先到NGINX（让我们称之为路由）服务那里。
 
 路由将会查看是否请求中包含`/api`内容，如果是，路由将会请求到后端服务，如果不是，路由将会请求到前端服务。
 
@@ -3321,7 +3321,7 @@ COPY ./development.conf /etc/nginx/conf.d/default.conf
 
 它所做的是将配置文件copy到容器内的`/etc/nginx/conf.d/default.conf`中。
 
-我们开始书写`docker-compose.yaml`文件，除了`api`和`db`服务外，还有`client`和`nginx`服务，还有一些网络的定义稍定会做出说明：
+我们开始书写`docker-compose.yaml`文件，除了`api`和`db`服务外，还有`client`和`nginx`服务，还有一些网络的定义稍后会做出说明：
 
 ```shell
 version: "3.8"
