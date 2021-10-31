@@ -1,11 +1,3 @@
----
-layout: post
-title: 'Docker指南-2021(冯兄话吉 [译])'
-subtitle: '从基本的概念到Docker中级，带你从零到一学习Docker。通过本指南你应该学习到：几乎基于所有平台的容器化工具的安装;上传一个自定义的Docker镜像(Image)到镜像仓库(registry);使用docker-compose协作多个容器。'
-background: '/img/posts/docker-handbook-2021-fxhj-trans.jpg'
-comment: false
----
-
 # 目录
 
 - [0. 前言](#0)
@@ -867,7 +859,7 @@ docker container run --rm busybox echo -n my-secret | base64
 pip install git+https://github.com/fhsinchy/rmbyext.git#egg=rmbyext
 ```
 
-如果你已经配置好了Python环境命令，在任意的命令行中，都可以使用一下命令：
+如果你已经配置好了Python环境命令，在任意的命令行中，都可以使用以下命令：
 
 ```shell
 rmbyext <file extension>
@@ -2239,9 +2231,9 @@ node_modules
 
 因此本书的这一部分你会熟悉Docker网络并能够协作一个小的多容器项目。
 
-从之前的章节中你会了解到容器时一个隔离的环境。现在假设你有一个基于[Express.js](https://expressjs.com/)的notes-api应用和一个[PostgreSQL](https://www.postgresql.org/)数据库服务分别在两个容器上运行。
+从之前的章节中你会了解到容器是一个隔离的环境。现在假设你有一个基于[Express.js](https://expressjs.com/)的notes-api应用和一个[PostgreSQL](https://www.postgresql.org/)数据库服务分别在两个容器上运行。
 
-这两个容器彼此间时完全隔离的并且彼此意识不到对方的存在。**那么两个容器之间如何能够连接起来，是不是很困难？**
+这两个容器彼此间是完全隔离的并且彼此意识不到对方的存在。**那么两个容器之间如何能够连接起来，是不是很困难？**
 
 你可能会想到这个问题的两个解决方案，它们是：
 
@@ -2287,7 +2279,7 @@ docker network ls
 
 - 桥接（`bridge`）-Docker中的默认网络类型，这种类型适合使用在独立运行的容器并且容器间需要相互通信。
 - 主机（`host`）-完全移除了网络的隔离。只要在主机网络下的任何容器都连接到了宿主机网络下。
-- 无（`none`）-这种类型容器之间的网络连接，我还没有发现该中类型的任何用处。
+- 无（`none`）-这种类型容器之间的网络连接，我还没有发现这种类型的任何用处。
 - `overlay`-这种类型跨主机连接多个Docker daemon，不在本书的讨论范围之内。
 - `macvlan`-它允许给容器分配MAC地址，是容器模拟一个物理设备。
 
@@ -2891,7 +2883,7 @@ docker container ls
 
 该API共有5个路由，你可以在`/notes-api/api/api/routes/notes.js`查看。
 
-尽管容器在运行中，在正式使用之前仍然有最后一件事情要做。你必要要进行必要的数据库迁移来设置数据库中的表，在容器中执行`npm run db:migrate`来完成。
+尽管容器在运行中，在正式使用之前仍然有最后一件事情要做。你必需要进行必要的数据库迁移来设置数据库中的表，在容器中执行`npm run db:migrate`来完成。
 
 <h3 id="9.6">9.6 怎样在运行的容器中执行命令？</h3>
 
@@ -2921,7 +2913,7 @@ docker container exec -it notes-api sh
 
 管理一个带有卷和网络的多容器项目意味着有很多命令，为了简化这个过程，我通常用简单的`shell scripts`和`Makefile`。
 
-你可以在`notes-api`目录中找打4个shell scripts，它们分别是：
+你可以在`notes-api`目录中找到4个shell scripts，它们分别是：
 
 - `boot.sh`-用来启动已经存在的容器。
 - `build.sh`-用来创建并运行容器，如果必要的话也会创建卷和网络。
@@ -3017,7 +3009,7 @@ CMD [ "./node_modules/.bin/nodemon", "--config", "nodemon.json", "bin/www" ]
 
 这里的代码基本上和上一章节的`Dockerfile`的代码一致，不同的地方在于：
 
-- 第10行，不使用`npm run install --only=prod`而是是哟个你`npm install`，因为我们也需要开发时的依赖。
+- 第10行，不使用`npm run install --only=prod`而是使用`npm install`，因为我们也需要开发时的依赖。
 - 第15行，我们设置环境变量`NODE_ENV`为`development`而不是`production`。
 - 第24行，我们使用一个[nodemon](https://nodemon.io/)的工具进行API的热部署。
 
@@ -3134,7 +3126,7 @@ volumes:
 
 <h3 id="10.2">10.2 Docker Compose中如何启动服务？</h3>
 
-有多种方法可以启动应以在YAML文件中的服务，首先要学习的是`up`命令，`up`命令会一口气构建缺失的镜像、创建并启动容器。
+有多种方法可以启动定义在YAML文件中的服务，首先要学习的是`up`命令，`up`命令会一口气构建缺失的镜像、创建并启动容器。
 
 在你执行命令之前，确保你打开终端的目录中有`docker-compose.yaml`文件，这对于你要执行的`docker-compose`命令来说很重要。
 
@@ -3293,7 +3285,7 @@ Removing volume notes-db-dev-data
 
 <h3 id="10.7">10.7 怎样Compose一个全栈应用？</h3>
 
-在这一章节总我们将给notes API增加一个前端并且将之转化为一个全栈的应用。这里不会再解释`Dockerfile.dev`(除了nginx服务外)，因为它们在之前的章节已经出现过多次。
+在这一章节中我们将给notes API增加一个前端并且将之转化为一个全栈的应用。这里不会再解释`Dockerfile.dev`(除了nginx服务外)，因为它们在之前的章节已经出现过多次。
 
 如果你克隆过项目仓库，进入`fullstack-notes-application`目录，项目根目录下的每一个目录都包含代码和服务及其相关的`Dockerfile`。
 
@@ -3301,7 +3293,7 @@ Removing volume notes-db-dev-data
 
 ![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/docker-handbook-2021-24.png)
 
-不像我们之前那样直接请求，该应用所有的请求先会到NGINX（让我们称之为路由）服务那里。
+不像我们之前那样直接请求，该应用所有的请求会先到NGINX（让我们称之为路由）服务那里。
 
 路由将会查看是否请求中包含`/api`内容，如果是，路由将会请求到后端服务，如果不是，路由将会请求到前端服务。
 
@@ -3321,7 +3313,7 @@ COPY ./development.conf /etc/nginx/conf.d/default.conf
 
 它所做的是将配置文件copy到容器内的`/etc/nginx/conf.d/default.conf`中。
 
-我们开始书写`docker-compose.yaml`文件，除了`api`和`db`服务外，还有`client`和`nginx`服务，还有一些网络的定义稍定会做出说明：
+我们开始书写`docker-compose.yaml`文件，除了`api`和`db`服务外，还有`client`和`nginx`服务，还有一些网络的定义稍后会做出说明：
 
 ```shell
 version: "3.8"
@@ -3520,7 +3512,7 @@ docker-compose --file docker-compose.yaml up --detach
 
 这些手册都是我秉承着努力简化每个人对技术的理解的热情写的，每一本都花费了大量的时间和精力。
 
-如果你喜欢我的写作并且鼓励支持我，可以在我的[Github](https://github.com/fhsinchy/)给我点赞，或者在[LinkedIn])(https://www.linkedin.com/in/farhanhasin/)界面认可我的相关技能。我也欢迎您赞助我[一杯咖啡的钱](https://www.buymeacoffee.com/farhanhasin)。
+如果你喜欢我的写作并且鼓励支持我，可以在我的[Github](https://github.com/fhsinchy/)给我点赞，或者在[LinkedIn](https://www.linkedin.com/in/farhanhasin/)界面认可我的相关技能。我也欢迎您赞助我[一杯咖啡的钱](https://www.buymeacoffee.com/farhanhasin)。
 
 您有任何意见或者建议可以在[这些平台](https://linktr.ee/farhanhasin)留言，也可以在[Twitter](https://twitter.com/frhnhsin)或者[LinkedIn](https://www.linkedin.com/in/farhanhasin/)上关注我，直接给我留言。
 
@@ -3538,8 +3530,6 @@ docker-compose --file docker-compose.yaml up --detach
 - 译者：`冯兄话吉`
 - 译者项目克隆仓库：[https://github.com/FengMengZhao/the-docker-handbook/](https://github.com/FengMengZhao/the-docker-handbook/)
 - 译者gitee项目同步仓库（GitHub访问异常使用）：[https://gitee.com/fengmengzhao/the-docker-handbook/](https://gitee.com/fengmengzhao/the-docker-handbook/)
-
-> 微信公众号小分辨率下显示部分代码块异常及无法跳转超链接，为了您有更好的学习体验，建议点击左下角"阅读原文"跳转原文阅读，您也可以在原文或者"冯兄画戟"微信公众号--书籍推荐下载修订版PDF学习。如果有错误的地方，也请帮忙反馈，我们一起致力于让本不难学的技术轻松学。
 
 ---
 
