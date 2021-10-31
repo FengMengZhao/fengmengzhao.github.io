@@ -3520,7 +3520,7 @@ docker-compose --file docker-compose.yaml up --detach
 
 这些手册都是我秉承着努力简化每个人对技术的理解的热情写的，每一本都花费了大量的时间和精力。
 
-如果你喜欢我的写作并且鼓励支持我，可以在我的[Github](https://github.com/fhsinchy/)给我点赞，或者在[LinkedIn])(https://www.linkedin.com/in/farhanhasin/)界面认可我的相关技能。我也欢迎您赞助我[一杯咖啡的钱](https://www.buymeacoffee.com/farhanhasin)。
+如果你喜欢我的写作并且鼓励支持我，可以在我的[Github](https://github.com/fhsinchy/)给我点赞，或者在[LinkedIn](https://www.linkedin.com/in/farhanhasin/)界面认可我的相关技能。我也欢迎您赞助我[一杯咖啡的钱](https://www.buymeacoffee.com/farhanhasin)。
 
 您有任何意见或者建议可以在[这些平台](https://linktr.ee/farhanhasin)留言，也可以在[Twitter](https://twitter.com/frhnhsin)或者[LinkedIn](https://www.linkedin.com/in/farhanhasin/)上关注我，直接给我留言。
 

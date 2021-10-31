@@ -3539,6 +3539,8 @@ docker-compose --file docker-compose.yaml up --detach
 - 译者项目克隆仓库：[https://github.com/FengMengZhao/the-docker-handbook/](https://github.com/FengMengZhao/the-docker-handbook/)
 - 译者gitee项目同步仓库（GitHub访问异常使用）：[https://gitee.com/fengmengzhao/the-docker-handbook/](https://gitee.com/fengmengzhao/the-docker-handbook/)
 
+> 微信公众号小分辨率下显示部分代码块异常及无法跳转超链接，为了您有更好的学习体验，建议点击左下角"阅读原文"跳转原文阅读，您也可以在原文或者"冯兄画戟"微信公众号--书籍推荐下载修订版PDF学习。如果有错误的地方，也请帮忙反馈，我们一起致力于让本不难学的技术轻松学。
+
 ---
 
 <p align="center" style="color: red">本书完</p>
