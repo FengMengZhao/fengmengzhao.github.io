@@ -30,7 +30,7 @@ RPM打包指南：
 
 文章书写预定如下：
 
-- 命令行输出和包括源代码在内的文本文件的内容在放在代码块中：
+- 命令行输出和包括源代码在内的文本文件的内容放在代码块中：
 
 ```shell
 [root@172 rpmbuild]# ls -l
@@ -118,7 +118,7 @@ RPM支持你将原始的软件源代码打包成RPM源文件和二进制包。RP
 
 创建一个RPM包是复杂的，这里完整说明了如何处理`RPM Spec`文件，其中的一些细节会简化或者跳过。
 
-```SPECFILE
+```shell
 Name:       hello-world
 Version:    1
 Release:    1
@@ -188,7 +188,7 @@ Executing(%clean): /bin/sh -e /var/tmp/rpm-tmp.C2EpwV
 
 <h3 id="5.1">5.1 源代码是什么？</h3>
 
-**源代码**是计算机能够读懂的指令，描述如何进行一次计算。源代码通过通过[编程语言](https://en.wikipedia.org/wiki/Programming_language)来表达。本教程给出了使用不同编程语言编写的3个版本的Hello World程序，这3中不同语言的程序会用不同的方式打包，覆盖了RPM打包3个主要的操作方法。
+**源代码**是计算机能够读懂的指令，描述如何进行一次计算。源代码通过[编程语言](https://en.wikipedia.org/wiki/Programming_language)来表达。本教程给出了使用不同编程语言编写的3个版本的Hello World程序，这3中不同语言的程序会用不同的方式打包，覆盖了RPM打包3个主要的操作方法。
 
 > 世界上有数以千计的编程语言，本文档只举例了其中的3中，但是对于整体概念性的了解就足够了。
 
@@ -212,7 +212,7 @@ printf "Hello World\n"
 print("Hello World")
 ```
 
-[C]语言版本的Hello World：
+[C](https://en.wikipedia.org/wiki/C_%28programming_language%29)语言版本的Hello World：
 
 **cello.c**
 
@@ -368,7 +368,7 @@ print("Hello World")
 
 不同的字节码编译解释型语言的编译运行流程是不同的，它取决于这个编程语言、语言虚拟机、相关工具以及语言定义的流程。
 
-> Python总是字节码编译解释运行的，但是不是这里展示的这种方式。接下来的流程为了简单没有遵照社区的标准。对于实际的Python项目，参考[Software Packing and Distribution](https://docs.python.org/2/library/distribution.html)。
+> 实践中Python往往是字节码编译解释运行的，但是不是这里展示的这种方式。接下来的流程为了简单没有遵照社区的标准。对于实际的Python项目，参考[Software Packing and Distribution](https://docs.python.org/2/library/distribution.html)。
 
 字节码编译`pello.py`：
 
@@ -453,7 +453,7 @@ Hello World
 
 在Makefile中添加`install`部分：
 
-```Makefile
+```shell
 cello:
         gcc -g -o cello cello.c
 
