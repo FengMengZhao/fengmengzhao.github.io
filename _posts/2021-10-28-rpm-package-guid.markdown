@@ -414,6 +414,93 @@ Hello World
 
 在接下来的示例中，我们使用`diff`创建源文件的补丁，再使用`patch`对源文件打补丁。对程序打补丁会在后续RPM打包[处理SPEC files](#6.1.7)的时候用到。
 
+打补丁和RPM打包有什么关系？在打包的时候，不是直接更改源代码，而是在源文件上使用补丁包。
+
+1). 保留原始源代码内容：
+
+```shell
+diff -Naur cello.c.orig cello.c > cello-output-first-patch.patch
+```
+
+2). 修改`cello.c`内容：
+
+```c
+#include <stdio.h>
+
+int main(void) {
+    printf("Hello World from my very first patch!\n");
+    return 0;
+}
+```
+
+3). 使用`diff`工具生成patch文件：
+
+> 我们在`diff`工具使用的时候指定了一些列的参数，获取更多的内容可以参考[diff man page](https://man7.org/linux/man-pages/man1/diff.1.html)。
+
+```shell
+$ diff -Naur cello.c.orig cello.c
+--- cello.c.orig        2016-05-26 17:21:30.478523360 -0500
++++ cello.c     2016-05-27 14:53:20.668588245 -0500
+@@ -1,6 +1,6 @@
+ #include<stdio.h>
+
+ int main(void){
+-    printf("Hello World!\n");
++    printf("Hello World from my very first patch!\n");
+     return 0;
+ }
+```
+
+`-`开头的行将会被删除，替换为`+`开头的行。
+
+4). 将patch内容保存在文件中：
+
+```shell
+$ diff -Naur cello.c.orig cello.c > cello-output-first-patch.patch
+```
+
+5). 恢复原始的`cello.c`：
+
+```shell
+$ cp cello.c.orig cello.c
+```
+
+我们保留了原始的`cello.c`，因为当一个rpm包构建的时候，使用的是原始文件，而不是修改过的。更多信息访问[处理SPEC files](#6.1.7)。
+
+使用`cello-output-first-patch.patch`文件给`cello.c`程序打补丁，需要将补丁文件重定向到`patch`程序就可以：
+
+```shell
+$ patch < cello-output-first-patch.patch
+patching file cello.c
+```
+
+现在`cello.c`的内容为：
+
+```shell
+$ cat cello.c
+#include<stdio.h>
+
+int main(void){
+    printf("Hello World from my very first patch!\n");
+    return 0;
+}
+```
+
+可以构建并且执行打补丁后的`cello.c`：
+
+```shell
+$ make clean
+rm cello
+
+$ make
+gcc -g -o cello cello.c
+
+$ ./cello
+Hello World from my very first patch!
+```
+
+现在你学会了创建一个patch，给一个程序打patch，构建打补丁后的程序并运行了。
+
 <h3 id="5.5">5.5 安装Arbitrary Artifacts</h3>
 
 [Linux](https://en.wikipedia.org/wiki/Linux)和其他Unix-like操作系统的好处是[Filesystem Hierarchy Standard(FHS)](https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard)，它规定了什么样的文件应该放置在什么样的目录中。通过RPM包安装的软件也应该遵照`FHS`的约定，比如，一个可执行文件应该放置在系统的[PATH](https://en.wikipedia.org/wiki/PATH_%28variable%29)变量中。
