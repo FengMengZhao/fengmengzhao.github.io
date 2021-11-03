@@ -162,6 +162,9 @@ docker image ls
 docker pull IMAGE[:TAG]
 
 # 删除本地镜像
+docker image rm IMAGE_NAME[:TAG]
+
+# 删除一个镜像tag而删除镜像本身
 docker rmi IMAGE_NAME[:TAG]
 
 # 给镜像起一个别名
