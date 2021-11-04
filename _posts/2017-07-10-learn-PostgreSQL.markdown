@@ -124,6 +124,7 @@ layout: post
 
     # 备份文件
     # pg_dump备份的时候，最好添加一个 --inserts参数，尽量备份出来dml语句格式的，因为是扩版本恢复，默认的可能存在问题
+    # --inserts参数备份下来的dump语句数据是insert into的方式一行行插入，而不是默认的copy形式，如果数据量大备份还原，建议不加这个参数
     pg_dump --inserts -h hostname -p port -U user_name -d database_name [--schema=schema_name] -t table_name -f dump_file
 
 > 执行sql 文件`-d`参数可以缺省.<br><br>
