@@ -18,6 +18,9 @@ comment: true
     - [3.1 动态SQL Where条件中使用`<if test='xxx == "abc"' />`报错: `There is no getter for property named 'xxx' in 'class java.lang.String'`](#3.1)
     - [3.2 使用$和使用#来占位变量的区别](#3.2)
     - [3.3 需要从SQL的执行结果封装为Map集合返回](#3.3)
+    - [3.4 mybatis自定义typehandler改变字段数据类型](#3.4)
+    - [3.5 mybatis自定typehandler数据库array类型映射为pojo数组](#3.5)
+    - [3.6 mybatis将sql结果集部分字段转化为hashmap类型](#3.6)
 
 ---
 
@@ -424,9 +427,9 @@ Mybatis3的使用方式有两种：
 
 ---
 
-<h3 id="3">Mybatis使用问题收集</h3>
+<h3 id="3">3. Mybatis使用问题收集</h3>
 
-<h4 id="3.1">动态SQL Where条件中使用test判断报错: There is no getter for property named 'xxx' in 'class java.lang.String'</h4>
+<h4 id="3.1">3.1 动态SQL Where条件中使用test判断报错: There is no getter for property named 'xxx' in 'class java.lang.String'</h4>
 
 场景是：在`Mapper.xml`中where里想动态生成SQL：
 
@@ -454,7 +457,7 @@ Mybatis3的使用方式有两种：
 
 ---
 
-<h4 id="3.2">使用$和使用#来占位变量的区别</h4>
+<h4 id="3.2">3.2 使用$和使用#来占位变量的区别</h4>
 
 - `#{}`会进行预编译和进行数据类型的匹配
 - `${}`不会进行数据类型的匹配
@@ -470,7 +473,7 @@ Mybatis3的使用方式有两种：
 原因是:`#{}`会对SQL进行预编译，转化为`PreparedStatement`的占位符(?)的形式并进行数据类型的匹配；而`${}`只是进行简单的字符串拼接。
 
 
-<h4 id='3.3'>需要从SQL的执行结果封装为Map集合返回</h4>
+<h4 id="3.3">3.3 需要从SQL的执行结果封装为Map集合返回</h4>
 
 比如说一张表中有`code`和`name`两个字段，希望通过将表中的`code`作为key、`name`作为value封装为一个Map返回。
 
@@ -538,7 +541,7 @@ Mybatis3的使用方式有两种：
 
 这个方式可以将两个字段中的一个作为key，另一个作为value来返回Map，返回的格式是：`{"id1": "name1", "id2": "name2",...}`
 
-**mybatis自定义typehandler改变字段数据类型**
+<h4 id="3.4">3.4 mybatis自定义typehandler改变字段数据类型</h4>
 
 两种方法：
 
@@ -579,7 +582,9 @@ public class StrToIntTypeHandler implements TypeHandler<String> {
  where #{rmi_auftrag_xxx} = ${@java.lang.Integer@valueOf(jobXXX)}
 ```
 
-**mybatis自定typehandler数据库array类型映射为pojo数组**
+<h4 id="3.5">3.5 mybatis自定typehandler数据库array类型映射为pojo数组</h4>
+
+代码如下：
 
 ```java
 // 继承自BaseTypeHandler<Object[]> 使用时传入的参数一定要是Object[]，例如 int[]是 Object, 不是Object[]，所以传入int[] 会报错的
@@ -650,5 +655,61 @@ public class ArrayTypeHandler extends BaseTypeHandler<Object[]> {
     }
 }
 ```
+
+<h4 id="3.6">3.6 mybatis将sql结果集部分字段转化为hashmap类型</h4>
+
+问题：自己定义或者第三方的pojo类型中有扩展字段，类型是hashmap。想要将sql中查询结果集部分字段映射为hashmap。
+
+映射的pojo类代码：
+
+```java
+public class TreeNode {
+
+	/**
+	 * 节点的id，唯一
+	 *
+	private String id;
+
+	/**
+	 * 节点的显示名称
+	 */
+	private String name;
+
+	/**
+	 * 自定义配置
+	 */
+	private Map<String, Object> cfg = new HashMap<String, Object>();
+}
+```
+
+mybaits映射的mapper内容：
+
+```shell
+<select id="loadAllDwTree" resultMap="query_treeNode">
+    select c_id, c_name, c_ssdw from table
+</select>
+
+<resultMap id="query_treeNode" type="TreeNode">
+    <id column="c_id" property="id" />
+    <result column="c_name" property="name" />
+    <association property="cfg" resultMap="cfgMapper" />
+<resultMap>
+
+<resultMap id="cfgMapper">
+    <result column="c_ssdw" property="ssdw" />
+</resultMap>
+```
+
+这样查询，就能得到TreeNode的映射，对应pojo的json结果：
+
+```json
+{
+    "id":"xxx",
+    "name": "xxxx",
+    "cfg": {"ssdw": "xxx"}
+}
+```
+
+这样就得到了将sql结果集中部分字段（这里配置一个，实际可配置多个字段）映射为pojo中的hashmap类型。
 
 ---
