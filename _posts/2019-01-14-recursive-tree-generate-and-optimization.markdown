@@ -160,6 +160,8 @@ Mapper文件：
 
 <h3 id="4">基础数据加载到内存后递归调用方法</h3>
 
+**使用mybatis <collection>先映射children属性，再递归串联起来整颗树**
+
 再考虑，需要将每个节点及其子节点的数据都先出来，在递归中使用到的时候不去数据库查询，而直接从内存中读取，这样就不存在性能的问题了。
 
 Mapper文件：
@@ -202,5 +204,184 @@ Mapper文件：
             
         }
     }
+
+**不使用mybatis <collection>映射children属性，查出基本的属性后递归构建树**
+
+基本映射pojo类：
+
+```java
+package com.thunisoft.artery.service.ywdm.bean;
+
+public class Ywdm {
+
+    private Integer pid;
+    private Integer dm;
+    private String mc;
+    private Integer kwh;
+    private String fjxx;
+    private Integer yx;
+    private Integer xssx;
+    private String dmjp;
+    private String jb;
+
+    //omit setter and getter 
+}
+
+```
+
+树节点pojo类：
+
+```java
+public class JqSTNode {
+	/** 节点的id，唯一 */
+	private String id;
+
+	/** 节点的类型 */
+	private String type;
+
+	/** 节点的显示名称 */
+	private String name;
+
+	/** 是否为父节点 */
+	private Boolean isParent = false;
+
+	/** 是否直接展开此节点，仅非异步加载时生效 */
+	private Boolean open = false;
+
+	/** checkbox/radio是否勾选 */
+	private Boolean checked = false;
+
+	/** checkbox/radio是否隐藏 */
+	private Boolean nocheck = false;
+
+	/** checkbox/radio是否禁用 */
+	private Boolean chkDisabled = false;
+
+	/** 图标的URL路径 */
+	private String icon;
+
+	/** 父节点折叠时图标的URL路径 */
+	private String iconClose;
+
+	/** 父节点展开时图标的URL路径 */
+	private String iconOpen;
+
+	/** 图标的className */
+	private String iconSkin;
+
+	/** 子节点 */
+	private List<JqSTNode> children;
+
+	/** 父节点：后台使用，不输出到前台json数据中 */
+	private JqSTNode parent;
+	
+	/** 用户自定义参数，输出到前台  */
+	private Map<String, Object> custParams;
+	
+	private String title;
+
+	public void setChildren(List<JqSTNode> children) {
+		this.children = children;
+		if (null != this.children && !this.children.isEmpty()) {
+			for (JqSTNode jqSTNode : children) {
+				jqSTNode.setParent(this);
+			}
+		}
+	}
+
+	public Map<String, Object> getCustParams() {
+		if (custParams == null) {
+			custParams = new HashMap<String, Object>();
+		}
+		return custParams;
+    }
+
+    // omit unnecessary setting and getter
+}
+```
+
+mybatis基本查询映射：
+
+```shell
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.thunisoft.artery.service.ywdm.bean.Ywdm">
+		<id column="n_dm" property="dm" />
+		<result column="n_bh_dmlx" property="pid" />
+		<result column="c_mc" property="mc" />
+		<result column="n_kwh" property="kwh" />
+		<result column="c_fjxx" property="fjxx" />
+		<result column="n_yx" property="yx" />
+		<result column="n_xssx" property="xssx" />
+		<result column="c_dmjp" property="dmjp" />
+		<result column="c_jb" property="jb" />
+	</resultMap>
+
+	<sql id="base_column_sql">
+		n_bh_dmlx,n_dm,c_mc,n_kwh,c_fjxx,n_yx,n_xssx,c_dmjp,c_jb
+	</sql>
+
+	<select id="selectByPid" resultMap="BaseResultMap">
+		select
+		<include refid="base_column_sql"></include>
+		from schema.table
+		where n_bh_dmlx = #{pid}
+		order by n_xssx
+	</select>
+```
+
+业务代码构建树：
+
+```java
+public class YwdmService {
+
+    @Resource
+    private YwdmMapper ywdmMapper;
+
+    public List<Ywdm> selectByPid(Integer pid){
+        return ywdmMapper.selectByPid(pid);
+    }
+
+    //基础映射pojo到树节点pojo赋值
+    public List<JqSTNode> loadTree(Integer pid) {
+        List<JqSTNode> allNodes = Lists.newArrayList();
+        List<Ywdm> ywdms = ywdmMapper.selectByPid(pid);
+        ywdms.forEach(dm ->{
+            JqSTNode node = new JqSTNode();
+            node.setId(String.valueOf(dm.getDm()));
+            node.setName(dm.getMc());
+            node.setIsParent(StringUtils.isBlank(dm.getFjxx()));
+            Map<String, Object> params = Maps.newHashMap();
+            params.put("fid", dm.getFjxx());
+            node.setCustParams(params);
+            allNodes.add(node);
+        });
+        return recursiveGetList(allNodes);
+    }
+
+    //递归设置children
+    private List<JqSTNode> getChildNode(JqSTNode dm, List<JqSTNode> allNodes) {
+        List<JqSTNode> childNodeList = allNodes.stream().filter(node -> StringUtils.equals(String.valueOf(node.getCustParams().get("fid")), dm.getId())).map(
+                entity ->{
+                    entity.setChildren(getChildNode(entity, allNodes));
+                    return entity;
+                }).collect(Collectors.toList());
+        return childNodeList;
+    }
+
+    //构建树
+    public List<JqSTNode> recursiveGetList(List<JqSTNode> allNodes) {
+
+        List<JqSTNode> collect = allNodes.stream().filter(node -> node.getIsParent()).map(dm -> {
+            dm.setChildren(getChildNode(dm, allNodes));
+            if(CollectionUtils.isEmpty(dm.getChildren())){
+                dm.setIsParent(false);
+            }
+            return dm;
+        }).collect(Collectors.toList());
+        return collect;
+    }
+
+}
+```
 
 ---
