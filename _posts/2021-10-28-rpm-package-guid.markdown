@@ -554,41 +554,130 @@ install:
 
 <h3 id="5.6">5.6 准备打包的源代码</h3>
 
+> 这一部分中的代码可以在[这里]($COPY)找到。
 
+开发人员常常会用压缩包的方式发布源代码并用来创建RPM包，这一部分你讲学习制作这样的压缩包。
+
+> 创建源代码压缩包往往不是RPM打包人员做的事情，而是由开发人员负责。RPM打包人员打包时会拿到准备好的压缩包。
+
+软件应该用某一个[license]($COPY$)发布，例如我们将要使用的[GPLv3]($COPY$)。每一个软件包当中应该有一个`LICENSE`文件指定license的内容。RPM打包人员在打包时要处理license文件。
+
+接下来的示例使用的license内容如下：
+
+```shell
+$COPY$
+```
 
 <h3 id="5.7">5.7 将源代码放入压缩文件中</h3>
 
-
+接下来的示例，我们分别将三个不同语言版本的Hello World放在三个[gzip]($COPY$)压缩包中。软件总是用这种方式发布并进一步打包。
 
 <h4 id="5.7.1">5.7.1 bello</h4>
 
+`bello`程序使用[bash]($COPY)语言实现Hello World，源代码中仅仅包含bello bash脚本。因此，结果的tar.gz压缩包中除了LICENSE文件只包含一个文件。我们假设程序的版本是`0.1`。
 
+准备bello项目的发布包：
+
+1). 将文件放入单独的一个目录中：
+
+```shell
+$COPY$
+```
+
+2). 将目录打成压缩包并移动到`~/rpmbuild/SOURCES/`目录中：
+
+```shell
+$COPY
+```
 
 <h4 id="5.7.2">5.7.2 pello</h4>
 
+`pello`程序使用[Python]($COPY)语言实现Hello World，源代码中仅仅包含`python.py`程序。因此，结果的tar.gz压缩包中除了LICENSE文件只包含一个文件。我们假设程序的版本是`0.1.1`。
 
+准备pello项目的发布包：
+
+1). 将文件放入单独的一个目录中：
+
+```shell
+$COPY$
+```
+
+2). 将目录打成压缩包并移动到`~/rpmbuild/SOURCES/`目录中：
+
+```shell
+$COPY
+```
 
 <h4 id="5.7.3">5.7.3 cello</h4>
 
+`cello`程序使用[c]($COPY)语言实现Hello World，源代码中仅仅包含`cello.c`和`Makefile`文件。因此，结果的tar.gz压缩包中除了LICENSE文件只包含两个文件。我们假设程序的版本是`1.0`。
 
+> 补丁包没有和发布包一起放在压缩文件中，RPM打包人员在RPM构建后进行程序打补丁。补丁包和`.tar.gz`一起放在`~/rpmbuild/SOURCES/`目录中。
+
+准备cello项目的发布包：
+
+1). 将文件放入单独的一个目录中：
+
+```shell
+$COPY$
+```
+
+2). 将目录打成压缩包并移动到`~/rpmbuild/SOURCES/`目录中：
+
+```shell
+$COPY
+```
+
+3). 添加patch
+
+```shell
+$COPY$
+```
+
+现在要打RPM包的源代码都准备好了。
 
 ---
 
 <h2 id="6">6. 打包程序</h2>
 
+本指南介绍红帽系列Linux发行版的RPM打包，主要包括：
 
+- Fedora
+- Centos
+- Red Hat Enterprise Linux(RHEL)
+
+这些Linux发行版使用rpm包。
+
+尽管我们的目标环境重要是上述Linux发行版，本指南适合所有[RPM based]($COPY$)的发行版。需要注意的是本指南中使用的命令需要适配为发行版特定的方式。
+
+本指南假设你没有任何给操作系统（Linux或者其他）打包软件的经验。
+
+> 如果你不了解什么是一个软件RPM包或者GUN/Linux发行版，可以访问[Linux]($COPY)和[Package Manager]($COPY)进行了解。
 
 <h3 id="6.1">6.1 RPM Packages</h3>
 
-
+这一部分中会介绍RPM打包的基础，高级主题请访问[Advanced Topics]($COPY$)。
 
 <h4 id="6.1.1">6.1.1 什么是RPM包？</h4>
 
+RPM包是一个包含其他文件和系统须知元信息的文件。具体来说，RPM包中包含[cpio]($COPY)压缩文件和RPM头，压缩文件就是文件的压缩包，RPM头包含了该RPM包的元信息。RPM打包人员利用包元信息决定如何解决依赖关系、在哪些路径安装软件和其他信息。
 
+有两种类型的RPM包：
+
+- 源代码RPM包(SRPM)
+- 二进制RPM包
+
+源代码RPM包和二进制RPM包有同样的文件格式和操作方式，但是它们有不同的内容和用途。一个源代码RPM包含源代码和一个`SPEC`文件，也有可能包含补丁文件，用来描述如何将源代码打包为RPM。二进制RPM包是从源代码和补丁构建成的二进制文件。
 
 <h4 id="6.1.2">6.1.2 RPM Packaging工具</h4>
 
+在[2. 准备](#2)章节中安装的rpmdevtools包提供了打包RPM的一些工具，列出来这些工具可以执行：
 
+```shell
+$COPY$
+```
+
+查看这些工具的详细使用方法可以看它们对应的`man page`。
 
 <h4 id="6.1.3">6.1.3 RPM Packaging Workspace</h4>
 
