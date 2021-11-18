@@ -284,4 +284,16 @@ select pg_terminate_backend(procpid) from pg_stat_activity where current_query='
 
 **当我们在`sql`中使用聚合函数的时候，select查询字段正常只能是聚合字段，除非这个字段依赖于聚合字段。如果聚合的字段是这个表的主键，那么其他字段和主键都是依赖关系（1对1），因此上面`sql`非`group by`字段可以出现在select字段中。也可以理解当`group by`主键的时候，相当于`group by`了这个表的所有字段。**
 
+**PostgreSQL指定端口启动**
+
+```shell
+pg_ctl -o "-F -p 5432" start -D "${DATA_DIR}" -w
+```
+
+**PostgreSQL jdbcurl search_path vs currentSchema**
+
+postgre jdbcurl 9.4和9.4+的驱动版本支持`?currentSchema`指定searchpath；之前的版本支持`?searchpath`指定searchpath。
+
+> 这里的currentSchema语义上容易误解，英文单词的意思是当前schema，实际上可以指定多个searchpath，用逗号分开。例如：`currentSchema=db_abc,db_defx,...`
+
 ---
