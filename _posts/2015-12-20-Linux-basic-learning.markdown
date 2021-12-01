@@ -747,7 +747,7 @@ Linux环境中如果没有gcc,安装group: `Development Tools`
 
 被动模式(Passive)工作原理：由客户端发起PASV(passive mode)的数据传输通道连接请求。客户端被动接受，所以称为被动模式。
 
-**Active、Passive配置：**
+**Vsftpd Active、Passive配置：**
 
 ```
 pasv_enable=NO #(passive模式关闭)
@@ -755,6 +755,24 @@ pasv_min_port=3000
 pasv_max_port=4000
 port_enable=YES #(active模式开启)
 connect_from_port_20=YES #(默认Active Mode情况下server端数据传输通过20端口)
+```
+
+**Apache FTP Active、Passive配置：**
+
+修改配置文件：`$FTP_HOME/res/conf/ftpd-typical.xml`
+
+```shell
+<listeners>
+	<nio-listener name="default" port="2121">
+		<ssl>
+			<keystore file="./res/ftpserver.jks" password="password" />
+		</ssl>
+		<data-connection idle-timeout="60">
+			<active enabled="true" local-address="0.0.0.0" local-port="2120" ip-check="true" />
+			<passive ports="10000-20000" address="0.0.0.0" external-address="0.0.0.0" />
+		</data-connection>
+	</nio-listener>
+</listeners>
 ```
 
 <h5 id="6.6.1">6.6.1 ftp映射本地Linux目录</h5>
