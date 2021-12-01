@@ -42,6 +42,7 @@ comment: false
         - [6.6.2 lftp下载ftp数据](#6.6.2)
         - [6.6.3 将FTP文件映射为本地目录](#6.6.3)
         - [6.6.4 将本地的一个目录挂载到另外一个目录上](#6.6.4)
+        - [6.6.5 curl命令也可以交互ftp](#6.6.5)
 - [7. 日常小技巧](#7)
     - [7.1 监控某个端口的数据](#7.1)
     - [7.2 浏览器中点点点密码显示](#7.2)
@@ -254,6 +255,13 @@ sed -n '<line_num_start>, <line_num_end>p' filename：显示文档的第start行
 **启用用户：**
 
 `usermod -U user1`
+
+**修改账号和密码的有效期限**
+
+```shell
+#修改用户密码保持有效的最大天数
+chage -M 180 USER_NAME
+```
 
 <h4 id="2.5">文件压缩</h4>
 
@@ -868,6 +876,14 @@ mount -o bind /path/to/folder /path/to/newfolder
 ```
 
 详细参考文章：[https://gamblisfx.com/how-to-mount-a-folder-to-another-folder-on-linux/](https://gamblisfx.com/how-to-mount-a-folder-to-another-folder-on-linux/)
+
+<h5 id="6.6.5">6.6.5 curl命令也可以交互ftp</h5>
+
+从ftp下载`xxx.txt`文件：`curl ftp://141.151.1.102:8080 -u admin:123456 -o xxx.txt`
+
+从ftp上传`xxx.txt`文件：`curl ftp://141.151.1.102:8080 -u admin:123456 -T xxx.txt`
+
+ftp展示目录：`curl ftp://141.151.1.102:8080 -u admin:123456 -s`
 
 ---
 
