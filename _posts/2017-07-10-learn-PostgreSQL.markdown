@@ -216,7 +216,7 @@ select tablename,indexdef from pg_indexes where tablename ='${table_name}'
 
 **postgre日志开启**
 
-```
+```shell
 --日志位置：$PG_DATA/logs
 
 --打开慢sql记录 如果sql运行1000ms，则日志该sql
@@ -225,14 +225,33 @@ alter system set log_min_duration_statement=1000
 select pg_reload_conf()
 
 --用psql登陆数据库，然后开启记录时间 \timing，再然后 copy 导出表数据到本地看看，两边所花费的时间
+
+#开启日志明细
+alter system set log_min_duration_statement=500;
+alter system set shared_preload_libraries = auto_explain,sys_stat_statements;
+重启库，然后
+alter system set auto_explain.log_min_duration='500';
+alter system set auto_explain.log_analyze='on';
+alter system set auto_explain.log_buffers='on';
+alter system set auto_explain.log_verbose='on';
+select pg_reload_conf();
 ```
+
+**postgresql关闭nested loop join**
+
+```sql
+alter system set enable_nestloop=false; #postgre数据库可以直接修改`postgresql.conf`文件
+select pg_reload_conf();
+```
+
+> 线上发现一个SQL用的是临时表，关联另外一个表，这两个表的数据量都不超过1w，但是关联下来用时长达25s。使用`EXPLAIN ANALYZE`查看执行计划，发现两张表join的时候用的是`nested loop join`，也是最花费时间的地方。将`enable_nestloop`参数关闭之后，查询变为了1s多。如果用`left join`直接关联临时表，则执行计划走的是`hash join`，不太明白临时表执行计划为什么走`netsted loop join`，并且当数据量翻几倍之后执行计划就会走`hash join`了。
 
 **postgre获取所有表-自定义函数**
 
 ```
 CREATE 
 	OR REPLACE FUNCTION getalltables ( schemaname VARCHAR ) RETURNS VARCHAR AS $$ BEGIN
-RETURN (SELECT
+RETURN (SELEC
 	string_agg ( table_name, ', ' ) 
 FROM
 	information_schema.TABLES 
