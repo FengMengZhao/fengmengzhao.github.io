@@ -25,7 +25,7 @@ comment: false
 
 <h3 id="2">2. 尝试破案</h3>
 
-因为没有任何错误日志输出，首先想到的是由于操作系统资源限制导致的，比如内存、CPU、socket连接数、打开文件数等。如果是这样，操作系统级别会杀死进程，会记录相关日志。
+因为没有任何错误日志输出，首先想到的是由于操作系统资源限制导致的，比如内存、CPU、socket连接数、打开文件数等。如果是这样，操作系统级别会杀死进程并记录相关日志。
 
 **1. 查看系统级别的日志**
 
@@ -138,6 +138,165 @@ nohup strace -T -tt -e trace=all -p $(netstat -tnalp | grep 7001 | grep LISTEN |
 
 另外架构师说很可能是Linux X Server调用的问题，本地环境复现一下，果然是这个问题。
 
-具体的是：在系统中有流程相关的功能，该功能会使用java的`awt`库调出来图形化界面或产生图形化相关的东西
+具体是：在系统中有流程相关的功能，该功能会使用java的`awt`库调出来gui图形化界面，而gui的绘制是调用服务端启动环境的`X DISPLAY Server`，当服务端启动shell窗口关闭后，客户在点击流程功能，服务端不能找到`X DISPLAY Server`环境，系统就自己退出了。
+
+> 这里应该程序上是有一些问题的，`awt`库找不到`X DISPLAY Server`环境应该会报错的，而日志上没有任何体现，这也是问题难以找到的原因。
+
+怎样修改呢？需要添加JVM参数：`-Djava.awt.headless=true`，该参数的含义是告诉JVM，该运行环境没有相关显示屏、鼠标、键盘等硬件，可以利用计算机后台的资源满足`awt`相关的调用（不是所有图形化的内容都需要显示服务的，比如在后台产生一些图片就不需要显示屏）。来看一下demo理解一下这个参数：
+
+
+
+```java
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+public class Calculator {
+    static double num;
+    public static void main(String[] args) {
+	//System.setProperty("java.awt.headless", "true");
+	System.setProperty("java.awt.headless", "false");
+	System.out.println("是否是headless环境：" + java.awt.GraphicsEnvironment.isHeadless());
+    System.out.println("java.awt.headless 默认值：" + System.getProperty("java.awt.headless"));
+	// set up frame
+	JFrame frame = new JFrame();
+	frame.setSize(500, 500);
+	frame.setTitle("Simple Calculator");
+	frame.setLocationByPlatform(true);
+	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+	// set up panel
+	JPanel panel = new JPanel();
+	// set layout to 5x2 grid layout
+	panel.setLayout(new GridLayout(5, 2));
+
+	// set up answer label
+	JLabel answer = new JLabel();
+
+	// set up number text fields
+	JTextField num1 = new JTextField();
+	JTextField num2 = new JTextField();
+
+	// set up buttons
+	JButton add = new JButton();
+	add.setText("+");
+	add.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			try {
+				num = Double.parseDouble(num1.getText())
+				+ Double.parseDouble(num2.getText());
+				answer.setText(Double.toString(num));
+			} catch (Exception e) {
+				answer.setText("Error!");
+			}
+		}
+	});
+	JButton sub = new JButton();
+	sub.setText("-");
+	sub.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			try {
+				num = Double.parseDouble(num1.getText())
+				- Double.parseDouble(num2.getText());
+				answer.setText(Double.toString(num));
+			} catch (Exception e) {
+				answer.setText("Error!");
+			}
+		}
+	});
+	JButton mul = new JButton();
+	mul.setText("*");
+	mul.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			try {
+				num = Double.parseDouble(num1.getText())
+				* Double.parseDouble(num2.getText());
+				answer.setText(Double.toString(num));
+			} catch (Exception e) {
+				answer.setText("Error!");
+			}
+		}
+	});
+	JButton div = new JButton();
+	div.setText("/");
+	div.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			try {
+				num = Double.parseDouble(num1.getText())
+				/ Double.parseDouble(num2.getText());
+				answer.setText(Double.toString(num));
+			} catch (Exception e) {
+				answer.setText("Error!");
+			}
+		}
+	});
+
+	// add components to panel
+	panel.add(new JLabel("Number 1"));
+	panel.add(new JLabel("Number 2"));
+	panel.add(num1);
+	panel.add(num2);
+	panel.add(add);
+	panel.add(sub);
+	panel.add(mul);
+	panel.add(div);
+	panel.add(new JLabel("Answer"));
+	panel.add(answer);
+
+	// add panel to frame and make it visible
+	frame.add(panel);
+	frame.setVisible(true);
+    }
+}
+```
+
+执行代码，如果是Oracle JDK1.8，默认是`java.awt.headless`是`false`，而openjdk默认值是`true`。上面的代码打开一个简单的gui的计算器，如果设置`java.awt.headless=true`，就是告诉JVM没有相关的显示服务，就会报错：
+
+上面代码设置`java.awt.headless=true`，报错如下：
+
+![](/img/posts/java_awt_headless-set-true-use-awt-get-gui-error.png)
+
+> 为什么报错呢？awt要调出来gui程序，JVM参数headless的false设置告诉JVM运行环境没有显示服务的
+
+上面代码设置`java.awt.headless=false`，执行输出：
+
+![](/img/posts/java_awt_headless-set-false-use-awt-error-display-not-working.png)
+
+这里报错信息是不能连接到启动环境中的`X DISPLAY Server`，本地环境中有安装Microsoft VcXsrv X Server，设置的display port为`3600`，因此在JVM启动的shell环境中设置`export DISPLAY=172.26.18.37:3600`，重新执行：
+
+![](/img/posts/java_awt_headless-set-false-use-awt-error-display-working.png)
+
+那`java.awt.headless=true`什么场景时候用呢？比如，要生成图片，没有用到显示服务，但是用`awt`库，下面demo所示：
+
+```java
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import javax.imageio.ImageIO;
+
+public class TestCHSGraphic {
+
+    public static void main (String[] args) throws Exception {
+        // 设置Headless模式
+        //System.setProperty("java.awt.headless", "true");
+        //System.setProperty("java.awt.headless", "false");
+        System.out.println("是否是headless环境：" + java.awt.GraphicsEnvironment.isHeadless());
+        System.out.println("java.awt.headless 默认值：" + System.getProperty("java.awt.headless"));
+
+        BufferedImage bi = new BufferedImage(200, 100, BufferedImage.TYPE_INT_RGB);
+
+        Graphics g = bi.getGraphics();
+        g.drawString(new String("Headless Test".getBytes(), "utf-8"), 50, 50);
+
+        ImageIO.write(bi, "jpeg", new File("test.jpg"));
+    }
+
+}
+```
+
+> 这里如果`java.awt.headless`设置为`false`，并且在JVM的运行环境中没有`X DISPLAY Server`，就会出现和上面一样找不到`X DISPLAY Server`的报错。
 
 ---
