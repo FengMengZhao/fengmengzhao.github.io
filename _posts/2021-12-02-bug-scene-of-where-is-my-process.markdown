@@ -81,13 +81,13 @@ done
 
 分析日志发现：
 
-JVM堆内存从3G到接近14G（JVM设置的是最大堆内存16G），然后JVM会不时进行GC，内存就会降下来，没有出现堆内存溢出情况。
+JVM堆内存从3G到接近14G（JVM设置的是最大堆内存16G），然后JVM会进行GC，内存就会降下来，如此往复。没有出现堆内存溢出情况。
 
 JAVA进程的内存不断增大，最后维持在16G左右（系统内存是256G，还非常充裕）。
 
 > 当JVM进行GC的时候JVM堆内存是回收了一部分，但是对于分配给操作系统JAVA进程的内存不会回收。在JVM堆中GC时，释放的内存只是标记内存空间可用。所以这也是为什么系统级别JAVA进程内存一直增大，最后维持一个较大的值不变（这种是堆外内存正常的情况，有另外一种情况堆外内存持续增加最终导致内存过大，进程被OS杀死，这样的情况是一些其他原因造成堆外内存异常增长，就要想办法找出导致堆外内存异常增长的原因）。
 
-本宕机系统的监控显示：内存确实没有问题：堆内存增加到一定程度后JVM GC会将下来，系统进程内存最后在一个稳定的值。
+本宕机系统的监控显示：内存确实没有问题：堆内存增加到一定程度后JVM进行GC，堆内存会将下来，系统进程内存最后处在一个稳定的值。
 
 至此，笔者已经尽了最大的努力，没有找到实际的问题，只能写一个重启脚本，让宕机的系统在5分钟内重启：
 
@@ -138,9 +138,9 @@ nohup strace -T -tt -e trace=all -p $(netstat -tnalp | grep 7001 | grep LISTEN |
 
 另外架构师说很可能是Linux X Server调用的问题，本地环境复现一下，果然是这个问题。
 
-具体是：在系统中有流程相关的功能，该功能会使用java的`awt`库调出来gui图形化界面，而gui的绘制是调用服务端启动环境的`X DISPLAY Server`，当服务端启动shell窗口关闭后，客户在点击流程功能，服务端不能找到`X DISPLAY Server`环境，系统就自己退出了。
+具体是：在系统中有流程相关的功能，该功能会使用java的`awt`库调出来gui图形化界面，而gui的绘制是调用服务端启动环境的`X DISPLAY Server`，当服务端启动shell窗口关闭后，客户再点击流程功能，服务端不能找到`X DISPLAY Server`环境，系统就自己退出了。
 
-> 这里应该程序上是有一些问题的，`awt`库找不到`X DISPLAY Server`环境应该会报错的，而日志上没有任何体现，这也是问题难以找到的原因。
+> 这里应该是程序日志处理上有一些问题，`awt`库找不到`X DISPLAY Server`环境应该会报错的，而日志上没有任何体现，这也是问题难以找到的原因。
 
 怎样修改呢？需要添加JVM参数：`-Djava.awt.headless=true`，该参数的含义是告诉JVM，该运行环境没有相关显示屏、鼠标、键盘等硬件，可以利用计算机后台的资源满足`awt`相关的调用（不是所有图形化的内容都需要显示服务的，比如在后台产生一些图片就不需要显示屏）。来看一下demo理解一下这个参数：
 
@@ -153,119 +153,117 @@ import java.awt.event.*;
 public class Calculator {
     static double num;
     public static void main(String[] args) {
-	//System.setProperty("java.awt.headless", "true");
-	System.setProperty("java.awt.headless", "false");
-	System.out.println("是否是headless环境：" + java.awt.GraphicsEnvironment.isHeadless());
-    System.out.println("java.awt.headless 默认值：" + System.getProperty("java.awt.headless"));
-	// set up frame
-	JFrame frame = new JFrame();
-	frame.setSize(500, 500);
-	frame.setTitle("Simple Calculator");
-	frame.setLocationByPlatform(true);
-	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //System.setProperty("java.awt.headless", "true");
+        System.setProperty("java.awt.headless", "false");
+        System.out.println("是否是headless环境：" + java.awt.GraphicsEnvironment.isHeadless());
+        System.out.println("java.awt.headless 默认值：" + System.getProperty("java.awt.headless"));
+        // set up frame
+        JFrame frame = new JFrame();
+        frame.setSize(500, 500);
+        frame.setTitle("Simple Calculator");
+        frame.setLocationByPlatform(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-	// set up panel
-	JPanel panel = new JPanel();
-	// set layout to 5x2 grid layout
-	panel.setLayout(new GridLayout(5, 2));
+        // set up panel
+        JPanel panel = new JPanel();
+        // set layout to 5x2 grid layout
+        panel.setLayout(new GridLayout(5, 2));
 
-	// set up answer label
-	JLabel answer = new JLabel();
+        // set up answer label
+        JLabel answer = new JLabel();
 
-	// set up number text fields
-	JTextField num1 = new JTextField();
-	JTextField num2 = new JTextField();
+        // set up number text fields
+        JTextField num1 = new JTextField();
+        JTextField num2 = new JTextField();
 
-	// set up buttons
-	JButton add = new JButton();
-	add.setText("+");
-	add.addActionListener(new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			try {
-				num = Double.parseDouble(num1.getText())
-				+ Double.parseDouble(num2.getText());
-				answer.setText(Double.toString(num));
-			} catch (Exception e) {
-				answer.setText("Error!");
-			}
-		}
-	});
-	JButton sub = new JButton();
-	sub.setText("-");
-	sub.addActionListener(new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			try {
-				num = Double.parseDouble(num1.getText())
-				- Double.parseDouble(num2.getText());
-				answer.setText(Double.toString(num));
-			} catch (Exception e) {
-				answer.setText("Error!");
-			}
-		}
-	});
-	JButton mul = new JButton();
-	mul.setText("*");
-	mul.addActionListener(new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			try {
-				num = Double.parseDouble(num1.getText())
-				* Double.parseDouble(num2.getText());
-				answer.setText(Double.toString(num));
-			} catch (Exception e) {
-				answer.setText("Error!");
-			}
-		}
-	});
-	JButton div = new JButton();
-	div.setText("/");
-	div.addActionListener(new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			try {
-				num = Double.parseDouble(num1.getText())
-				/ Double.parseDouble(num2.getText());
-				answer.setText(Double.toString(num));
-			} catch (Exception e) {
-				answer.setText("Error!");
-			}
-		}
-	});
+        // set up buttons
+        JButton add = new JButton();
+        add.setText("+");
+        add.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                try {
+                    num = Double.parseDouble(num1.getText())
+                    + Double.parseDouble(num2.getText());
+                    answer.setText(Double.toString(num));
+                } catch (Exception e) {
+                    answer.setText("Error!");
+                }
+            }
+        });
+        JButton sub = new JButton();
+        sub.setText("-");
+        sub.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                try {
+                    num = Double.parseDouble(num1.getText())
+                    - Double.parseDouble(num2.getText());
+                    answer.setText(Double.toString(num));
+                } catch (Exception e) {
+                    answer.setText("Error!");
+                }
+            }
+        });
+        JButton mul = new JButton();
+        mul.setText("*");
+        mul.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                try {
+                    num = Double.parseDouble(num1.getText())
+                    * Double.parseDouble(num2.getText());
+                    answer.setText(Double.toString(num));
+                } catch (Exception e) {
+                    answer.setText("Error!");
+                }
+            }
+        });
+        JButton div = new JButton();
+        div.setText("/");
+        div.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                try {
+                    num = Double.parseDouble(num1.getText())
+                    / Double.parseDouble(num2.getText());
+                    answer.setText(Double.toString(num));
+                } catch (Exception e) {
+                    answer.setText("Error!");
+                }
+            }
+        });
 
-	// add components to panel
-	panel.add(new JLabel("Number 1"));
-	panel.add(new JLabel("Number 2"));
-	panel.add(num1);
-	panel.add(num2);
-	panel.add(add);
-	panel.add(sub);
-	panel.add(mul);
-	panel.add(div);
-	panel.add(new JLabel("Answer"));
-	panel.add(answer);
+        // add components to panel
+        panel.add(new JLabel("Number 1"));
+        panel.add(new JLabel("Number 2"));
+        panel.add(num1);
+        panel.add(num2);
+        panel.add(add);
+        panel.add(sub);
+        panel.add(mul);
+        panel.add(div);
+        panel.add(new JLabel("Answer"));
+        panel.add(answer);
 
-	// add panel to frame and make it visible
-	frame.add(panel);
-	frame.setVisible(true);
+        // add panel to frame and make it visible
+        frame.add(panel);
+        frame.setVisible(true);
     }
 }
 ```
 
 执行代码，如果是Oracle JDK1.8，默认是`java.awt.headless`是`false`，而openjdk默认值是`true`。上面的代码打开一个简单的gui的计算器，如果设置`java.awt.headless=true`，就是告诉JVM没有相关的显示服务，就会报错：
 
-上面代码设置`java.awt.headless=true`，报错如下：
-
 ![](/img/posts/java_awt_headless-set-true-use-awt-get-gui-error.png)
 
-> 为什么报错呢？awt要调出来gui程序，JVM参数headless的false设置告诉JVM运行环境没有显示服务的
+> 为什么报错呢？awt要调出来gui程序，JVM参数headless的`true`设置告诉JVM运行环境没有显示服务，不支持gui程序。
 
 上面代码设置`java.awt.headless=false`，执行输出：
 
 ![](/img/posts/java_awt_headless-set-false-use-awt-error-display-not-working.png)
 
-这里报错信息是不能连接到启动环境中的`X DISPLAY Server`，本地环境中有安装Microsoft VcXsrv X Server，设置的display port为`3600`，因此在JVM启动的shell环境中设置`export DISPLAY=172.26.18.37:3600`，重新执行：
+这里报错信息是不能连接到启动环境中的`X DISPLAY Server`，本地环境中有安装`Microsoft VcXsrv X Server`，设置的display port为`3600`，因此在JVM启动的shell环境中设置`export DISPLAY=172.26.18.37:3600`，重新执行：
 
 ![](/img/posts/java_awt_headless-set-false-use-awt-error-display-working.png)
 
@@ -298,5 +296,13 @@ public class TestCHSGraphic {
 ```
 
 > 这里如果`java.awt.headless`设置为`false`，并且在JVM的运行环境中没有`X DISPLAY Server`，就会出现和上面一样找不到`X DISPLAY Server`的报错。
+
+<h3 id="4">4. 总结</h3>
+
+1. 不要先入为主，认为程序一定是被自杀或者他杀的。事实表明程序是自己退出的。
+2. 日志是解决问题的最佳突破口，如果有日志就从日志出发。没有日志也能说明一些问题，比如本例中要今早排除掉内存或者JVM crash导致问题的排查方向。
+3. 不能完全依赖日志，代码有时候处理不当会把日志吃掉。尝试复现问题能够找出突破口。
+4. 有些问题找不出原因可能是知识的盲区，多了解相关支持能帮助排查问题。
+5. 问题排查要一点点缩小排查范围，一定不能想当然，要像教孩子一样亲身实践，一点点排除。很多情况由于自己想当然，很小的点疏忽了，会浪费大量时间。
 
 ---
