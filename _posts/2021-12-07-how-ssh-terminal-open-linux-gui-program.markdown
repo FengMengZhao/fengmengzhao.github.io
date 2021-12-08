@@ -21,7 +21,7 @@ comment: false
 
 这里之所以说：**幸运的话**就能够调出达梦manager图形化界面，是因为访问同样的达梦服务器，有些时候在Linux SSH终端中能够打开成功，有些时候就会报错。比如说用`putty`连达梦数据库服务器，执行`./manager`就报错；用`MobaXterm`连服务端执行`./manager`就能够成功调出来。
 
-> 实际上在没有理解`X DISPLAY SERVER`之前是没有发现用不同的SSH客户端连接是造成打开达梦manager工具成功或者失败差异所在。
+> 实际上在没有理解`X DISPLAY SERVER`之前是没有发现用不同的SSH客户端连接是造成打开达梦manager工具成功或者失败差异所在。这里提前说明下，`putty`和`MobaXterm`打开达梦manager，前者失败后者成功的原因是后者自带`X DISPLAY SERVER`并开启`X Forwarding`功能。
 
 现象就是：不同的SSH终端，有时候能打开manager图形化管理工具，有些时候就打开失败（后台报错）。到底是什么问题呢？
 
