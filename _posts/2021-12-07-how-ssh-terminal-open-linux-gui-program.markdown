@@ -84,7 +84,7 @@ X11 Forwarding和DISPLAY环境变量设置是两个概念。DISPLAY是告诉你�
 
 <h3 id="3">3. 使用Microsoft VcXsrv打开Linux gui程序</h3>
 
-Windows系统的图形化是有内核程序支持的，因此Windows默认没有`DISPLAY SERVER`。我们如果远程Linux机器并且在Win本地打开Linux giu程序，就需要安装DISPLAY SERVER，这里使用的`DISPLAY SERVER`是`X DISPLAY SERVER`或者称之为`X SERVER`。
+Windows系统的图形化是有内核程序支持的，因此Windows默认没有`DISPLAY SERVER`。我们如果远程Linux机器并且在Win本地打开Linux gui程序，就需要安装DISPLAY SERVER，这里使用的`DISPLAY SERVER`是`X DISPLAY SERVER`或者称之为`X SERVER`。
 
 Windows经常用的X SERVER有`XManager`、`MobaXterm X SERVER`、`XMing`等。`MobaXterm`启动会默认在本地`6000`端口(6000端口也是X协议:0的默认端口)启动一个X SERVER并开启X Forwarding功能。当在windows通过ssh工具远程Linux并启动gui程序的时候，内核会调用环境变量中配置的`DISPLAY`服务绘制图形化界面，`DISPLAY`的值写为`IP:PORTOFFSET:0.0`的形式，会访问`IP:6000+PORTOFFSET`的X服务。我们试验一下：
 
@@ -104,15 +104,15 @@ Windows经常用的X SERVER有`XManager`、`MobaXterm X SERVER`、`XMing`等。`
 
 这时候就能够成功打开`jvisualvm`这个linux的gui程序了。
 
-> 这里的`$HOST`是安装VcXsrv的Windows的IP，保证`9600`端口和虚拟机是通的。
+> 这里的`$HOST`是安装VcXsrv的Windows的IP，保证`9600`端口和虚拟机是通的。这里的`DISPLAY NUM`这个端口是可以自定义设置的，这里设置为`3600`的原因是本机的`9600`端口和虚拟机是通的。
 
 <h3 id="4">4. 总结</h3>
 
-Unix like系统的gui程序图形化展示需要`Window System`服务的支持，服务的核心是`DISPLAY SERVER`。当图形化gui程序打开的时候，`DISPLAY SERVER`作为本地被调用服务端，而gui程序作为本地或远端客户端调用方存在，二者通过`display protocol`进行通信。
+Unix like系统的gui程序图形化展示需要`Window System`服务的支持，服务的核心是`DISPLAY SERVER`。当图形化gui程序打开的时候，`DISPLAY SERVER`作为本地被调用服务端，而gui程序作为本地或远端客户端调用方存在，二者通过`display protocol`进行通信。gui程序通过程序启动的环境变量`DISPLAY`获取要调用的`DISPLAY SERVER`地址，该默认值是`:0.0`，表示调用本机的`DISPLAY SERVER`。
 
 需要注意：
 
-1. 图形化gui程序和本地`DISPLAY SERVER`服务监听的端口之间是通的（如果有防火墙限制，服务调用会失败）。
+1. 图形化gui程序和本地`DISPLAY SERVER`服务监听的端口之间必须是通的（如果有防火墙限制，服务调用会失败）。
 2. 正确配置了`export DISPALY=x.x.x.x`之后，启动gui程序报错缺少`*.so`类库，则可能是类库版本有差异，在`/lib`或者`/lib64`找到名称类似版本不同的类库创建需要类库版本的软连接即可。命令：`ln -s /lib64/libxxx.so.6 /lib64/libxxx.so`将`/lib64/libxxx.so.6`创建一个软链接为`/lib64/libxxx.so`。
 
 <h3 id="5">5. 引用</h3>
