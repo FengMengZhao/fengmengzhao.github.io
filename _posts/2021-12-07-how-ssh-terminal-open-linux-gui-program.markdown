@@ -9,7 +9,10 @@ comment: false
 # 目录
 
 - [1. 引言](#1)
-- [2. X Server是什么？](#2)
+- [2. linux gui程序与Window System](#2)
+    - [2.1 Window System](#2.1)
+    - [2.2 DISPLAY SERVER](#2.2)
+    - [2.3 Linux gui程序如何展示图形化界面](#2.3)
 - [3. 使用Microsoft VcXsrv打开Linux gui程序](#3)
 - [4. 总结](#4)
 - [5. 引用](#5)
@@ -18,27 +21,33 @@ comment: false
 
 <h3 id="1">1. 引言</h3>
 
-工作中笔者接触到国产化达梦数据库，该数据库提供了图形化的管理工具`manager`。Windows上安装的达梦打开管理工具很简单，直接在`开始-->所有程序`中能找到`manager`管理工具；而Linux上安装的达梦，需要在安装位置中找到`tool`目录并执行`./manager`，幸运的话就能够调出达梦manager图形化界面。
+工作中笔者接触到国产化达梦数据库，该数据库提供了图形化的管理工具`manager`。Windows上安装的达梦打开管理工具很简单，直接在`开始-->所有程序`中能找到`manager`管理工具；而Linux上安装的达梦，需要在安装位置中找到`tool`目录（例如全路径`/home/dmdba/dmdbms/tool`）并执行`./manager`，幸运的话就能够调出达梦manager图形化界面。
 
 这里之所以说：**幸运的话**就能够调出达梦manager图形化界面，是因为连接同样的达梦服务器，有些时候在Linux SSH终端中能够打开成功manager管理工具，有些时候就会报错。比如说用`putty`连达梦数据库服务器，执行`./manager`就报错；用`MobaXterm`连服务端执行`./manager`就能够成功调出来。
 
-> 实际上在没有理解`X DISPLAY SERVER`之前是没有发现用不同的SSH客户端连接是造成打开达梦manager工具成功或者失败差异所在。这里提前说明下，`putty`和`MobaXterm`打开达梦manager，前者失败后者成功的原因是后者自带`X DISPLAY SERVER`并开启`X Forwarding`功能。
+> 实际上在没有理解`X DISPLAY SERVER`之前是没有发现用不同的SSH客户端连接是造成打开达梦manager工具成功或者失败差异所在。这里提前说明下，用`putty`和`MobaXterm`分别打开达梦manager，前者失败后者成功的原因是后者自带`X DISPLAY SERVER`并开启`X Forwarding`功能。
 
 现象就是：不同的SSH终端，有时候能打开manager图形化管理工具，有些时候就打开失败（后台报错）。到底是什么问题呢？
 
-把问题抽象一下，实际上Linux上运行的达梦manager就是一个Linux gui程序，那么问题就是**SSH终端怎么正确打开Linux gui程序？**一番查询之后，发现是知识的盲区`X DISPLAY SERVER`。
+把问题抽象一下，实际上Linux上运行的达梦manager就是一个Linux gui程序，那么问题就是**SSH终端怎么正确打开Linux gui程序？**一番查询之后，发现是知识的盲区`DISPLAY SERVER`。
 
-<h3 id="2">2. X Server是什么？</h3>
+<h3 id="2">2. linux gui程序与Window System</h3>
+
+<h4 id="2.1">2.1 Window System</h4>
 
 Windows系统中打开图形化应用程序很简单，这是因为Win程序的图形化功能是写在内核中的（微软在DOC系统之后发现了图形化界面的巨大商业价值，后来开发的操作系统内核级别就支持图形化内容）。Linux(或者POSIX)系统要支持图形化界面程序，需要`Window System`（Unix系统的哲学之一是：一个工具只做一件事并且把这件事做好，因此图形化显示在架构上也是解耦独立的）。`Window System`是一种实现了窗口、图标、菜单和像素点范式的gui。我们熟知的Unix操作系统大多使用`X Window System`，苹果的OSX系统使用`Quartz Compositor` Window System。
 
 > 注意这里的`Window System`不是`Windows System`，和微软的windows系统没有关系。
+
+<h4 id="2.2">2.2 DISPLAY SERVER</h4>
 
 `Window System`核心是`DISPLAY SERVER`（或者称为window Server、compositor）。一个调用了`DISPLAY SERVER`来显示图形化的程序称之为该`DISPLAY SERVER`的客户端（**client**）。
 
 既有client（调用`DISPLAY SERVER`服务的gui程序），也有server（`DISPLAY SERVER`），它们的交互可能涉及到协议（protocol），这种协议就称为**display server protocol**。目前`X Window System`的`X DISPLAY SERVER`使用的协议就是`X 11`（11表示的是版本）。
 
 `DISPLAY SERVER`的主要功能是协调操作系统、硬件和其他模块与gui程序之间的输入输出，它在图形化硬件上面提供一个抽象供更高级别（没错，Window System的设计是有层级的，这也体现了Unix系统的设计哲学）的图形化接口（例如`window manager`）使用。
+
+<h4 id="2.3">2.3 Linux gui程序如何展示图形化界面</h4>
 
 `Window System`图形化调用架构如下：
 
