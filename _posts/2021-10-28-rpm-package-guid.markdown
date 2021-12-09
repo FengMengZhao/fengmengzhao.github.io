@@ -554,7 +554,7 @@ install:
 
 <h3 id="5.6">5.6 准备打包的源代码</h3>
 
-> 这一部分中的代码可以在[这里]($COPY)找到。
+> 这一部分中的代码可以在[这里]($COPY$)找到。
 
 开发人员常常会用压缩包的方式发布源代码并用来创建RPM包，这一部分你讲学习制作这样的压缩包。
 
@@ -574,7 +574,7 @@ $COPY$
 
 <h4 id="5.7.1">5.7.1 bello</h4>
 
-`bello`程序使用[bash]($COPY)语言实现Hello World，源代码中仅仅包含bello bash脚本。因此，结果的tar.gz压缩包中除了LICENSE文件只包含一个文件。我们假设程序的版本是`0.1`。
+`bello`程序使用[bash]($COPY$)语言实现Hello World，源代码中仅仅包含bello bash脚本。因此，结果的tar.gz压缩包中除了LICENSE文件只包含一个文件。我们假设程序的版本是`0.1`。
 
 准备bello项目的发布包：
 
@@ -587,12 +587,12 @@ $COPY$
 2). 将目录打成压缩包并移动到`~/rpmbuild/SOURCES/`目录中：
 
 ```shell
-$COPY
+$COPY$
 ```
 
 <h4 id="5.7.2">5.7.2 pello</h4>
 
-`pello`程序使用[Python]($COPY)语言实现Hello World，源代码中仅仅包含`python.py`程序。因此，结果的tar.gz压缩包中除了LICENSE文件只包含一个文件。我们假设程序的版本是`0.1.1`。
+`pello`程序使用[Python]($COPY$)语言实现Hello World，源代码中仅仅包含`python.py`程序。因此，结果的tar.gz压缩包中除了LICENSE文件只包含一个文件。我们假设程序的版本是`0.1.1`。
 
 准备pello项目的发布包：
 
@@ -605,12 +605,12 @@ $COPY$
 2). 将目录打成压缩包并移动到`~/rpmbuild/SOURCES/`目录中：
 
 ```shell
-$COPY
+$COPY$
 ```
 
 <h4 id="5.7.3">5.7.3 cello</h4>
 
-`cello`程序使用[c]($COPY)语言实现Hello World，源代码中仅仅包含`cello.c`和`Makefile`文件。因此，结果的tar.gz压缩包中除了LICENSE文件只包含两个文件。我们假设程序的版本是`1.0`。
+`cello`程序使用[c]($COPY$)语言实现Hello World，源代码中仅仅包含`cello.c`和`Makefile`文件。因此，结果的tar.gz压缩包中除了LICENSE文件只包含两个文件。我们假设程序的版本是`1.0`。
 
 > 补丁包没有和发布包一起放在压缩文件中，RPM打包人员在RPM构建后进行程序打补丁。补丁包和`.tar.gz`一起放在`~/rpmbuild/SOURCES/`目录中。
 
@@ -625,7 +625,7 @@ $COPY$
 2). 将目录打成压缩包并移动到`~/rpmbuild/SOURCES/`目录中：
 
 ```shell
-$COPY
+$COPY$
 ```
 
 3). 添加patch
@@ -680,6 +680,14 @@ $COPY$
 查看这些工具的详细使用方法可以看它们对应的`man page`。
 
 <h4 id="6.1.3">6.1.3 RPM Packaging Workspace</h4>
+
+创建RPM打包workspace的目录结构需要使用`rpmdev-setuptree`工具：
+
+```shell
+$COPY$
+```
+
+创建的目录解释如下：
 
 
 

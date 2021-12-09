@@ -11,15 +11,16 @@ comment: false
 - [1. 引言](#1)
 - [2. X Server是什么？](#2)
 - [3. 使用Microsoft VcXsrv打开Linux gui程序](#3)
-- [4. 引用](#4)
+- [4. 总结](#4)
+- [5. 引用](#5)
 
 ---
 
 <h3 id="1">1. 引言</h3>
 
-工作中笔者接触到国产化达梦数据库，该数据库在提供了图形化的管理工具`manager`。Windows上安装的达梦打开管理工具很简单，直接在`开始-->所有程序`中能找到`manager`管理工具；而Linux上安装的达梦，需要在安装位置中找到`tool`目录并执行`./manager`，幸运的话就能够调出达梦manager图形化界面。
+工作中笔者接触到国产化达梦数据库，该数据库提供了图形化的管理工具`manager`。Windows上安装的达梦打开管理工具很简单，直接在`开始-->所有程序`中能找到`manager`管理工具；而Linux上安装的达梦，需要在安装位置中找到`tool`目录并执行`./manager`，幸运的话就能够调出达梦manager图形化界面。
 
-这里之所以说：**幸运的话**就能够调出达梦manager图形化界面，是因为访问同样的达梦服务器，有些时候在Linux SSH终端中能够打开成功，有些时候就会报错。比如说用`putty`连达梦数据库服务器，执行`./manager`就报错；用`MobaXterm`连服务端执行`./manager`就能够成功调出来。
+这里之所以说：**幸运的话**就能够调出达梦manager图形化界面，是因为连接同样的达梦服务器，有些时候在Linux SSH终端中能够打开成功manager管理工具，有些时候就会报错。比如说用`putty`连达梦数据库服务器，执行`./manager`就报错；用`MobaXterm`连服务端执行`./manager`就能够成功调出来。
 
 > 实际上在没有理解`X DISPLAY SERVER`之前是没有发现用不同的SSH客户端连接是造成打开达梦manager工具成功或者失败差异所在。这里提前说明下，`putty`和`MobaXterm`打开达梦manager，前者失败后者成功的原因是后者自带`X DISPLAY SERVER`并开启`X Forwarding`功能。
 
@@ -37,13 +38,13 @@ Windows系统中打开图形化应用程序很简单，这是因为Win程序的�
 
 既有client（调用`DISPLAY SERVER`服务的gui程序），也有server（`DISPLAY SERVER`），它们的交互可能涉及到协议（protocol），这种协议就称为**display server protocol**。目前`X Window System`的`X DISPLAY SERVER`使用的协议就是`X 11`（11表示的是版本）。
 
-`DISPLAY SERVER`的主要功能是协调操作系统、硬件和其他模块与gui程序之间的输入输出，它在图形化硬件上面提供提供一个抽象供更高级别（没错，Window System的设计是有层级的，这也体现了Unix系统的设计哲学）的图形化接口（例如`window manager`）使用。
+`DISPLAY SERVER`的主要功能是协调操作系统、硬件和其他模块与gui程序之间的输入输出，它在图形化硬件上面提供一个抽象供更高级别（没错，Window System的设计是有层级的，这也体现了Unix系统的设计哲学）的图形化接口（例如`window manager`）使用。
 
-`X Window System`图形化调用架构如下：
+`Window System`图形化调用架构如下：
 
 ![](/img/posts/x-server-hierarchical-design.png)
 
-如图所示，`DISPLAY SERVER`是`Window System`的核心所在。当你在Linux上打开一个gui程序的时候，该程序会调用`DISPLAY SERVER`的图形化显示服务。这个时候`DISPLAY SERVER`是服务端，而gui程序是客户端。这里和我们平时的理解有差异，一般我们任务服务端都是在远程端，而客户端是在本地，这里`DISPLAY SERVER`服务的调用是反过来。
+如图所示，`DISPLAY SERVER`是`Window System`的核心所在。当你在Linux上打开一个gui程序的时候，该程序会调用`DISPLAY SERVER`的图形化显示服务。这个时候`DISPLAY SERVER`是服务端，而gui程序是客户端。这里和我们平时的理解有差异，一般我们认为服务端都是在远端，而客户端是在本地，这里`DISPLAY SERVER`服务的调用是反过来。
 
 那到底`DISPLAY SERVER`在本地哪里呢？可能是你本地Linux操作系统中自带的，也可能是你在Windows系统中手动安装的（Windows系统默认没有display server服务），还可能是ssh客户端工具（例如MobaXterm）内置提供的等等。但是总之，你想在本地启动Linux gui程序，本地一定是要有`DISPLAY SERVER`服务的。
 
@@ -64,11 +65,9 @@ X11 Forwarding和DISPLAY环境变量设置是两个概念。DISPLAY是告诉你�
 
 <h3 id="3">3. 使用Microsoft VcXsrv打开Linux gui程序</h3>
 
-Windows系统的图形化是有内核程序支持的，因此Windows默认没有X SERVER。我们如果远程Linux机器并且打开Linux giu程序在Win本地，就需要安装X SERVER。
+Windows系统的图形化是有内核程序支持的，因此Windows默认没有`DISPLAY SERVER`。我们如果远程Linux机器并且在Win本地打开Linux giu程序，就需要安装DISPLAY SERVER，这里使用的`DISPLAY SERVER`是`X DISPLAY SERVER`或者称之为`X SERVER`。
 
-Windows经常用的X SERVER有`XManager`、`MobaxTerm X SERVER`、`XMing`等。`MobaxTerm`启动会默认在本地`6000`端口(6000端口也是X协议:0的默认端口)启动一个X SERVER并开启X Forwarding功能。当在Linux机器上启动gui程序的时候，内核会启动环境变量中配置的`DISPLAY`服务绘制图形化界面，`DISPLAY`的值写为`IP:PORTOFFSET:0.0`的形式，会访问`IP:6000+PORTOFFSET`的X服务。我们试验一下：
-
-在Win10上下载一个微软的`VcXsrv X Server`，记得启动的时候机制Access Control，设置DISPLAY NUM为3600，这样你远程访问一个Linux图形化工具如jvisualvm，配置`export DISPLAY=172.26.18.37:9600`就能够成功启动Linux gui程序。
+Windows经常用的X SERVER有`XManager`、`MobaXterm X SERVER`、`XMing`等。`MobaXterm`启动会默认在本地`6000`端口(6000端口也是X协议:0的默认端口)启动一个X SERVER并开启X Forwarding功能。当在windows通过ssh工具远程Linux并启动gui程序的时候，内核会调用环境变量中配置的`DISPLAY`服务绘制图形化界面，`DISPLAY`的值写为`IP:PORTOFFSET:0.0`的形式，会访问`IP:6000+PORTOFFSET`的X服务。我们试验一下：
 
 远程一个安装有完整JDK的虚拟机，打开`jvisualvm`，如果没有`DISPLAY`环境变量设置，会报错：
 
@@ -88,7 +87,16 @@ Windows经常用的X SERVER有`XManager`、`MobaxTerm X SERVER`、`XMing`等。`
 
 > 这里的`$HOST`是安装VcXsrv的Windows的IP，保证`9600`端口和虚拟机是通的。
 
-<h3 id="4">4. 引用</h3>
+<h3 id="4">4. 总结</h3>
+
+Unix like系统的gui程序图形化展示需要`Window System`服务的支持，服务的核心是`DISPLAY SERVER`。当图形化gui程序打开的时候，`DISPLAY SERVER`作为本地被调用服务端，而gui程序作为本地或远端客户端调用方存在，二者通过`display protocol`进行通信。
+
+需要注意：
+
+1. 图形化gui程序和本地`DISPLAY SERVER`服务监听的端口之间是通的（如果有防火墙限制，服务调用会失败）。
+2. 正确配置了`export DISPALY=x.x.x.x`之后，启动gui程序报错缺少`*.so`类库，则可能是类库版本有差异，在`/lib`或者`/lib64`找到名称类似版本不同的类库创建需要类库版本的软连接即可。命令：`ln -s /lib64/libxxx.so.6 /lib64/libxxx.so`将`/lib64/libxxx.so.6`创建一个软链接为`/lib64/libxxx.so`。
+
+<h3 id="5">5. 引用</h3>
 
 - [https://unix.stackexchange.com/questions/345344/difference-between-xorg-and-gnome-kde-xfce](https://unix.stackexchange.com/questions/345344/difference-between-xorg-and-gnome-kde-xfce)
 
