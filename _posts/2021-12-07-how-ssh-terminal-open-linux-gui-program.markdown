@@ -118,3 +118,5 @@ Unix like系统的gui程序图形化展示需要`Window System`服务的支持�
 <h3 id="5">5. 引用</h3>
 
 - [https://unix.stackexchange.com/questions/345344/difference-between-xorg-and-gnome-kde-xfce](https://unix.stackexchange.com/questions/345344/difference-between-xorg-and-gnome-kde-xfce)
+- [https://www.jianshu.com/p/e6b45bb9c2e9](https://www.jianshu.com/p/e6b45bb9c2e9)
+- [https://www.cxyzjd.com/article/weixin_30588827/99384287](https://www.cxyzjd.com/article/weixin_30588827/99384287)
