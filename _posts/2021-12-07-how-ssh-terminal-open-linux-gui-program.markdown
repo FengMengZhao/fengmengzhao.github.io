@@ -33,31 +33,41 @@ comment: false
 
 <h3 id="2">2. linux gui程序与Window System</h3>
 
+Linux gui程序图形化展示和`Window System`有什么关系呢？
+
 <h4 id="2.1">2.1 Window System</h4>
 
-Windows系统中打开图形化应用程序很简单，这是因为Win程序的图形化功能是写在内核中的（微软在DOC系统之后发现了图形化界面的巨大商业价值，后来开发的操作系统内核级别就支持图形化内容）。Linux(或者POSIX)系统要支持图形化界面程序，需要`Window System`（Unix系统的哲学之一是：一个工具只做一件事并且把这件事做好，因此图形化显示在架构上也是解耦独立的）。`Window System`是一种实现了窗口、图标、菜单和像素点范式的gui。我们熟知的Unix操作系统大多使用`X Window System`，苹果的OSX系统使用`Quartz Compositor` Window System。
+Windows系统中打开图形化应用程序很简单，这是因为Win程序的图形化功能是写在内核中的（微软在DOC系统之后发现了图形化界面的巨大商业价值，后来开发的操作系统内核级别就支持图形化内容）。Linux(或者POSIX)系统要支持图形化界面程序，需要`Window System`（Unix系统的哲学之一是：一个工具只做一件事并且把这件事做好，因此图形化显示在架构上也是解耦独立的）。
+
+`Window System`是一种实现了窗口、图标、菜单和像素点范式的gui。我们熟知的Unix操作系统大多使用`X Window System`，苹果的`OSX`系统使用`Quartz Compositor` Window System。
 
 > 注意这里的`Window System`不是`Windows System`，和微软的windows系统没有关系。
 
 <h4 id="2.2">2.2 DISPLAY SERVER</h4>
 
-`Window System`核心是`DISPLAY SERVER`（或者称为window Server、compositor）。一个调用了`DISPLAY SERVER`来显示图形化的程序称之为该`DISPLAY SERVER`的客户端（**client**）。
+`Window System`核心是`DISPLAY SERVER`（或者称为window server、compositor）。一个调用了`DISPLAY SERVER`来显示图形化的程序称之为该`DISPLAY SERVER`的客户端（**client**）。
 
-既有client（调用`DISPLAY SERVER`服务的gui程序），也有server（`DISPLAY SERVER`），它们的交互可能涉及到协议（protocol），这种协议就称为**display server protocol**。目前`X Window System`的`X DISPLAY SERVER`使用的协议就是`X 11`（11表示的是版本）。
+既有**client**（调用`DISPLAY SERVER`服务的gui程序），也有**server**（`DISPLAY SERVER`），它们的交互可能涉及到协议（protocol），这种协议就称为**display server protocol**。目前`X Window System`的`X DISPLAY SERVER`使用的协议就是`X 11`（11表示的是版本）。
 
-`DISPLAY SERVER`的主要功能是协调操作系统、硬件和其他模块与gui程序之间的输入输出，它在图形化硬件上面提供一个抽象供更高级别（没错，Window System的设计是有层级的，这也体现了Unix系统的设计哲学）的图形化接口（例如`window manager`）使用。
+`DISPLAY SERVER`的主要功能是协调操作系统、硬件和其他模块与gui程序之间的输入输出，它在图形化硬件上面提供一个抽象供更高级别的图形化接口（例如`window manager`）使用。
 
 <h4 id="2.3">2.3 Linux gui程序如何展示图形化界面</h4>
 
-`Window System`图形化调用架构如下：
+Window System的设计是有层级的，这也体现了Unix系统的设计哲学。`Window System`图形化调用架构如下：
 
 ![](/img/posts/x-server-hierarchical-design.png)
 
 如图所示，`DISPLAY SERVER`是`Window System`的核心所在。当你在Linux上打开一个gui程序的时候，该程序会调用`DISPLAY SERVER`的图形化显示服务。这个时候`DISPLAY SERVER`是服务端，而gui程序是客户端。这里和我们平时的理解有差异，一般我们认为服务端都是在远端，而客户端是在本地，这里`DISPLAY SERVER`服务的调用是反过来。
 
-那到底`DISPLAY SERVER`在本地哪里呢？可能是你本地Linux操作系统中自带的，也可能是你在Windows系统中手动安装的（Windows系统默认没有display server服务），还可能是ssh客户端工具（例如MobaXterm）内置提供的等等。但是总之，你想在本地启动Linux gui程序，本地一定是要有`DISPLAY SERVER`服务的。
+那到底`DISPLAY SERVER`在本地哪里呢？
 
-Linux gui程序是如何找`DISPLAY SERVER`服务的呢？在程序启动的环境变量中会查找`DISPLAY`设置的服务地址。比如`EXPORT DISPLAY=:0.0`表示调用本机`DISPLAY SERVER`服务，服务的端口是`127.0.0.1:6000`；`EXPORT DISPLAY=:10.0`表示调用本机`DISPLAY SERVER`服务，服务的端口是`127.0.0.1:6010`；`EXPORT DISPLAY=172.26.18.37:3600.0`表示调用非本机**但在本地**`DISPLAY SERVER`，服务的端口是`172.26.18.37:9600`。这里实际`DISPLAY SERVER`服务监听的端口号是设置环境变量`:`后第一个数字`+6000`，正如上面`:3600.0`实际服务监听的端口就是`6000 + 3600 --> 9600`。配置完`DISPLAY`环境变量之后，可以使用`xhost +`来验证并禁用掉Access Control限制。
+可能是你本地Linux操作系统中自带的，也可能是你在Windows系统中手动安装的（Windows系统默认没有display server服务），还可能是ssh客户端工具（例如MobaXterm）内置提供的等等。但是总之，你想在本地启动Linux gui程序，本地一定是要有`DISPLAY SERVER`服务的。
+
+Linux gui程序是如何找`DISPLAY SERVER`服务的呢？
+
+在程序启动的环境变量中会查找`DISPLAY`设置的服务地址。比如`EXPORT DISPLAY=:0.0`表示调用本机`DISPLAY SERVER`服务，服务的端口是`127.0.0.1:6000`；`EXPORT DISPLAY=:10.0`表示调用本机`DISPLAY SERVER`服务，服务的端口是`127.0.0.1:6010`；`EXPORT DISPLAY=172.26.18.37:3600.0`表示调用非本机**但在本地**`DISPLAY SERVER`，服务的端口是`172.26.18.37:9600`。
+
+这里实际`DISPLAY SERVER`服务监听的端口号是设置环境变量`:`后第一个数字`+6000`，正如上面`:3600.0`实际服务监听的端口就是`6000 + 3600 --> 9600`。配置完`DISPLAY`环境变量之后，可以使用`xhost +`来验证并禁用掉Access Control限制。
 
 > 有些Linux服务端查看`echo $DISPLAY`设置的是`:0.0`，但是并不能通过`netstat -nalp |grep 60000`找打对应的X SERVER监听服务，这样的X SERVER只能够正常打开本地的gui程序，远程其他host并配置当前机器`export DISPLAY=x.x.x.x:0.0`的DISPLAY属性并不能调通X SERVER服务。如果通过端口查看本地X服务在监听，则远程host配置本地X SERVER能够调用X SERVER服务并打开gui程序。
 
@@ -108,5 +118,3 @@ Unix like系统的gui程序图形化展示需要`Window System`服务的支持�
 <h3 id="5">5. 引用</h3>
 
 - [https://unix.stackexchange.com/questions/345344/difference-between-xorg-and-gnome-kde-xfce](https://unix.stackexchange.com/questions/345344/difference-between-xorg-and-gnome-kde-xfce)
-
----
