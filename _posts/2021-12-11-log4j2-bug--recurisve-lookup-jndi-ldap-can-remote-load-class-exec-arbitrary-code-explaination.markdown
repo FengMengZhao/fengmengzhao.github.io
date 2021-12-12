@@ -25,7 +25,7 @@ comment: false
 
 2021年12月10日一觉醒来，发现程序员社交网站上全是`lo4j2`相关的内容。
 
-实际上2021年11月24日，阿里云安全团队已经向Apache官方团队报告了`Apache Log4j2`远程代码执行漏洞。之后陆续国内多家机构监测到`Apache Log4j2`存在任意代码执行的漏洞。2021年12月10日阿里云再次报过官方`2.15-rc1`版本存在漏洞绕后，建议升级`2.15.0`版本。网上出现了`Apache Log4j2`任意远程代码执行漏洞的攻击代码，仿佛一夜间大家才紧张起来，也有网友感叹“第一次感受到互联网的脆弱”。
+实际上2021年11月24日，阿里云安全团队已经向Apache官方团队报告了`Apache Log4j2`远程代码执行漏洞。之后陆续国内多家机构监测到`Apache Log4j2`存在任意代码执行的漏洞。2021年12月10日阿里云再次报告官方`2.15-rc1`版本存在漏洞绕后，建议升级`2.15.0`版本。网上出现了`Apache Log4j2`任意远程代码执行漏洞的攻击代码，仿佛一夜间大家才紧张起来，也有网友感叹“第一次感受到互联网的脆弱”。
 
 <h4 id="1.1">1.1 log4j日志简介</h4>
 
@@ -83,7 +83,30 @@ log4j.appender.STDOUT.layout.ConversionPattern=%5p [%t] (%F\:%L) - %m%n
 
 <h3 id="2">2. 漏洞分析</h3>
 
+`log4j`作为一个优秀的日志框架，提供了以某种约定的格式来获取到运行环境中配置信息的能力，称为`looksup`。例如提供了以下配置：
+
+```shell
+<properties>
+    <property name="logPath">${sys.catalina.home}/xmlogs</property>
+</properties>
+```
+
+后续在代码中就可以通过`${logPath}`来获取该属性的值。运行时`log4j`提供的`looksup`实现会解析`${`开头的变量，并且支持多种协议。例如通过`LDAP`查找变量；通过`docker`查找变量等，详细参考：[https://www.docs4dev.com/docs/zh/log4j2/2.x/all/manual-lookups.html](https://www.docs4dev.com/docs/zh/log4j2/2.x/all/manual-lookups.html)。
+
+这次`log4j`的漏洞就是利用java的`jndi`API访问`LDAP`服务来远程加载类，攻击者可以写任意恶意远程代码在类加载的时候执行达到攻击目的。
+
+代码层次分析参考：[https://mp.weixin.qq.com/s/K74c1pTG6m5rKFuKaIYmPg](https://mp.weixin.qq.com/s/K74c1pTG6m5rKFuKaIYmPg)
+
 <h3 id="3">3. 攻防演练</h3>
+
+<h4 id="3.1">3.1 攻</h4>
+
+根据漏洞分析，我们想要模拟“攻”，需要准备4个东西：
+
+1. 集成了log4j2的java项目。本示例：log4j的版本是`1.14.1`，JDK环境`1.8.0_121`。
+2. `LDAP`服务。本示例：使用`marshalsec-0.0.3-SNAPSHOT-all.jar`。
+3. `编译好的恶意class文件`。本示例：恶意class文件在Windows环境运行**弹出计算器**，在Unix环境运行**列出运行环境监听的所有端口并生成图片test.jpg到程序运行目录**。
+4. `远程获取恶意class文件http服务`。本示例：使用Python启动http服务，
 
 <h3 id="4">4. 引用</h3>
 
