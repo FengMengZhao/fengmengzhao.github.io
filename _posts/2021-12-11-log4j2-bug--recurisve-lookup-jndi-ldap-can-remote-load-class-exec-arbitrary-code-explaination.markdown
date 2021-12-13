@@ -60,7 +60,7 @@ log4j.appender.STDOUT.layout.ConversionPattern=%5p [%t] (%F\:%L) - %m%n
 
 > `All`：最低层级，用于打开所有日志；`Trace`：表示程序推进；`Debug`；表示调试信息；`Info`：表示程序的运行过程；`Warn`：表示警告日志；`Error`：表示错误日志；`Fatal`：表示严重错误，将会导致应用程序退出。
 
-更多java日志框架内容参考：[https://fengmengzhao.github.io/2018/06/12/detailed-explanation-of-java-logging-framework.html]([https://fengmengzhao.github.io/2018/06/12/detailed-explanation-of-java-logging-framework.html])
+更多java日志框架内容参考：[https://fengmengzhao.github.io/2018/06/12/detailed-explanation-of-java-logging-framework.html](https://fengmengzhao.github.io/2018/06/12/detailed-explanation-of-java-logging-framework.html)
 
 <h4 id="1.2"> 1.2 判断是否使用有漏洞的log4j日志框架</h4>
 
@@ -108,9 +108,9 @@ log4j.appender.STDOUT.layout.ConversionPattern=%5p [%t] (%F\:%L) - %m%n
 根据漏洞分析，我们想要模拟“攻”，需要准备4个东西：
 
 1. 集成了log4j2的java项目。本示例：log4j的版本是`1.14.1`，JDK环境`1.8.0_121`。
-2. `编译好的恶意class文件`。本示例：恶意class文件在Windows环境运行**弹出计算器**，在Unix环境运行**列出运行环境监听的所有端口并生成图片test.jpg到程序运行目录**。
-3. `LDAP`服务。本示例：使用`marshalsec-0.0.3-SNAPSHOT-all.jar`。
-4. `远程获取恶意class文件http服务`。本示例：使用Python启动http服务，
+2. 编译好的恶意`class`文件。本示例：恶意class文件在Windows环境运行**弹出计算器**，在Unix环境运行**列出运行环境监听的所有端口并生成图片test.jpg到程序运行目录**。
+3. `LDAP`服务。本示例：使用`marshalsec-0.0.3-SNAPSHOT-all.jar`启动一个简单的`LDAP`服务。
+4. 远程获取恶意class文件`http`服务。本示例：使用Python启动http服务，
 
 从git上克隆项目到本地，github项目地址：[https://github.com/FengMengZhao/apache-log4j2-bug.git](https://github.com/FengMengZhao/apache-log4j2-bug.git)，gitee备份项目地址：[https://gitee.com/fengmengzhao/apache-log4j2-bug.git](https://gitee.com/fengmengzhao/apache-log4j2-bug.git)。
 
@@ -146,7 +146,7 @@ java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer http://
 
 4). 执行`log4j`的main方法，即可验证攻击完成：
 
-在Windows平台上运行，调出计算器：
+在Windows平台上运行，弹出计算器：
 
 ![](/img/posts/log4j-win-invoke-calculator.png)
 
