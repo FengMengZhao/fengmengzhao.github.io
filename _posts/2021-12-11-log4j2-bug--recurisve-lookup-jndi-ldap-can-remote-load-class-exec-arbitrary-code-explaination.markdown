@@ -77,7 +77,7 @@ log4j.appender.STDOUT.layout.ConversionPattern=%5p [%t] (%F\:%L) - %m%n
 <h4 id="1.3">1.3 建议措施</h4>
 
 - 正式方案
-    - 下载官方最新稳定版本并升级，下载地址：[https://logging.apache.org/log4j/2.x/download.html](https://logging.apache.org/log4j/2.x/download.html)。
+    - 下载官方最新稳定版本`2.15.0`并升级，下载地址：[https://logging.apache.org/log4j/2.x/download.html](https://logging.apache.org/log4j/2.x/download.html)。
 - 临时方案
     - 可升级jdk版本至`6u211`、`7u201`、`8u191`、`11.0.1`以上，可以在一定程度上限制JNDI等漏洞利用方式。
     - 对于大于2.10版本的Log4j，可设置系统属性`log4j2.formatMsgNoLookups`或者环境变量`LOG4J_FORMAT_MSG_NO_LOOKUPS`为`true`。
