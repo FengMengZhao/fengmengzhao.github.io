@@ -175,7 +175,7 @@ java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer http://
 
 > 如果是现场不方便重新打包，可将包下载，替换目标容器`lib`下对应的jar包。
 
-<h4 i="3.3">3.3 攻方"有道"</h4>
+<h4 id="3.3">3.3 攻方"有道"</h4>
 
 <p style="color: red">本demo示例基于对技术的好奇和探索而创建，切忌用于线上生产项目的攻击！！！</p>
 
