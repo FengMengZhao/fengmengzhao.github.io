@@ -26,6 +26,27 @@ comment: false
 
 <h3 id="1">1. WSL介绍</h3>
 
+维基百科：
+
+> 适用于Linux的Windows子系统（英语：Windows Subsystem for Linux，简称WSL）是一个为在Windows 10和Windows Server 2019上能够原生运行Linux二进制可执行文件（ELF格式）的兼容层。
+
+也就是说借助于`WSL`，在Windows上也能够执行Linux程序。对于开发人员来说，这是很有意义的。
+
+高级语言程序开发一般要依赖图形化`集成开发环境（IDE）`，所以一般开发环境系统都是`Windows`或者`OSX`。`OSX`是从`Unix`系统发展而来的，所以自带命令行终端，对开发人员来说很友好；而`Windows`天生支持图形化操作，虽然有`cmd`和`PowerShell`终端支持简单的命令行，但终究功能有限，无法替代`Linux`功能。
+
+举一个例子，在Windows上进行开发，现在需要将某个目录及其子目录中所有配置文件的`172.16.12.13`替换为`141.151.1.111`，不知道具体哪个配置文件中含有待替换字符串并且这样的配置文件多而且分散。如果在`Windows`手动查找或者写`bat`脚本都是一件很费劲的事情，而在`Linux`中只需要一行命令：
+
+```shell
+#该命令递归寻找当前目录及子目录后缀是txt的文件并执行替换字符串
+find . -type f -name '*.txt' -exec sed -i 's/172.16.12.13/141.151.1.111/g' {} \; 
+```
+
+可见，如果在`Windows`能够丝滑使用`Linux`系统程序，开发效率会大大提高。
+
+微软做了在`Windows`系统上兼容`Unix like`的尝试，先推出了`WSL1`，`WSL1`在文件系统性能上有很大的问题。后又推出了`WSL2`，底层的实现和`WSL1`不同，文件系统性能有了很大的改善。`WSL1`和`WSL2`的区别参考：[https://docs.microsoft.com/en-us/windows/wsl/compare-versions](https://docs.microsoft.com/en-us/windows/wsl/compare-versions)。
+
+网上对于`WSL`的吐槽很多，认为很难用。笔者亲身实践，使用`WSL2`能有丝滑般的开发体验，但也有一些头痛的问题，这里记录解决方案，方便诸位丝滑入坑`WSL`。
+
 <h4 id="1.1">1.1 WSL vs 虚拟机</h4>
 
 <h3 id="2">2. WSL2丝滑入坑</h3>
