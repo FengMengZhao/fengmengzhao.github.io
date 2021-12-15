@@ -59,7 +59,46 @@ find . -type f -name '*.txt' -exec sed -i 's/172.16.12.13/141.151.1.111/g' {} \;
 
 <h3 id="2">2. WSL2丝滑入坑</h3>
 
+WSL2的安装请参考文章：[https://dowww.spencerwoo.com/](https://dowww.spencerwoo.com/)。
+
+WSL2迁移参考回答：[https://stackoverflow.com/questions/63252225/is-this-the-correct-way-to-import-a-wsl-export-overwriting-default-installati](https://stackoverflow.com/questions/63252225/is-this-the-correct-way-to-import-a-wsl-export-overwriting-default-installati)
+
+WSL2默认安装在Windows的`C`盘，随着WSL2使用容量的变大，可能会造成`C`盘空间的预警。可以使用上面的办法将`WSL2`迁移到其他逻辑卷。实际上，WSL像虚拟机一样，在HOST的存储是一个镜像文件，笔者Win10上安装的`WSL2-Ubuntu 20`已经使用了`40G`的存储，如图：
+
+![](/img/posts/wsl-ext4-image-file.png)
+
+> 如果将WSL2从开发环境电脑迁移到家中电脑，也是很方便的。
+
+笔者`WSL2`选择安装的是微软商店的`Ubuntu 20.04 LTS`，接下来的操作基于该Ubuntu发行版。
+
 <h4 id="2.1">2.1 WSL动态IP，如何从外部访问？</h4>
+
+`WSL2`的网路类似于虚拟机中设置的`NAT`网络模式，该模式下`WSL2`实例借助于宿主机的网卡访问外部网络，宿主机也可以访问`WSL2`实例，但是宿主机所在局域网的其他主机不能访问`WSL2`实例。如图：
+
+![](/img/posts/wsl2-nat-network-ping-relation.png)
+
+`WSL2`的网络地址是动态变化的，并且局域网内的其他host都不能访问，这样太不方便了。
+
+> 为什么说不方便呢？动态IP就不说了，公司内网的电脑肯定不是动态分配的，而是设置静态IP，因为本地环境除了开发之外还会提供服务供外部联调，需要固定的IP。另外，如果你在`WSL2`上启动的服务和同事联调，同事访问不到，就很麻烦了。
+
+怎么解决呢？可以通过`Windows`端口映射的方式，将`WSL2`的端口映射到host win主机上。
+
+脚本如下：
+
+```shell
+#清除网络映射
+netsh interface portproxy reset
+#获取WSL2实例动态IP
+$wsl_ip = (wsl hostname -I).trim().split()[0]
+#日志信息
+Write-Host "WSL Machine IP: ""$wsl_ip"""
+#网络映射win:8080 --> wsl2:8080
+netsh interface portproxy add v4tov4 listenport=8080 connectport=8080 connectaddress=$wsl_ip
+```
+
+可以直接在`PowerShell`终端执行，也可以保存为`.ps1`脚本，在`PowerShell`终端执行脚本，如图：
+
+![](/img/posts/wsl-add-port-mapping-to-win.png)
 
 <h4 id="2.2">2.2 不安装Docker Desktop，如何安装Docker？</h4>
 
