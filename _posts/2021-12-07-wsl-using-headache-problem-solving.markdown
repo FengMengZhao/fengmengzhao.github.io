@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 'Windows10 WSL体验如此丝滑(Windows上使用完整服务的Linux)'
+title: 'Windows10 WSL2体验如此丝滑(Windows上使用完整服务的Linux)'
 subtitle: '在Windows上使用一些Linux工具，一般会在本机装一个Linux虚拟机或者在Windows上装Docker，这两种方法对于本地开发环境来说都比较重。Windows推出了WSL，可以直接在Windows上使用完整的Linux功能，笔者用起来还是比较实用。但是想丝滑入WSL这个坑，要解决一系列问题，比如安装docker、动态IP端口映射等，本文针对wsl使用的痛点，一一给出使用办法。'
 background: '/img/posts/wsl-resolve-headache-problems.jpg'
 comment: false
