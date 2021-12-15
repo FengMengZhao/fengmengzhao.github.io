@@ -13,6 +13,15 @@ comment: false
 - [2. WSL2丝滑入坑](#2)
     - [2.1 WSL动态IP，如何从外部访问？](#2.1)
     - [2.2 不安装Docker Desktop，如何安装Docker？](#2.2)
+        - [2.2.1 删除已存在的docker](#2.2.1)
+        - [2.2.2 安装依赖](#2.2.2)
+        - [2.2.3 Ubuntu package仓库配置](#2.2.3)
+        - [2.2.4 安装Docker](#2.2.4)
+        - [2.2.5 设置docker命令权限](#2.2.5)
+        - [2.2.6 配置dockerd](#2.2.6)
+        - [2.2.7 启动dockerd](#2.2.7)
+        - [2.2.8 dockerd启动脚本](#2.2.8)
+        - [2.2.9 zsh设置开启自启dockerd](<#2.2.9)
     - [2.3 Win和WSL文件系统如何打通任督二脉？](#2.3)
     - [2.4 WSL代理使用](#2.4)
         - [2.4.1 系统使用代理](#2.4.1)
@@ -112,19 +121,19 @@ netsh interface portproxy add v4tov4 listenport=8080 connectport=8080 connectadd
 
 下面的配置针对`WSL2 Ubuntu 20.04 LTS`进行docker配置，其他的`WSL2`支持的发行版在用户、权限配置有差别，可参考上面的文章。
 
-**删除已存在的docker**
+<h5 id="2.2.1">2.2.1 删除已存在的docker</h5>
 
 ```shell
 sudo apt remove docker-engine docker docker.io docker-ce docker-ce-cli
 ```
 
-**安装依赖**
+<h5 id="2.2.2">2.2.2 安装依赖</h5>
 
 ```shell
 sudo apt install --no-install-recommends apt-transport-https ca-certificates curl gnupg2
 ```
 
-**Ubuntu package仓库配置**
+<h5 id="2.2.3">2.2.3 Ubuntu package仓库配置</h5>
 
 设置os-release相关环境变量：
 
@@ -148,13 +157,85 @@ echo "deb [arch=amd64] https://download.docker.com/linux/${ID} ${VERSION_CODENAM
 sudo apt update
 ```
 
-**安装Docker**
+<h5 id="2.2.4">2.2.4 安装Docker</h5>
 
 执行命令：
 
 ```shell
 sudo apt install docker-ce docker-ce-cli containerd.io
 ```
+
+<h5 id="2.2.5">2.2.5 设置docker命令权限</h5>
+
+1. 可以使用root用户执行。这样做不符合规范，害怕出现`rm -rf /`的误操作。
+2. 每次使用`sudo docker ...`的方式，普通用户使用sudo就会以`root`用户的身份才操作。这里将普通用户加上sudo功能是在`/etc/sudoers`中配置。`WSL2 Ubuntu`实例创建过程中默认将普通创建用户加入了sudoers中。
+
+除此之外，还可以将用户加入某个组下，赋予组执行某个进程免密的设置。
+
+```shell
+sudo usermod -aG docker $USER
+```
+
+docker进程在`sudoers`中的免密配置如下：
+
+```shell
+# sudo visudo, 添加下面
+%docker ALL=(ALL)  NOPASSWD: /usr/bin/dockerd
+```
+
+<h5 id="2.2.6">2.2.6 配置dockerd</h5>
+
+设置一个docker socket使用的目录，设置权限让`docker`属组有权限写入：
+
+```shell
+DOCKER_DIR=/mnt/wsl/shared-docker
+mkdir -pm o=,ug=rwx "$DOCKER_DIR"
+chgrp docker "$DOCKER_DIR"
+```
+
+设置`dockerd`启动参数，编辑`/etc/docker/daemon.json`，配置如下：
+
+```json
+{
+  "hosts": ["unix:///mnt/wsl/shared-docker/docker.sock"],
+  "insecure-registries":["a.b.com:5000", "m.n.com:9500"]
+}
+```
+
+> 如果没有对应的`/etc/docker/daemon.json`文件，可以手动创建。参数中的`insecure-registries`设置表示允许不安全的`http`镜像registry，有需要时候可以再配置。
+
+<h5 id="2.2.7">2.2.7 启动dockerd</h5>
+
+使用命令`sudo dockerd`就可以启动了。但是这种方式启动的`dockerd`，我们要启动一个容器需要这样：
+
+```shell
+docker -H unix:///mnt/wsl/shared-docker/docker.sock run --rm hello-world
+```
+
+我们可以用脚本启动`dockerd`，使用起来会更方便。
+
+<h5 id="2.2.8">2.2.8 dockerd启动脚本</h5>
+
+启动脚本：
+
+```shell
+DOCKER_DISTRO="Ubuntu-20.04"
+DOCKER_DIR=/mnt/wsl/shared-docker
+DOCKER_SOCK="$DOCKER_DIR/docker.sock"
+export DOCKER_HOST="unix://$DOCKER_SOCK"
+if [ ! -S "$DOCKER_SOCK" ]; then
+    mkdir -pm o=,ug=rwx "$DOCKER_DIR"
+    chgrp docker "$DOCKER_DIR"
+    /mnt/c/Windows/System32/wsl.exe -d $DOCKER_DISTRO sh -c "nohup sudo -b dockerd < /dev/null > $DOCKER_DIR/dockerd.log 2
+```
+
+将脚本保存在`docker-service`放在`path`下，本示例放入`/usr/bin`中。执行`docker-service`即可启动`dockerd`。
+
+<h5 id="2.2.9">2.2.9 zsh设置开启自启dockerd</h5>
+
+本`WSL2 Ubuntu`使用的默认`sh`是`zsh`，设置`WSL2`开机启动`dockerd`可以在`/etc/zsh/zprofile`添加`source /usr/bin/docker-service`启动脚本：
+
+![](/img/posts/wsl2-zsh-init-start-dockerd.png)
 
 <h4 id="2.3">2.3 Win和WSL文件系统如何打通任督二脉？</h4>
 
