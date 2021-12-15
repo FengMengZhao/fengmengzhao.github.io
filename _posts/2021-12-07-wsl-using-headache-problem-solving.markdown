@@ -102,6 +102,60 @@ netsh interface portproxy add v4tov4 listenport=8080 connectport=8080 connectadd
 
 <h4 id="2.2">2.2 不安装Docker Desktop，如何安装Docker？</h4>
 
+如果本地装的是虚拟机，安装docker就很容易了。但是在`WSL2`实例上安装，还有费一些功夫。
+
+官方的解决方案是建议在`WSL2`上安装`Docker Desktop for Windows`，可以参考：[https://docs.microsoft.com/zh-cn/windows/wsl/tutorials/wsl-containers](https://docs.microsoft.com/zh-cn/windows/wsl/tutorials/wsl-containers)。
+
+如果是不想装`Docker Desktop`但又想在`WSL2`上使用`docker`，这里参考[https://dev.to/bowmanjd/install-docker-on-windows-wsl-without-docker-desktop-34m9](https://dev.to/bowmanjd/install-docker-on-windows-wsl-without-docker-desktop-34m9)给出解决方案。
+
+这里只针对`WSL2`版本安装`docker`，`WSL1`版本不支持`docker`。
+
+下面的配置针对`WSL2 Ubuntu 20.04 LTS`进行docker配置，其他的`WSL2`支持的发行版在用户、权限配置有差别，可参考上面的文章。
+
+**删除已存在的docker**
+
+```shell
+sudo apt remove docker-engine docker docker.io docker-ce docker-ce-cli
+```
+
+**安装依赖**
+
+```shell
+sudo apt install --no-install-recommends apt-transport-https ca-certificates curl gnupg2
+```
+
+**Ubuntu package仓库配置**
+
+设置os-release相关环境变量：
+
+```shell
+#执行完成后，可以在shel中执行$ID验证是否存在该变量
+source /etc/os-release
+```
+
+让`apt`信任仓库：
+
+```shell
+#这里的${ID}是上面source命令执行后的环境变量ID，本示例是：ubuntu
+curl -fsSL https://download.docker.com/linux/${ID}/gpg | sudo apt-key add -
+```
+
+新增仓库地址并更新仓库列表，以便`apt`能够用到：
+
+```shell
+#本示例变量替换后的结果为：deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+echo "deb [arch=amd64] https://download.docker.com/linux/${ID} ${VERSION_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/docker.list
+sudo apt update
+```
+
+**安装Docker**
+
+执行命令：
+
+```shell
+sudo apt install docker-ce docker-ce-cli containerd.io
+```
+
 <h4 id="2.3">2.3 Win和WSL文件系统如何打通任督二脉？</h4>
 
 <h4 id="2.4">2.4 WSL代理使用</h4>
