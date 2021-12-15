@@ -63,7 +63,7 @@ find . -type f -name '*.txt' -exec sed -i 's/172.16.12.13/141.151.1.111/g' {} \;
 
 `WSL2`基于`Hyper-v`实现了`Linux`内核，所以`WSL`也算是一个完整的Linux系统。相较于虚拟机，`WSL2`会轻量级一些。但是支持的发行版也有限。
 
-建议：如果没有接触过`Linux`，要学习`Linux`，最好自己装一个`Linux`虚拟机；而如果对`Linux`非常熟悉了，可以尝试安装`WSL2`，对开发人员来说`WSL2`会开来更好的开发体验。
+建议：如果没有接触过`Linux`，要学习`Linux`，最好自己装一个`Linux`虚拟机；而如果对`Linux`非常熟悉了，可以尝试安装`WSL2`，对开发人员来说`WSL2`会带来更好的开发体验。
 
 <h3 id="2">2. WSL2丝滑入坑</h3>
 
@@ -79,7 +79,7 @@ WSL2默认安装在Windows的`C`盘，随着WSL2使用容量的变大，可能�
 
 笔者`WSL2`选择安装的是微软商店的`Ubuntu 20.04 LTS`，接下来的操作基于该Ubuntu发行版。
 
-`WSL`的启动就是打开对应从微软商店安装的`Ubuntu`或者其他发行版（如下图），`WSL`关闭在`PowerShell`中使用：`wsl --shutdow`。
+`WSL`的启动就是打开对应从微软商店安装的`Ubuntu`或者其他发行版（如下图），`WSL`关闭可以在`PowerShell`中使用：`wsl --shutdow`。
 
 ![](/img/posts/wsl2-ubuntu-from-microsoft-store.png)
 
@@ -298,7 +298,7 @@ netsh int ip set dynamicport tcp start=49152 num=16384 #设置新的端口范围
 
 <h4 id="3.2">3.2 Centos6在wsl2 docker上运行有问题</h4>
 
-`WSL2`的docker上运行基于`centos6`镜像的容器上运行有问题，解决办法：在`%userprofile%\.wslconfig`上添加：
+`WSL2`的docker上运行基于`centos6`镜像的容器有问题，解决办法：在`%userprofile%\.wslconfig`上添加：
 
 ```shell
 [wsl2]
