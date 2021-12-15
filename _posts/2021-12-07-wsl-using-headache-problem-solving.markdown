@@ -22,10 +22,9 @@ comment: false
         - [2.2.7 启动dockerd](#2.2.7)
         - [2.2.8 dockerd启动脚本](#2.2.8)
         - [2.2.9 zsh设置开启自启dockerd](<#2.2.9)
-    - [2.3 Win和WSL文件系统如何打通任督二脉？](#2.3)
-    - [2.4 WSL代理使用](#2.4)
-        - [2.4.1 系统使用代理](#2.4.1)
-        - [2.4.2 git使用代理](#2.4.2)
+    - [2.3 Win和WSL系统如何打通任督二脉？](#2.3)
+        - [2.3.1 文件系统互通](#2.3.1)
+        - [2.3.2 程序调用互通](#2.3.2)
 - [3. WSL2使用遇到的问题](#3)
     - [3.1 WSL和VirtualBox对于Hyper-v冲突](#3.1)
     - [3.2 Centos6在wsl2 docker上运行有问题](#3.1)
@@ -79,6 +78,10 @@ WSL2默认安装在Windows的`C`盘，随着WSL2使用容量的变大，可能�
 > 如果将WSL2从开发环境电脑迁移到家中电脑，也是很方便的。
 
 笔者`WSL2`选择安装的是微软商店的`Ubuntu 20.04 LTS`，接下来的操作基于该Ubuntu发行版。
+
+`WSL`的启动就是打开对应从微软商店安装的`Ubuntu`或者其他发行版（如下图），`WSL`关闭在`PowerShell`中使用：`wsl --shutdow`。
+
+![](/img/posts/wsl2-ubuntu-from-microsoft-store.png)
 
 <h4 id="2.1">2.1 WSL动态IP，如何从外部访问？</h4>
 
@@ -237,19 +240,63 @@ if [ ! -S "$DOCKER_SOCK" ]; then
 
 ![](/img/posts/wsl2-zsh-init-start-dockerd.png)
 
-<h4 id="2.3">2.3 Win和WSL文件系统如何打通任督二脉？</h4>
+<h4 id="2.3">2.3 Win和WSL系统如何打通任督二脉？</h4>
 
-<h4 id="2.4">2.4 WSL代理使用</h4>
+<h5 id="2.3.1">2.3.1 文件系统互通</h5>
 
-<h5 i="2.4.1">2.4.1 系统使用代理</h5>
+**win上访问WSL文件系统**
 
-<h5 id="2.4.2">2.4.2 git使用代理</h5>
+在wsl实例上执行`explorer.exe .`，或者直接打开Windows资源管理器，输入：`\\wsl$\Ubuntu-20.04\opt`。如下图：
+
+![](/img/posts/wsl2-explorer-exe-from-wsl.png)
+
+这种方式打开wsl文件系统目录，Windows用户对普通用户数据有读写权限，对root用户是只读权限。并且使用这种方式打开文件修改并保存很卡顿，性能有问题。所以，**不建议在Windows系统上修改wsl实例文件系统的内容**。
+
+**WSL上访问win文件系统**
+
+`WSL2`将Windows的磁盘逻辑卷映射为挂载文件。`/mnt/c`为Windows C盘挂载路径；`/mnt/d`为Windows D文件挂载路径等等。如果要在`WSL`上用`vim`打开Win系统上`D:\out.txt`，可以直接使用：`vim /mnt/d/out.txt`。
+
+在`WSL`上操作`Windows`文件系统同样会有一定的性能问题，但是没有`Windows`操作`WSL`文件系统性能延迟严重。如果是像大一点的git仓库，最好克隆到`WSL`本地文件系统操作。
+
+<h5 id="2.3.2">2.3.2 程序调用互通</h5>
+
+`WSL`是直接能够读取`Windows`系统`PAHT`变量并在wsl上直接打开，比如在`WSL`上打开`ping.exe`：
+
+![](/img/posts/wsl2-open-pingexe.png)
+
+> 有些时候这个功能是很有用的，尤其是当你打开图形化应用的时候。比如用`notepad++`打开`WSL`系统中的一个文本文件等等。**记得Win系统PATH变量中的exe程序才能在WSL中找到**。
+
+当然了，在`Windows`系统上也能够执行`WSL`命令，如在`PowerShell`中执行`wsl ping`：
+
+![](/img/posts/wsl2-win-open-wslping.png)
+
+二者的命令还可以组合使用，例如：在`PowerShell`中执行：`wsl ls -la | findstr "git"`。更多请参考：[https://docs.microsoft.com/en-us/windows/wsl/filesystems](https://docs.microsoft.com/en-us/windows/wsl/filesystems)
 
 <h3 id="3">3. WSL2使用遇到的问题</h3>
 
 <h4 id="3.1">3.1 WSL和VirtualBox对于Hyper-v冲突</h4>
 
+报错：请启用虚拟机平台 Windows 功能并确保在 BIOS 中启用虚拟化。
+
+因为之前在使用VirtualBox时候关闭了`Hyper-v`服务。设置自动开启Hyper-v模式：`bcdedit /set hypervisorlaunchtype auto`。
+
+Hyper-v服务启动后，需要重启计算机，WSL能正常启动。
+
+重启后启动v2ray程序，发现can not bind to `10809`，但是通过`netstat -ano|findstr 10809`没发现端口被占用。查找发现可能是Hyper-v程序预留的端口占用了，解决方法：
+
+```shell
+netsh int ip show dynamicport tcp #查看端口范围
+netsh int ip set dynamicport tcp start=49152 num=16384 #设置新的端口范围，重启计算机
+```
+
 <h4 id="3.2">3.2 Centos6在wsl2 docker上运行有问题</h4>
+
+`WSL2`的docker上运行基于`centos6`镜像的容器上运行有问题，解决办法：在`%userprofile%\.wslconfig`上添加：
+
+```shell
+[wsl2]
+kernelCommandLine = vsyscall=emulate
+```
 
 <h3 id="4">4. 引用</h3>
 
@@ -257,5 +304,6 @@ if [ ! -S "$DOCKER_SOCK" ]; then
 - [https://superuser.com/questions/1582234/make-ip-address-of-wsl2-static](https://superuser.com/questions/1582234/make-ip-address-of-wsl2-static)
 - [https://www.illuminiastudios.com/dev-diaries/ssh-on-windows-subsystem-for-linux/](https://www.illuminiastudios.com/dev-diaries/ssh-on-windows-subsystem-for-linux/)
 - [https://dev.to/bowmanjd/install-docker-on-windows-wsl-without-docker-desktop-34m9](https://dev.to/bowmanjd/install-docker-on-windows-wsl-without-docker-desktop-34m9)
+- [https://docs.microsoft.com/en-us/windows/wsl/filesystems](https://docs.microsoft.com/en-us/windows/wsl/filesystems)
 
 ---
