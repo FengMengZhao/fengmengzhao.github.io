@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 'Windows10 WSL体验如此丝滑(Windows上使用完整服务的Linux)'
-subtitle: '在Windows上使用一些Linux工具，一般会在本机装一个Linux虚拟机或者在Windows上装Docker，这两种方法对于本地开发环境来说都比较重。Windows推出了WSL，可以直接在Windows上使用完整的Linux功能，笔者用起来还是比较实用。但是想丝滑入WSL这个坑，要解决一系列问题，比如安装docker、代理使用等，本文针对wsl使用的痛点，一一给出使用办法。'
+subtitle: '在Windows上使用一些Linux工具，一般会在本机装一个Linux虚拟机或者在Windows上装Docker，这两种方法对于本地开发环境来说都比较重。Windows推出了WSL，可以直接在Windows上使用完整的Linux功能，笔者用起来还是比较实用。但是想丝滑入WSL这个坑，要解决一系列问题，比如安装docker、动态IP端口映射等，本文针对wsl使用的痛点，一一给出使用办法。'
 background: '/img/posts/wsl-resolve-headache-problems.jpg'
 comment: false
 ---
@@ -53,7 +53,7 @@ find . -type f -name '*.txt' -exec sed -i 's/172.16.12.13/141.151.1.111/g' {} \;
 
 微软做了在`Windows`系统上兼容`Unix like`的尝试，先推出了`WSL1`，`WSL1`在文件系统性能上有很大的问题。后又推出了`WSL2`，底层的实现和`WSL1`不同，文件系统性能有了很大的改善。`WSL1`和`WSL2`的区别参考：[https://docs.microsoft.com/en-us/windows/wsl/compare-versions](https://docs.microsoft.com/en-us/windows/wsl/compare-versions)。
 
-网上对于`WSL`的吐槽很多，认为很难用。笔者亲身实践，使用`WSL2`能有丝滑般的开发体验，但也有一些头痛的问题，这里记录解决方案，方便诸位丝滑入坑`WSL`。
+网上对于`WSL`的吐槽很多，认为很难用。笔者亲身实践，使用`WSL2`能有丝滑般的开发体验，但也有一些头痛的问题，这里记录解决方案，方便诸位丝滑入坑`WSL2`。
 
 <h4 id="1.1">1.1 WSL vs 虚拟机</h4>
 
@@ -71,11 +71,11 @@ WSL2的安装请参考文章：[https://dowww.spencerwoo.com/](https://dowww.spe
 
 WSL2迁移参考回答：[https://stackoverflow.com/questions/63252225/is-this-the-correct-way-to-import-a-wsl-export-overwriting-default-installati](https://stackoverflow.com/questions/63252225/is-this-the-correct-way-to-import-a-wsl-export-overwriting-default-installati)
 
-WSL2默认安装在Windows的`C`盘，随着WSL2使用容量的变大，可能会造成`C`盘空间的预警。可以使用上面的办法将`WSL2`迁移到其他逻辑卷。实际上，WSL像虚拟机一样，在HOST的存储是一个镜像文件，笔者Win10上安装的`WSL2-Ubuntu 20`已经使用了`40G`的存储，如图：
+WSL2默认安装在Windows的`C`盘，随着WSL2使用容量的变大，可能会造成`C`盘空间的预警。可以使用上面的办法将`WSL2`迁移到其他逻辑卷。实际上，WSL像虚拟机一样，在HOST的存储是一个映像文件，笔者Win10上安装的`WSL2-Ubuntu 20`已经使用了`40G`的存储，如图：
 
 ![](/img/posts/wsl-ext4-image-file.png)
 
-> 如果将WSL2从开发环境电脑迁移到家中电脑，也是很方便的。
+> 如果将WSL2从开发环境电脑迁移到家中电脑，也是很方便的，将映像文件copy走，直接导入目标机即可。
 
 笔者`WSL2`选择安装的是微软商店的`Ubuntu 20.04 LTS`，接下来的操作基于该Ubuntu发行版。
 
@@ -87,9 +87,11 @@ WSL2默认安装在Windows的`C`盘，随着WSL2使用容量的变大，可能�
 
 `WSL2`的网路类似于虚拟机中设置的`NAT`网络模式，该模式下`WSL2`实例借助于宿主机的网卡访问外部网络，宿主机也可以访问`WSL2`实例，但是宿主机所在局域网的其他主机不能访问`WSL2`实例。如图：
 
+> 所谓的`WSL2`实例指的就是安装的某个`WSL2`支持的发行版，笔者使用的是`Ubuntu 20.04 LTS`。
+
 ![](/img/posts/wsl2-nat-network-ping-relation.png)
 
-`WSL2`的网络地址是动态变化的，并且局域网内的其他host都不能访问，这样太不方便了。
+`WSL2`的网络地址是动态变化的（像docker容器一样，重启IP地址发生改变），并且局域网内的其他host都不能访问，这样太不方便了。
 
 > 为什么说不方便呢？动态IP就不说了，公司内网的电脑肯定不是动态分配的，而是设置静态IP，因为本地环境除了开发之外还会提供服务供外部联调，需要固定的IP。另外，如果你在`WSL2`上启动的服务和同事联调，同事访问不到，就很麻烦了。
 
@@ -114,15 +116,15 @@ netsh interface portproxy add v4tov4 listenport=8080 connectport=8080 connectadd
 
 <h4 id="2.2">2.2 不安装Docker Desktop，如何安装Docker？</h4>
 
-如果本地装的是虚拟机，安装docker就很容易了。但是在`WSL2`实例上安装，还有费一些功夫。
+如果本地装的是虚拟机，安装docker就很容易了。但是在`WSL2`实例上安装，还是要费一些功夫。
 
 官方的解决方案是建议在`WSL2`上安装`Docker Desktop for Windows`，可以参考：[https://docs.microsoft.com/zh-cn/windows/wsl/tutorials/wsl-containers](https://docs.microsoft.com/zh-cn/windows/wsl/tutorials/wsl-containers)。
 
-如果是不想装`Docker Desktop`但又想在`WSL2`上使用`docker`，这里参考[https://dev.to/bowmanjd/install-docker-on-windows-wsl-without-docker-desktop-34m9](https://dev.to/bowmanjd/install-docker-on-windows-wsl-without-docker-desktop-34m9)给出解决方案。
+如果是不想装`Docker Desktop`但又想在`WSL2`上使用`docker`，参考[https://dev.to/bowmanjd/install-docker-on-windows-wsl-without-docker-desktop-34m9](https://dev.to/bowmanjd/install-docker-on-windows-wsl-without-docker-desktop-34m9)给出解决方案，接下来做详细的说明。
 
-这里只针对`WSL2`版本安装`docker`，`WSL1`版本不支持`docker`。
+> 这里只针对`WSL2`版本安装`docker`，`WSL1`版本不支持`docker`。
 
-下面的配置针对`WSL2 Ubuntu 20.04 LTS`进行docker配置，其他的`WSL2`支持的发行版在用户、权限配置有差别，可参考上面的文章。
+> 下面的配置针对`WSL2 Ubuntu 20.04 LTS`进行docker配置，其他的`WSL2`支持的发行版在用户、权限配置有差别，可参考原文章。
 
 <h5 id="2.2.1">2.2.1 删除已存在的docker</h5>
 
@@ -171,11 +173,12 @@ sudo apt install docker-ce docker-ce-cli containerd.io
 <h5 id="2.2.5">2.2.5 设置docker命令权限</h5>
 
 1. 可以使用root用户执行。这样做不符合规范，害怕出现`rm -rf /`的误操作。
-2. 每次使用`sudo docker ...`的方式，普通用户使用sudo就会以`root`用户的身份才操作。这里将普通用户加上sudo功能是在`/etc/sudoers`中配置。`WSL2 Ubuntu`实例创建过程中默认将普通创建用户加入了sudoers中。
+2. 每次使用`sudo docker ...`的方式，普通用户使用sudo就会以`root`用户的身份来操作。这里将普通用户加上sudo功能是在`/etc/sudoers`中配置。`WSL2 Ubuntu`实例创建过程中默认将普通创建用户加入了`sudoers`中。
 
 除此之外，还可以将用户加入某个组下，赋予组执行某个进程免密的设置。
 
 ```shell
+#这里的$USER会解析为当前用户
 sudo usermod -aG docker $USER
 ```
 
@@ -185,6 +188,10 @@ docker进程在`sudoers`中的免密配置如下：
 # sudo visudo, 添加下面
 %docker ALL=(ALL)  NOPASSWD: /usr/bin/dockerd
 ```
+
+> `docker`属组可能是安装`docker`的命令创建的，如果访问`/etc/group`没有`docker`属组，可以用命令`sudo groupadd -g 999 docker`。
+
+> 实际上这里还存在一个困惑，在Ubuntu系统中赋予一个普通用户加入某个属组，该属组可以设置免密以root用户身份操作某个命令。如果命令涉及到数据写入可能会报错`Permission denied`。比如`git`，设置完成会后要使用没问题还需要设置：`sudo chown -R $USER:$USER $GIT_REPO`。查了一下，原因可能是上面的设置确实是以`root`用户来执行命令，但是命令产生的结果会触发新的进程就是以普通用户执行了，所以要对目录有权限。
 
 <h5 id="2.2.6">2.2.6 配置dockerd</h5>
 
@@ -217,7 +224,7 @@ docker -H unix:///mnt/wsl/shared-docker/docker.sock run --rm hello-world
 
 我们可以用脚本启动`dockerd`，使用起来会更方便。
 
-<h5 id="2.2.8">2.2.8 dockerd启动脚本</h5>
+<h5 id="2.2.8">2.2.8 dockerd脚本启动</h5>
 
 启动脚本：
 
@@ -250,11 +257,11 @@ if [ ! -S "$DOCKER_SOCK" ]; then
 
 ![](/img/posts/wsl2-explorer-exe-from-wsl.png)
 
-这种方式打开wsl文件系统目录，Windows用户对普通用户数据有读写权限，对root用户是只读权限。并且使用这种方式打开文件修改并保存很卡顿，性能有问题。所以，**不建议在Windows系统上修改wsl实例文件系统的内容**。
+这种方式打开wsl文件系统目录，Windows用户对`WSL`普通用户数据有读写权限，对root用户是只读权限。并且使用这种方式打开文件修改并保存很卡顿，性能有问题。所以，**不建议在Windows系统上修改wsl实例文件系统的内容**。
 
 **WSL上访问win文件系统**
 
-`WSL2`将Windows的磁盘逻辑卷映射为挂载文件。`/mnt/c`为Windows C盘挂载路径；`/mnt/d`为Windows D文件挂载路径等等。如果要在`WSL`上用`vim`打开Win系统上`D:\out.txt`，可以直接使用：`vim /mnt/d/out.txt`。
+`WSL2`将Windows的磁盘逻辑卷映射为挂载文件。`/mnt/c`为Windows C盘挂载路径；`/mnt/d`为Windows D文件挂载路径等如此这种。如果要在`WSL`上用`vim`打开Win系统上`D:\out.txt`，可以直接使用：`vim /mnt/d/out.txt`。
 
 在`WSL`上操作`Windows`文件系统同样会有一定的性能问题，但是没有`Windows`操作`WSL`文件系统性能延迟严重。如果是像大一点的git仓库，最好克隆到`WSL`本地文件系统操作。
 
