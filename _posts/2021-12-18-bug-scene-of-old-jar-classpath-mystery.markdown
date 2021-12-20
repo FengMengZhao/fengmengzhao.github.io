@@ -48,7 +48,7 @@ cp /path/Postgresql-new-version.jar SYNC_lib/
 
 总结一下案发现场疑点：
 
-- **问题1**：容器内的java进程用`java -jar xxx.jar`启动，命令行和`CLASSPATH`环境变量都没有指定`SYNC_lib`路径，该JVM实例是怎们加载这些第三方`jar`包的？
+- **问题1**：容器内的java进程用`java -jar xxx.jar`启动，命令行和`CLASSPATH`环境变量都没有指定`SYNC_lib`路径，该JVM实例是怎么加载这些第三方`jar`包的？
 - **问题2**：迁移后指定`classpath`启动jar包，只是替换了`classpath`下jar包的版本，竟然报错`ClassNotFoundException`？
 
 没思路了，只能手动写个代码看看从指定的`classpath`下能不能加载对应的class：
@@ -94,7 +94,7 @@ java -cp .:SYNC_lib/*:xxx.jar: com.xxx.xxx
 
 ![](/img/posts/common-jar-MANIFEST.jpg)
 
-原来玄机在这里，纯胸顿足，悔之晚矣！
+原来玄机在这里，捶胸顿足，悔之晚矣！
 
 `META-INF\MAINFEST.MF`文件是jar包的元数据文件，该文件指明了：
 
