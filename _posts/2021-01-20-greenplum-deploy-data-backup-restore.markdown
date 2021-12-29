@@ -36,6 +36,8 @@ comment: false
 - [3. Greenplum使用技巧](#3)
     - [3.1 sql查询替换特殊字符](#3.1)
     - [3.2 Greenplum提示too many clients解决](#3.2)
+    - [3.3 Greenplum节点间的通信模式](#3.3)
+    - [3.4 Greenplum节点network error segment slice1 6000 check your network](#3.4)
 
 ---
 
@@ -604,5 +606,29 @@ replace(replace(replace(column, chr(10), ''), chr(13), ''), chr(92), '')
 3. 重试操作1
 4. 在目标数据库中执行sql，杀死连接：`select pg_terminate_backend(procpid) from pg_stat_activity where current_query='<IDLE>'`
 5. 重试操作1，验证是否成功
+
+<h4 id="3.3">3.3 Greenplum节点间的通信模式</h4>
+
+默认GP库节点间通信的模式是：`UDP`，可以通过命令修改为TCP：
+
+```shell
+gpconfig -s gp_interconnect_type -v TCP
+```
+
+> 实际上在master节点上执行配置修改会在各个主子节点生效，分别会在`数据目录/postgresql.conf`增加一行配置，上面的命令会增加一行：`gp_interconnect_type=TCP`。
+
+使用TCP传输执行查询速度会非常慢，在`UDP`通信情况下`10s`执行完毕的sql，在`TCP`通信情况下执行要超1个小时。从`TCP`改为`UDP`使用命令：
+
+```shell
+gpconfig -s gp_interconnect_type -v udpifc
+```
+
+> 不要使用`gpconfig -s gp_interconnect_type -v UDP`，这个`UDP`配置在Greenplum-6.7.1（对应PostgreSQL 9.4.24）的版本中不支持。如果不小心配置了不要重启（重新执行正确配置值的命令），重启就起不来了，只能在服务端`postgresql.conf`文件中一个个配置。
+
+<h4 id="3.4">3.4 Greenplum节点network error segment slice1 6000 check your network</h4>
+
+在`/etc/sysctl.conf`中有配置：`net.ipv4.ip_local_port_range`，该配置目前的理解是在本机可开启哪些端口供使用。因为现场环境有防火墙的限制，所以要配置的端口范围是防火墙放行的。
+
+GP库主子节点通信使用的端口还要再研究下，修改完防火墙放行的端口后再验证试一试。
 
 ---
