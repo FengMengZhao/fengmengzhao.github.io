@@ -6,6 +6,9 @@ author:             冯兄
 baseurl:           ""
 url:               "http://fengmengzhao.github.io"
 
+gitee:
+    pic_prefix: "https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master"
+
 # Social Profiles
 twitter_username:  #fengmengzhao
 github_username:   FengMengZhao
