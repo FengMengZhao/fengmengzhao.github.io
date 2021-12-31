@@ -193,7 +193,7 @@ comment: false
 
 要低头看路，同时别忘了抬头看天，看一看初心，看一看自己的收获，看一看接下来的路是不是自己想要的，看一看要不要做一点什么...
 
-<h3 id="4">4. 愿：功不唐捐</h3>
+<h3 id="5">5. 愿：功不唐捐</h3>
 
 那，到底谁该为`Jones Phil`那十年被辜负的努力负责呢？ 应该是他发现自己是个`quora`控但没有做出改变的勇气。五年来冯兄很用功，还是很平庸，谁来负责呢？应该是压低的头只顾看路的仓皇，都不记得抬头看一下天的那份思考。
 
@@ -215,7 +215,7 @@ comment: false
 
 所有的程序员打工人能够低头看路并抬头看天，日拱一卒，功不唐捐。
 
-<h3 id="5">5. 引用</h3>
+<h3 id="6">6. 引用</h3>
 
 - `Jones Phil博文地址`：[http://sdi.thoughtstorms.info/](http://sdi.thoughtstorms.info/)
 - `Hack News原文地址`：[https://news.ycombinator.com/item?id=29545069](https://news.ycombinator.com/item?id=29545069)
