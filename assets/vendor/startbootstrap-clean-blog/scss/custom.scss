@@ -18,3 +18,19 @@ a.back-to-top {
 a:hover.back-to-top {
     background-color: #000;
 }
+
+.hidden>div {
+    display:none;
+}
+
+.visible>div {
+    display:block;
+}
+
+.text_container_border {
+    border: 2px solid pink;
+}
+
+.question_button {
+    margin: 10px;
+}

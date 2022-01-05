@@ -40,3 +40,16 @@ $('#search-bar').click(function() {
         $search.hide();
     }
 });
+
+$('.question_button').click(function() {
+  var $this = $('.text_container');
+
+  if ($this.hasClass("hidden")) {
+    $this.removeClass("hidden").addClass("visible");
+            $this.addClass("text_container_border");
+
+  } else {
+    $this.removeClass("visible").addClass("hidden");
+            $this.removeClass("text_container_border");
+  }
+});
