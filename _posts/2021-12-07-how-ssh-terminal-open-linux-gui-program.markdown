@@ -4,6 +4,7 @@ title: 'SSH终端怎们正确打开Linux gui程序-Window System？'
 subtitle: 'Windows系统上使用大多都是图形化界面程序，也有少数的命令行程序(比如netstat)，而Linux大多使用的是命令行程序，但是也有gui程序(比如jvisualvm)。但是有时候在Linux打开gui程序会报错，有时候又没有问题。这里面涉及到Linux gui程序显示用到的X Window System服务，本文一探究竟什么是X Window System，如何能正确在ssh终端中打开Linux gui程序。'
 background: '/img/posts/x-server.png'
 comment: false
+weixinurl: 'https://mp.weixin.qq.com/s/CWsezsKWrHQZWqqmOKrX3g'
 ---
 
 # 目录

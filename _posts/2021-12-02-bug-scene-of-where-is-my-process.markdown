@@ -4,6 +4,7 @@ title: 'bug现场谜之进程为什么消失了'
 subtitle: '谜之bug现场：进程好好的不见了，找不到他杀的任何证据，总不能是自杀吧。复活它之后某一个时刻消失，再复活再消失...'
 background: '/img/posts/bug-scene-of-disappeared.jpg'
 comment: false
+weixinurl: 'https://mp.weixin.qq.com/s/zm-Sw2vpK_t4jViQ6syoGQ'
 ---
 
 # 目录

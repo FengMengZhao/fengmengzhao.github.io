@@ -4,6 +4,7 @@ title: 'Docker指南-2021(冯兄话吉 [译])'
 subtitle: '从基本的概念到Docker中级，带你从零到一学习Docker。通过本指南你应该学习到：几乎基于所有平台的容器化工具的安装;上传一个自定义的Docker镜像(Image)到镜像仓库(registry);使用docker-compose协作多个容器。'
 background: '/img/posts/docker-handbook-2021-fxhj-trans.jpg'
 comment: false
+weixinurl: 'https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzUxMzUyNDI5Mg==&action=getalbum&album_id=2090655190021439492&scene=173&from_msgid=2247483774&from_itemidx=1&count=3&nolastread=1#wechat_redirect'
 ---
 
 # 目录

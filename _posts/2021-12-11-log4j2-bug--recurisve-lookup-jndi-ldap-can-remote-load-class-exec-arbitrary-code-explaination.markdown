@@ -4,6 +4,7 @@ title: 'log4j2 JNDI解析LDAP协议变量远程加载class存在漏洞（可被�
 subtitle: '程序员圈子爆火的log4j2存在怎样的漏洞，如何攻？如何防？我们来一波攻防演示。'
 background: '/img/posts/log4j2-jndi-ldap-remote-class-load-bug.png'
 comment: false
+weixinurl: 'https://mp.weixin.qq.com/s/wMWsEobetgB3mNBZfPWoLA'
 ---
 
 # 目录
