@@ -26,6 +26,10 @@ comment: true
         - [3.2.4 评论](#3.2.4)
         - [3.1.5 搜索](#3.2.5)
 - [4 jekyll本地开发](#4)
+- [5 遇到的问题](#5)
+    - [5.1 评论系统](#5.1)
+    - [5.2 查看Github-pages后台构建进程](#5.2)
+- [更新列表](#99)
 
 ---
 
@@ -178,6 +182,8 @@ Github Pages默认支持Jekyll作为静态站点生成器。如果你写的Jekyl
 3. `new OAuth APP`，`Application name`，`Homepage URL`，`Application description`可以随意填写，`Authorization callback URL`一定要写自己的Github pages的URL。填写完信息后，按`Register application`按钮，得到`Client ID`和`Client Secret`。
 4. 在路径`_layouts/post.html`中可以找到引用的`Gitment`的JS代码。
 
+> 基于`gitment`的评论系统已经停用，**疑问和勘误**信息关注微信公众号“冯兄画戟”给冯兄留言，也可以点击页面左下方`疑问？勘误？`链接给冯兄反馈。
+
 <h5 id="3.2.5">3.2.5 搜索</h5>
 
 搜索使用的是[Simple-Jekyll-Search](https://github.com/christian-fei/Simple-Jekyll-Search "Simple-Jekyll-Search")。
@@ -187,8 +193,6 @@ Github Pages默认支持Jekyll作为静态站点生成器。如果你写的Jekyl
 3. 在路径`_includes/scripts.html`中能找到关于搜索的JS引用。
 4. 在路径`_includes/navbar.html`中能找到搜索li标签和搜索框的HTML代码。
 5. 默认的样式太丑了，在路径`assets/vendor/startbootstrap-clean-blog/scss/_navbar.scss`和`assets/scripts.js`总分别有样式和点击弹出搜索框的代码。
-
----
 
 <h3 id="4">4 jekyll本地开发</h3>
 
@@ -207,8 +211,24 @@ Github Pages默认支持Jekyll作为静态站点生成器。如果你写的Jekyl
 > 2019年10月22日发现新增的文章在github-page上构建失败，最后用docker环境将代码在本地运行，其中更改了一个编码的问题，代码在本地能够运行成功，但是在github-pages仍然失败。<br><br>
 编码问题的报错是：`非US-ASCII字符`，修改了ruby的一个文件：`engine.rb`在`require`语句后加入`Encoding.default_external = Encoding.find('utf-8')`本地不会报错，运行成功！
 
+<h3 id="5">5 遇到的问题</h3>
+
+<h4 id="5">5.1 评论系统</h4>
+
+上周末突然想起了冯兄话吉博客的评论系统，发现之前的`gitment`已经不能使用。查询了相关静态博客集成评论子系统内容，大多使用第三方评论系统，比如[DISQUS](https://disqus.com/)。但是`DISQUS`需要科学上网才能访问，也有一定的限制。查询中发现了[isso](https://posativ.org/isso/)可以自己维护评论系统再集成到博客系统中，由于需要域名和VPS，没再做过多研究，后续在本地调试成功，可以购买一个域名搬到博客上来。
+
+<h4 id="5">5.2 查看Github-pages后台构建进程</h4>
+
+给博客增加公众号链接，不想在本地测试，直接修改提交。修改到一个css时候，可能语法有错误，没有构建成功，但是也不知道为啥，也没有收到邮件。后来发现是可以看到后台的构建进度的，如图：
+
+![](/img/posts/jekyll-blog-github-pages-build-env.png)
+
 **Reference：**
 
 - [startbootstrap-clean-blog](https://github.com/BlackrockDigital/startbootstrap-clean-blog "startbootstrap-clean-blog")
 
+<h3 id="99">更新列表</h3>
 
+- 2022-01-05 16:43 新增遇到的问题
+
+---
