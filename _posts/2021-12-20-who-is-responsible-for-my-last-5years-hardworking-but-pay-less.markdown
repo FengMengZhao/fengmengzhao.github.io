@@ -18,6 +18,7 @@ comment: false
 - [3. 论平庸](#3)
 - [4. 论"搬砖"的艺术](#4)
 - [5. 愿：功不唐捐！](#5)
+- [更新记录](#99)
 
 ---
 
@@ -218,12 +219,16 @@ comment: false
 
 <h3 id="6">6. 引用</h3>
 
-- `Jones Phil博文地址`：[http://sdi.thoughtstorms.info/](http://sdi.thoughtstorms.info/)
+- `Jones Phil博文地址`：[http://exquora.thoughtstorms.info/](http://exquora.thoughtstorms.info/)
 - `Hack News原文地址`：[https://news.ycombinator.com/item?id=29545069](https://news.ycombinator.com/item?id=29545069)
 - `冯兄github简历生成仓库`：[https://github.com/FengMengZhao/LaTeX_generate_Chinese_resume](https://github.com/FengMengZhao/LaTeX_generate_Chinese_resume)
     - `冯兄gitee同步简历生成仓库`：[https://gitee.com/fengmengzhao/LaTeX_generate_Chinese_resume.git](https://gitee.com/fengmengzhao/LaTeX_generate_Chinese_resume)
 - `冯兄github学生管理系统仓库`：[https://github.com/FengMengZhao/StudentsManagerWeb](https://github.com/FengMengZhao/StudentsManagerWeb)
     - `冯兄gitee同步学生管理系统仓库`：[https://gitee.com/fengmengzhao/StudentsManagerWeb](https://gitee.com/fengmengzhao/StudentsManagerWeb)
 - `一步一个脚印学习创建免费的个人博客`：[https://fengmengzhao.github.io/2018/06/07/step-by-step-learn-to-build-an-awesome-jekyll-blog-free-hostd-by-github.html](https://fengmengzhao.github.io/2018/06/07/step-by-step-learn-to-build-an-awesome-jekyll-blog-free-hostd-by-github.html)
+
+<h3 id="99">更新记录</h3>
+
+- 2022-01-17 12:34 修改引用中原文链接错误
 
 ---
