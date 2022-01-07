@@ -29,7 +29,7 @@ comment: true
 - [5 遇到的问题](#5)
     - [5.1 评论系统](#5.1)
     - [5.2 查看Github-pages后台构建进程](#5.2)
-- [更新列表](#99)
+- [更新记录](#99)
 
 ---
 
@@ -227,7 +227,7 @@ Github Pages默认支持Jekyll作为静态站点生成器。如果你写的Jekyl
 
 - [startbootstrap-clean-blog](https://github.com/BlackrockDigital/startbootstrap-clean-blog "startbootstrap-clean-blog")
 
-<h3 id="99">更新列表</h3>
+<h3 id="99">更新记录</h3>
 
 - 2022-01-05 16:43 新增遇到的问题
 
