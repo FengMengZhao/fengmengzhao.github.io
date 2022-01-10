@@ -653,6 +653,8 @@ gpconfig -c statement_mem -v 512MB
 
 > 先通过`alter system`设置`128MB`之后，在通过`gpconfig -c`设置的`512MB`没有生效，后续有机会再研究。
 
+> 参考文章：[https://community.pivotal.io/s/article/Greenplum-Queries-Fail-with-ERROR-insufficient-memory-reserved-for-statement?language=en_US](https://community.pivotal.io/s/article/Greenplum-Queries-Fail-with-ERROR-insufficient-memory-reserved-for-statement?language=en_US)
+
 ---
 
 <h3 id="99">更新记录</h3>
