@@ -38,6 +38,8 @@ comment: false
     - [3.2 Greenplum提示too many clients解决](#3.2)
     - [3.3 Greenplum节点间的通信模式](#3.3)
     - [3.4 Greenplum节点network error segment slice1 6000 check your network](#3.4)
+    - [3.5 Greenplum报错：insufficient memory reserved for statement](#3.5)
+- [更新记录](#99)
 
 ---
 
@@ -629,6 +631,30 @@ gpconfig -s gp_interconnect_type -v udpifc
 
 在`/etc/sysctl.conf`中有配置：`net.ipv4.ip_local_port_range`，该配置目前的理解是在本机可开启哪些端口供使用。因为现场环境有防火墙的限制，所以要配置的端口范围是防火墙放行的。
 
-GP库主子节点通信使用的端口还要再研究下，修改完防火墙放行的端口后再验证试一试。
+~~GP库主子节点通信使用的端口还要再研究下，修改完防火墙放行的端口后再验证试一试。~~现场环境中将端口号改为不会有防火墙限制的`10000-20000`之后，没有出现报错：`network error`。
+
+<h4 id="3.5">3.5 Greenplum报错：insufficient memory reserved for statement</h4>
+
+默认`statement_mem`值为`128MB`，可以使用使用`show statement_mem`或者`select * from pg_settings where name like 'statement';`。
+
+修改参数：
+
+1). 使用Greenplum命令
+
+```shell
+statement_mem 默认值：125 MB  建议值：512MB
+查看参数配置值：
+gpconfig -s statement_mem 
+修改参数配置值
+gpconfig -c statement_mem -v 512MB
+```
+
+2). 通过`alter system`命令：`alter system set statement_mem='256MB'`
+
+> 先通过`alter system`设置`128MB`之后，在通过`gpconfig -c`设置的`512MB`没有生效，后续有机会再研究。
 
 ---
+
+<h3 id="99">更新记录</h3>
+
+- 2022-01-10 10:27 现场发现GP库报错报错，新增`3.5`内容。
