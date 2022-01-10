@@ -39,6 +39,6 @@ a:hover.back-to-top {
     margin: 20px;
 }
 
-.text_container a:link {
-    color:darkblue;
-}    /* 未被访问的链接 */
+ul li a {
+    text-decoration: underline;
+}
