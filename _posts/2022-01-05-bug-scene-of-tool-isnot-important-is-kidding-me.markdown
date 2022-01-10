@@ -4,6 +4,7 @@ title: 'bug现场谜之超级权限的root用户也存在“创建文件失败�
 subtitle: '现场ETL抽数报错“创建文件失败”，无法将数据通过达梦dmfldr工具导入数据库中，问题好几天了，看看吧...'
 background: '/img/posts/bug-scene-tool-isnot-important-is-kidding-me.jpg'
 comment: false
+weixinurl: https://mp.weixin.qq.com/s/3J-6FuLMOaHlFtG3Ct4HmA
 ---
 
 # 目录
@@ -203,4 +204,4 @@ watch xxxx.Execute exec "{params, target, returnObj, throwExp}" -e -x 2
 
 - [计算机字符编码](https://fengmengzhao.github.io/2015/07/30/computer-character-coding-styles.html)
 
----
+--
