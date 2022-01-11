@@ -881,9 +881,17 @@ mount -o bind /path/to/folder /path/to/newfolder
 
 从ftp下载`xxx.txt`文件：`curl ftp://141.151.1.102:8080 -u admin:123456 -o xxx.txt`
 
+> 没有`-o`参数可以展示文本内容，不能展示二进制内容。
+
 从ftp上传`xxx.txt`文件：`curl ftp://141.151.1.102:8080 -u admin:123456 -T xxx.txt`
 
 ftp展示目录：`curl ftp://141.151.1.102:8080 -u admin:123456 -s`
+
+> 展示ftp路径内容最好在路径后面跟上`/`。
+
+> `-u $FTP_USER:$PASSWD`也可以在ftp中写成`ftp://$FTP_USER:$PASSWD@$HOST:$PORT`，例如：`curl ftp://141.151.1.102:8080 -u admin:123456 -s` --> `curl ftp://admin:123456@141.151.1.102:8080 -s`。
+
+> 默认`curl`命令和ftp交互使用的是`pasv`模式，参数是：`--ftp-pasv`。
 
 ---
 
