@@ -893,6 +893,16 @@ ftp展示目录：`curl ftp://141.151.1.102:8080 -u admin:123456 -s`
 
 > 默认`curl`命令和ftp交互使用的是`pasv`模式，参数是：`--ftp-pasv`。
 
+**新增用户**
+
+编辑`res/conf/users.properties`，复制已有的user信息新增即可，如：
+
+```shell
+ftpserver.user.$FTP_USER.userpassword=$PASSWD
+ftpserver.user.$FTP_USER.homedirectory=/data/ftp_data
+...
+```
+
 ---
 
 <h3 id= "7">7. 日常小技巧</h3>
