@@ -631,6 +631,8 @@ gpconfig -s gp_interconnect_type -v udpifc
 
 在`/etc/sysctl.conf`中有配置：`net.ipv4.ip_local_port_range`，该配置目前的理解是在本机可开启哪些端口供使用。因为现场环境有防火墙的限制，所以要配置的端口范围是防火墙放行的。
 
+> 使用`sysctl -p`命令可以让`/etc/sysctl.conf`文件即刻生效。
+
 ~~GP库主子节点通信使用的端口还要再研究下，修改完防火墙放行的端口后再验证试一试。~~现场环境中将端口号改为不会有防火墙限制的`10000-20000`之后，没有出现报错：`network error`。
 
 <h4 id="3.5">3.5 Greenplum报错：insufficient memory reserved for statement</h4>
