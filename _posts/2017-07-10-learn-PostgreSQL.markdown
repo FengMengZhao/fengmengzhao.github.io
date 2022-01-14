@@ -221,6 +221,8 @@ select tablename,indexdef from pg_indexes where tablename ='${table_name}'
 
 --打开慢sql记录 如果sql运行1000ms，则日志该sql
 alter system set log_min_duration_statement=1000
+-- 打开所有的sql记录，用户查找一个拼接，默认值为none
+alter system set log_statement='all'
 --重载配置
 select pg_reload_conf()
 
