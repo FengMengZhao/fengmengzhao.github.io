@@ -49,6 +49,7 @@ comment: false
     - [7.3 Notepad使用技巧](#7.3)
     - [7.4 maven小技巧](#7.4)
     - [7.5 增量tar打包文件](#7.5)
+    - [7.6 jar包更新某个文件并重新打包](#7.6)
 
 ---
 
@@ -955,6 +956,38 @@ tar --listed-incremental=202103031022.file -czvf backup.tar.gz testincreasetar/
 cp 202103031022.file 202103031025.file.1
 tar --listed-incremental=202103031025.file.1 -czvf backup.tar.gz.1 testincreasetar/
 #增量压缩的时候要创建另外一个tar.gz文件
+```
+
+<h4 id="7.6">7.6 jar包更新某个文件并重新打包</h4>
+
+**1). 使用zip命令解压、修改、更新包**
+
+```shell
+#解压jar包
+unzip -x xxx.jar -d xxx.jar.tmp
+#进入临时目录
+cd xxx.jar.tmp
+
+#修改文件
+
+#在临时目录中更新jar包
+zip -ru ../xxx.jar *
+```
+
+**2). 使用jar命令解压、修改、更新包**
+
+```shell
+#查看jar包内文件
+jar tf xxx.jar
+
+#解压出来需要修改的文件
+jar xf xxx.jar path/xxx.yml
+
+#修改文件
+vim path/xxx.yml
+
+#更新修改后的文件到jar包中
+jar uf xxx.jar path/xxx.yml
 ```
 
 ---
