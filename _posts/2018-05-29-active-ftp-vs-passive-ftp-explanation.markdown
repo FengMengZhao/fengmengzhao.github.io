@@ -16,6 +16,7 @@ weixinurl: 'https://mp.weixin.qq.com/s/GLI71hcMRS49kZ8NcSMbMw'
 - [5. 总结](#5)
 - [6. 问题汇总](#6)
     - [6.1 Apache FTP银河麒麟FT2000+ SM环境Apache FTPClient和WinSCP设置passive模式不能下载文件（待解决）](#6.1)
+        - [6.1.1 主动模式连接报错“x.x.x.x is not the same as server y.y.y.y”](#6.1.1)
 - [更新记录](#99)
 
 <h3 id="1">1. 简介</h3>
@@ -231,6 +232,19 @@ Exception in thread "main" java.net.ConnectException: 拒绝连接 (Connection r
 
 上述代码注释掉`ftpClient.enterLocalPassiveMode()`使用主动模式连接下载文件流没有问题。
 
+<h5 id="6.1.1">6.1.1 主动模式连接报错“x.x.x.x is not the same as server y.y.y.y”</h5>
+
+上面“6.1”如果问题是端口可达性问题的话，那么可以把ftp服务端和客户端放在一起，这样肯定就不会出现端口不可达的情况了。测试后发现报错：
+
+```shell
+Writing File failed with: File operation failed... Host attempting data connection 127.0.0.1 is not the same as server 141.151.1.62 
+```
+
+可以有两种解决办法：
+
+1. 设置ftp的ip地址为`127.0.0.1`，这样就不会不一致了，能正常工作。
+2. 代码中设置FTPClient参数`FTPClient.setRemoteVerificationEnabled(false)`。参考：[https://stackoverflow.com/questions/57164983/how-to-handle-host-attempting-data-connection-x-x-x-x-is-not-the-same-as-server](https://stackoverflow.com/questions/57164983/how-to-handle-host-attempting-data-connection-x-x-x-x-is-not-the-same-as-server)
+
 **Reference**
 
 - [http://slacksite.com/other/ftp.html](http://slacksite.com/other/ftp.html)
@@ -238,3 +252,4 @@ Exception in thread "main" java.net.ConnectException: 拒绝连接 (Connection r
 <h3 id="99">更新记录</h3>
 
 - 2022-01-13 15:22 排查信创机Apache FTP使用Apache FTPClient passive模式连接问题“6.1”。
+- 2022-01-20 10:00 记录信创机主动连接模式报错“connection x.x.x.x is not the same as server y.y.y.y”。

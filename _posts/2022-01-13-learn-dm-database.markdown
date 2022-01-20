@@ -112,11 +112,16 @@ alter user TEST account unlock;
 #开启审计开关
 # 登录SYSAUDITOR用户或者其他拥有审计权限用户
 SP_SET_ENABLE_AUDIT(1); 
-#开启覆盖所有用户的语句级审计日志
-SP_AUDIT_STMT(‘ALL’,’NULL’,’ALL’);
+#开启覆盖所有用户的语句级审计日志，中间一个参数是用户
+#语句级别的审计只针对用户
+SP_AUDIT_STMT(‘ALL’,’SYSDBA’,’ALL’);
 #设置单个审计文件的大小
 #设置单个审计文件大小为1G
 sp_set_para_value(1,‘AUDIT_MAX_FILE_SIZE’,1024);
+
+#查看审计日志
+select * from V@AUDITRECORDS where USERNAME = 'SYSDBA' order by OPTIME DESC;
+#或者使用达梦自带日志分析工具analyze，图形化界面展示日志
 ```
 
 <h3 id="5">5. 版本和license</h3>
