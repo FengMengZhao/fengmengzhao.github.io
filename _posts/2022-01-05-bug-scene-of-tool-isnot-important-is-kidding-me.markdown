@@ -140,6 +140,8 @@ netstat -nalp |grep 9658
 telnet 127.0.0.1 9658 
 ```
 
+> 注意：用命令行启动`Arthas`进程后，立即用命令`ps -ef |grep arthas`能看到一个进程，说明`Arthas`在启动中，过一会儿进程消失，说明`Arthas`已经启动成功或者失败。如果成功的话，使用`netstat -anlp |grep $PID`能看到`Arthas`启动是指定的`telnet`监听端口。找不到指定的`telnet`监听端口说明没有启动成功，需要查看`~/log/arthas/arthas.log`日志文件。
+
 使用`Arthas`修改代码并重新编译：
 
 ```shell
@@ -175,6 +177,19 @@ watch xxxx.Execute exec "{params, target, returnObj, throwExp}" -e -x 2
 
 > `Arthas`还可以使用`OGNL`表达式，例如：`watch xxx.FileDAO TransString @org.apache.commons.io.IOUtils@toByteArray(params[0].getBinaryStream()) -b -e -x 2`，这里`@`是`OGNL`调用类静态成员或者方法的写法。
 
+**arthas执行静态方法|属性**
+
+```shell
+#调用静态属性
+ognl '@全路径类目@静态属性名'
+
+#ognl执行静态方法
+ognl '@全路径类目@静态方法名("参数")'
+
+#ognl参数的使用
+ognl '#value1=@com.shirc.arthasexample.ognl.OgnlTest@getPerson("src",18), #value2=@com.shirc.arthasexample.ognl.OgnlTest@setPerson(#value1) ,{#value1,#value2}' -x 2
+```
+
 更多`OGNL`用法请参考：[https://commons.apache.org/proper/commons-ognl/language-guide.html](https://commons.apache.org/proper/commons-ognl/language-guide.html)
 
 重新执行程序，控制台得到程序完整的执行`command`是：
@@ -199,6 +214,7 @@ watch xxxx.Execute exec "{params, target, returnObj, throwExp}" -e -x 2
 <h3 id="99">更新记录</h3>
 
 - 2022-01-07 18:16 “冯兄画戟”微信公众号文章发表前重读、优化、勘误
+- 2022-01-20 10:13 增加arthas启动判断内容
 
 <h3 id="100">相关文章推荐</h3>
 
