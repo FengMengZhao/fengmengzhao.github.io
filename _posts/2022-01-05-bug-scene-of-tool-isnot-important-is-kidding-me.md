@@ -1,4 +1,4 @@
----
+﻿---
 layout: post
 title: 'bug现场谜之超级权限的root用户也存在“创建文件失败”的时候？'
 subtitle: '现场ETL抽数报错“创建文件失败”，无法将数据通过达梦dmfldr工具导入数据库中，问题好几天了，看看吧...'
@@ -177,7 +177,7 @@ watch xxxx.Execute exec "{params, target, returnObj, throwExp}" -e -x 2
 
 > `Arthas`还可以使用`OGNL`表达式，例如：`watch xxx.FileDAO TransString @org.apache.commons.io.IOUtils@toByteArray(params[0].getBinaryStream()) -b -e -x 2`，这里`@`是`OGNL`调用类静态成员或者方法的写法。
 
-**arthas执行静态方法|属性**
+**arthas执行静态方法、属性**
 
 ```shell
 #调用静态属性
@@ -215,6 +215,7 @@ ognl '#value1=@com.shirc.arthasexample.ognl.OgnlTest@getPerson("src",18), #value
 
 - 2022-01-07 18:16 “冯兄画戟”微信公众号文章发表前重读、优化、勘误
 - 2022-01-20 10:13 增加arthas启动判断内容
+- 21-01-2022 10:35 [掘金专栏](https://juejin.cn/column/7049663804136751140)发表前重读、优化、勘误
 
 <h3 id="100">相关文章推荐</h3>
 

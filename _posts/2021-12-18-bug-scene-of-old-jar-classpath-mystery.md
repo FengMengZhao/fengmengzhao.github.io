@@ -1,4 +1,4 @@
----
+﻿---
 layout: post
 title: 'bug现场谜之古老的jar包classpath玄机'
 subtitle: 'ps发现主机上只有一个jar -jar xxx.jar的进程，jar包打开发现没有lib依赖包，启动进程中也没有-classpath值，系统环境变量也没有，它是怎么加载依赖启动的？'
