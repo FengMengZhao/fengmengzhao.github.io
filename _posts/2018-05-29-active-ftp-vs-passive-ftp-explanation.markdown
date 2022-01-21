@@ -14,6 +14,10 @@ weixinurl: 'https://mp.weixin.qq.com/s/GLI71hcMRS49kZ8NcSMbMw'
 - [3. Active Mode FTP](#3)
 - [4. Passive Mode FTP](#4)
 - [5. 总结](#5)
+- [6. 问题汇总](#6)
+    - [6.1 Apache FTP银河麒麟FT2000+ SM环境Apache FTPClient和WinSCP设置passive模式不能下载文件（待解决）](#6.1)
+        - [6.1.1 主动模式连接报错“x.x.x.x is not the same as server y.y.y.y”](#6.1.1)
+- [更新记录](#99)
 
 <h3 id="1">1. 简介</h3>
 
@@ -77,7 +81,7 @@ FTP服务仅仅基于TCP协议，实现不包括UDP协议部分。FTP工作时�
 
 从服务端防火墙的角度，为了支持主动模式的FTP访问，如下策略是必须是打开的：
 
-- 客户单任意大于1023端口到FTP Server的21端口(客户端初始化连接)
+- 客户端任意大于1023端口到FTP Server的21端口(客户端初始化连接)
 - FTP Server的21端口到客户端任意大于1023端口(服务回应客户端的命令端口)
 - 客户端任意大于1023端口到FTP Server的任意大于1023端口(客户端初始化数据连接到服务端的数据端口)
 - FTP Server的任意大于1023端口到客户端任意大于1023端口(服务端发送ACK(和数据)到服务数据端口)
@@ -138,6 +142,114 @@ FTP服务仅仅基于TCP协议，实现不包括UDP协议部分。FTP工作时�
 
 ---
 
+<h3 id="6">6. 问题汇总</h3>
+
+<h4 id="6.1">6.1 Apache FTP银河麒麟FT2000+ SM环境Apache FTPClient和WinSCP设置passive模式不能下载文件（待解决）</h4>
+
+现场银河麒麟FT2000+ SM服务器，装有Apache FTP，相关配置为：
+
+```shell
+<active enable="true" local-address="0.0.0.0" local-port="9999" ip-check="true" />
+<passive ports="19000-20000" address="0.0.0.0" external-address="0.0.0.0" />
+```
+
+客户端连接代码为：
+
+```java
+FTPClient ftpClient = new FTPClient();
+ftpClient.setControlEncoding(config.getEncoding());
+ftpClient.setConnectTimeout(config.getConnectTimeout());
+try {
+    //连接ftp服务器
+    ftpClient.connect(config.getHost(), config.getPort());
+    //获取返回代码
+    int replyCode = ftpClient.getReplyCode();
+    //如果没连上
+    if (!FTPReply.isPositiveCompletion(replyCode)) {
+        ftpClient.disconnect();
+        log.warn(FTPSERVER_REFUSED_CONNECTION, replyCode);
+        return null;
+    }
+    //如果用户名密码不对
+    if (!ftpClient.login(config.getUsername(), config.getPassword())) {
+        log.warn(FTP_CLIENT_LOGIN_FAILED, config.getUsername(), config.getPassword());
+    }
+    //设置一些参数
+    ftpClient.setBufferSize(config.getBufferSize());
+    ftpClient.setFileType(config.getTransferFileType());
+    if (config.isPassiveMode()) {
+        ftpClient.enterLocalPassiveMode();
+    }
+
+} catch (IOException e) {
+    log.error(CREATE_FTP_CONNECTION_FAILED, e);
+}
+//下载文件
+InputStream inputStream = null;
+try {
+    // 验证FTP服务器是否登录成功
+    if (!FTPReply.isPositiveCompletion(ftpClient.getReplyCode())) {
+        log.error(FTP_CONNECTED_FAILED);
+        throw new IllegalArgumentException(FTP_CONNECTED_FAILED);
+    }
+    String ftpIsPassive = ArteryConfigUtil.getProperty("ftp.isPassive");
+    ftpClient.enterLocalPassiveMode();//使用passive模式连接
+    log.info(MSG_START_DOWNLOADING, remotePath);
+    inputStream = ftpClient.retrieveFileStream(remotePath);
+    log.info(MSG_END_DOWNLOADING, remotePath);
+} finally {
+    if (null != ftpClient && ftpClient.isConnected()) {
+        try {
+            log.info("退出ftp");
+            ftpClient.logout();
+            log.info("断开ftp");
+            ftpClient.disconnect();
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+}
+```
+
+使用上面的代码下载文件流，报错：
+
+```shell
+Exception in thread "main" java.net.ConnectException: 拒绝连接 (Connection refused)
+    at java.net.PlainSocketImpl.socketConnect(Native Method)
+    ...
+    at java.net.SocketsSocketImpl.connetct(SocketsSocketImpl.java:394)
+    at java.net.Socket.connetct(Socket.java:606)
+    at org.apache.commons.net.ftp.FTPClient._openDataConnection_(FTPClient.java:924)
+    at org.apache.commons.net.ftp.FTPClient._retriveFileStream(FTPClient.java:1984)
+    at org.apache.commons.net.ftp.FTPClient.retriveFileStream(FTPClient.java:1971)
+```
+
+现场的Apache FTP所在服务器端口`19000-20000`确认没有防火墙策略，是可达的。代码执行到开始下载文件时，用`netstat`命令查看Apache FTP进程已经监听了`19000-20000`的端口，但报错似乎提示客户端初始化连接该端口就被“拒绝连接”。
+
+使用`WinSCP`工具和Apache FTPClient在被动连接模式下效果一样，但是用`curl`命令行工具被动模式下能够下载成功：`curl -o a.obj ftp://xxx:xxx@xxx:xxx/xxx`。
+
+网上查了很多资料，没有验证成功。现场抓包工具不可用，以后需要时再用`Fiddler`、`Wireshark`、`tcpdump`等抓包工具进一步排查`tcp`初始化连接情况。
+
+上述代码注释掉`ftpClient.enterLocalPassiveMode()`使用主动模式连接下载文件流没有问题。
+
+<h5 id="6.1.1">6.1.1 主动模式连接报错“x.x.x.x is not the same as server y.y.y.y”</h5>
+
+上面“6.1”如果问题是端口可达性问题的话，那么可以把ftp服务端和客户端放在一起，这样肯定就不会出现端口不可达的情况了。测试后发现报错：
+
+```shell
+Writing File failed with: File operation failed... Host attempting data connection 127.0.0.1 is not the same as server 141.151.1.62 
+```
+
+可以有两种解决办法：
+
+1. 设置ftp的ip地址为`127.0.0.1`，这样就不会不一致了，能正常工作。
+2. 代码中设置FTPClient参数`FTPClient.setRemoteVerificationEnabled(false)`。参考：[https://stackoverflow.com/questions/57164983/how-to-handle-host-attempting-data-connection-x-x-x-x-is-not-the-same-as-server](https://stackoverflow.com/questions/57164983/how-to-handle-host-attempting-data-connection-x-x-x-x-is-not-the-same-as-server)
+
 **Reference**
 
 - [http://slacksite.com/other/ftp.html](http://slacksite.com/other/ftp.html)
+
+<h3 id="99">更新记录</h3>
+
+- 2022-01-13 15:22 排查信创机Apache FTP使用Apache FTPClient passive模式连接问题“6.1”。
+- 2022-01-20 10:00 记录信创机主动连接模式报错“connection x.x.x.x is not the same as server y.y.y.y”。

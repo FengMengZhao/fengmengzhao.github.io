@@ -609,6 +609,10 @@ replace(replace(replace(column, chr(10), ''), chr(13), ''), chr(92), '')
 4. 在目标数据库中执行sql，杀死连接：`select pg_terminate_backend(procpid) from pg_stat_activity where current_query='<IDLE>'`
 5. 重试操作1，验证是否成功
 
+> 杀死数据库连接的方法`pg_terminate_backend(procpid)`字段名`procpid`也可能是`pid`，前者对应低版本的`PostgreSQL(8.3.23)`，后者对应高版本的`PostgreSQL(9.4.24)`。
+
+> 用`select version()`可以查看`PostgreSQL`和`Greenplum`的数据库版本。
+
 <h4 id="3.3">3.3 Greenplum节点间的通信模式</h4>
 
 默认GP库节点间通信的模式是：`UDP`，可以通过命令修改为TCP：
@@ -662,3 +666,4 @@ gpconfig -c statement_mem -v 512MB
 <h3 id="99">更新记录</h3>
 
 - 2022-01-10 10:27 现场发现GP库报错报错，新增`3.5`内容。
+- 2022-01-14 09:56 现场发现Greenplum库`too many clients`，补充“3.2”部分内容。
