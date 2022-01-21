@@ -990,4 +990,15 @@ vim path/xxx.yml
 jar uf xxx.jar path/xxx.yml
 ```
 
+**3). 修改第三发jar包中的某个源代码并编译、重新打包**
+
+```shell
+mkdir dir
+cd dir
+jar xvf ../SomeClass-belong-to.jar #解压
+vim /some/path/SomeClass.java #modification
+javac -source 1.x /some/path/SomeClass.java #使用原来编译该jar包的版本编译该java文件 通过javap -verbose 查看编译版本
+jar Mcf ../SomeClass-belong-to.jar * #重新打包
+```
+
 ---
