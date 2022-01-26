@@ -4,6 +4,7 @@ title: 'bug现场谜之困在“init”方法上的那些时间！'
 subtitle: 'war包从tomcat迁移到jetty，报错NoSuchMethodError: xxx.WebSocketServerFactory.init(Ljavax/servlet/ServletContext;)V，可是找到对应的类，明明方法存在啊？最后得出结论：“出来混，知识的盲区迟早是要还的！”'
 background: '/img/posts/bug-scene-init-constructor-or-normal.jpg'
 comment: false
+weixinurl: https://mp.weixin.qq.com/s/PRKtFCb573rv69o8wTDrqw
 ---
 
 # 目录
@@ -12,6 +13,7 @@ comment: false
 - [2. 尝试破案](#2)
 - [3. 真相浮出水面](#3)
 - [4. 总结](#4)
+- [更新记录](#99)
 
 ---
 
@@ -144,3 +146,9 @@ java.lang.NoSuchMethodError: org.springframework.boot.builder.SpringApplicationB
 1. 很多看似玄学的`bug`解释不了，最后原因总是归结为“知识的盲区”。很多知识不必懂的很深入，但是基本的东西要了解，此时“不求甚解”，彼时“这是玄学？”。
 2. 有些时候会无意识的想当然一些结论（比如本示例中`.init()`方法自然认为是构造方法）。没办法十分敲定的东西，要多查一查，多一份思路。
 3. 排查问题，针对一个思路要充满信心，即使这个思路不能解决问题，至少也要能得出这条思路的结论。不能急躁、粗心、盲目尝试。思路窄了，就停下来，明天再尝试，避免进入死胡同。
+
+
+<h3 id="99">更新记录</h3>
+
+- 2022-01-24 16:10  微信公众号“冯兄画戟”文章发表前重读、优化、勘误
+- 2022-01-26 15:20  [掘金专栏](https://juejin.cn/column/7049663804136751140)发表前重读、优化、勘误
