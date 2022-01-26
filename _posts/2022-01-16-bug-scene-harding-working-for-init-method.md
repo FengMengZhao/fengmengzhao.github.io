@@ -46,7 +46,7 @@ javap -cp lib/websocket/websocket-server-9.4.41.v20210516.jar org.eclipse.jetty.
 
 ![](/img/posts/bug-scene-init-constructor-exists.png)
 
-后来笔者有尝试了多种途径确认这个构造方法是存在的，但是却报错`NoSuchMethodError`，网上一大堆找“java.lang.nosuchmethoderror but method exists”，无果。因为网上说的最后都证明确实没有对应的方法。
+后来笔者又尝试了多种途径确认这个构造方法是存在的，但是却报错`NoSuchMethodError`，网上一大堆找“java.lang.nosuchmethoderror but method exists”，无果。因为网上说的最后都证明确实没有对应的方法。
 
 但本案发现场的情况是它有啊！现场变得诡异起来了！难道笔者找到了一个超级`bug`？直觉告诉我100%不会，一定是自己哪块错了。
 
@@ -61,7 +61,7 @@ javap -cp lib/websocket/websocket-server-9.4.41.v20210516.jar org.eclipse.jetty.
 
 这两种情况归根结底是JVM运行时加载的类中确实缺失了方法。但是上面遇到的问题查找加载类是存在报错的构造方法的。
 
-> 如果`JVM`的`classpth`中有多个包存在同一个`class`，到底`JVM`会加载那个包中的`class`是平台相关的(`Linux`系统和`Windows`系统上可能加载的不是同一个`jar`包)。需要注意：`JVM`从`classpth`下的`jar`包中`load`对应的`class`文件，这跟`jar`包的命名没有关系。
+> 如果`JVM`的`classpth`中有多个包存在同一个`class`，到底`JVM`会加载哪个包中的`class`是平台相关的(`Linux`系统和`Windows`系统上可能加载的不是同一个`jar`包)。需要注意：`JVM`从`classpth`下的`jar`包中`load`对应的`class`文件，这跟`jar`包的命名没有关系。
 
 可以通过以下方法根据报错信息定位加载的jar包：
 
@@ -103,7 +103,7 @@ done
 使用`javap`命令反编译，语法如下：
 
 ```shell
-这种方式是指定类信息和类所在的jar包为classpath反编译
+#这种方式是指定类信息和类所在的jar包为classpath反编译
 javap [-verbose] -cp /some/path/to/lib/xxx.jar com.xx.SomeClass
 
 #这种方式是将class文件从jar中解压，直接反编译class文件
@@ -134,7 +134,8 @@ java.lang.NoSuchMethodError: org.springframework.boot.builder.SpringApplicationB
 
 普通方法和构造方法实际上就是`.init()`和`.<init>()`的区别。
 
-> 这里报错中`.<init>([Ljava/lang/Object;)V`中`.`表示是一个方法的调用；`<init>`表示构造方法的调用；`[`表示一个数组；`Ljava/lang/Object;`表示`java.lang.object`对象；`V`表示返回类型是`void`。实际上就是`SpringApplicationBuilder(java.lang.Object...)`的构造方法，方法的参数是`java.lang.Object`数组。这种写法和`class`文件的内部表示是一致的。`jvm`更多类型表示参考：[https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html)
+> 这里报错中`.<init>([Ljava/lang/Object;)V`中`.`表示是一个方法的调用；`<init>`表示构造方法的调用；`[`表示一个数组；`Ljava/lang/Object;`表示`java.lang.object`对象；`V`表示返回类型是`void`。实际上就是`SpringApplicationBuilder(java.lang.Object...)`的构造方法，方法的参数是`java.lang.Object`数组。这种写法和`class`文件的内部表示是一致的。`jvm`更多内部实现
+类型表示参考：[https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html)
 
 对于一个程序员来说，异常的的堆栈信息是司空见惯的，也就懒得深究其中的一些玄机，果然“报应不爽”！出来混，迟早要还的。
 
@@ -142,4 +143,4 @@ java.lang.NoSuchMethodError: org.springframework.boot.builder.SpringApplicationB
 
 1. 很多看似玄学的`bug`解释不了，最后原因总是归结为“知识的盲区”。很多知识不必懂的很深入，但是基本的东西要了解，此时“不求甚解”，彼时“这是玄学？”。
 2. 有些时候会无意识的想当然一些结论（比如本示例中`.init()`方法自然认为是构造方法）。没办法十分敲定的东西，要多查一查，多一份思路。
-3. 排查问题，针对一个思路要充满信心，即时这个思路不能解决问题，之前也要能得出这条思路的结论。不能急躁、粗心、盲目尝试。思路窄了，就停下来，明天再尝试，避免进入死胡同。
+3. 排查问题，针对一个思路要充满信心，即使这个思路不能解决问题，至少也要能得出这条思路的结论。不能急躁、粗心、盲目尝试。思路窄了，就停下来，明天再尝试，避免进入死胡同。
