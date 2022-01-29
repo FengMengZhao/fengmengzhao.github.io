@@ -2,7 +2,7 @@
 layout: post
 title: '程序员春节想“弯道超车”？冯兄支招另辟蹊径，或大有可为！'
 subtitle: '程序员这个勤奋的群体不会放过春节弯道超车的大好时机，可平时都没“卷”过同事，两周内想超越谈何容易？不如听冯兄支招另辟蹊径，士别“三”日当刮目相待，来年再非“吴下阿蒙”。'
-background: '/img/posts/write-an-article-with-tools.jpg'
+background: 'https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/write-an-article-with-tools.jpg'
 comment: false
 ---
 
@@ -81,7 +81,7 @@ comment: false
 
 但是，不管是在象牙塔内还是在社会的裹挟中，不管是学业蒸蒸日上亦或事业爱情一塌糊涂，能够清晰判定“我是被卷在当下还是激流勇进正当时”是非常重要的。
 
-故事的主人公另辟蹊径“别人挖矿我挖井”，取得了成功，是聪明的人。挖矿者中少数人得到了一些财富，这波少数人肯定是激流勇进的人。其中还有一部分人具有坚定的信念、充足的准备和不懈的努力，但是最终失败了，这部分人也是值得尊重的。剩下那些“随大流”、碰运气和没有明确规划的挖矿者，他们是被“卷”在其中的人，也注定是不会成功。
+故事的主人公另辟蹊径“别人挖矿我挖井”，取得了成功，是聪明的人。挖矿者中少数人得到了一些财富，这波少数人肯定是激流勇进的人。其中还有一部分人具有坚定的信念、充足的准备和不懈的努力，但是最终失败了，这部分人也是值得尊重的。剩下哪些“随大流”、碰运气和没有明确规划的挖矿者，他们是被“卷”在其中的人，也注定是不会成功。
 
 **被“卷”就意味着将来的“炮灰”。**
 
@@ -167,13 +167,13 @@ comment: false
 
 [冯兄话吉博客](https://fengmengzhao.github.io)有一个包含`.md`文档的`_posts`本地目录，把这个目录链接到[坚果云](https://www.jianguoyun.com/)上，这样本地上传、修改文档都能够即时同步到坚果云上，如图：
 
-![](/img/posts/write-article-jianguoyun-link-directory.png)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/write-article-jianguoyun-link-directory.png)
 
 微信公众号不支持Markdown语法，可以参考[markdown-weixin](https://github.com/FengMengZhao/markdown-weixin.git)将Markdown文本内容转化为公众号文章。
 
 冯兄把[Gitee](https://gitee.com/)仓库作为图床使用，需要先将[冯兄话吉博客Github仓库](https://github.com/FengMengZhao/fengmengzhao.github.io.git)同步到`Gitee`平台上（`Gitee`页面支持从`Github`导入仓库），其他平台上发表文章前用[shell脚本](https://raw.githubusercontent.com/FengMengZhao/fengmengzhao.github.io/master/shell_scripts/img_to_giteeURL.sh)将文章内图片引用改为`Gitee`超链接引用，如图：
 
-![](/img/posts/write-article-gitee-convert-link.png)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/write-article-gitee-convert-link.png)
 
 shell脚本的执行是在Win本地安装的WSL2上进行的，Win上先提交到Github远程仓库，然后在WSL2实例上拉取下来。想了解更多WSL2的内容，可以参考：[Windows10 WSL2体验如此丝滑(Windows上使用完整服务的Linux)](https://fengmengzhao.github.io/2021/12/07/wsl-using-headache-problem-solving.html)
 
@@ -185,11 +185,11 @@ Android平台和Windows平台上`.md`文档的同步需要用坚果云支持的[
 
 1). 在`易码`上增加一个新的`笔记库`指向手机内部存储`/EasyMarkdown`。操作如下：
 
-![](/img/posts/write-article-create-easymarkdown-notedb.jpg)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/write-article-create-easymarkdown-notedb.jpg)
 
 2). `Markor`上设置工作目录为手机内部存储`/EasyMarkdown`，操作如下：
 
-![](/img/posts/write-article-markor-specific-phone-inner-storage-directory.jpg)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/write-article-markor-specific-phone-inner-storage-directory.jpg)
 
 这样，当在Windows平台上创建或者更新文档后，更新内容会同步到`坚果云`，手机端`易码`通过`WebDAV`同步坚果云文档。需要在手机端修改文档时，在`易码`上将`坚果云`笔记库对应文档移动到自定义手机内部存储的笔记库中，实际上就是将`坚果云`远端文档下载到手机本地内部存储目录，这样打开`Markor`读取同样手机本地内部存储目录，就能够显示并编辑文档。
 
@@ -197,7 +197,7 @@ Android平台和Windows平台上`.md`文档的同步需要用坚果云支持的[
 
 `易码`上操作移动文档到不同笔记库的操作如图：
 
-![](/img/posts/write-article-move-article-in-markor.jpg)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/write-article-move-article-in-markor.jpg)
 
 冯兄为ipad买了一个k380蓝牙键盘，也可以连手机，家中如果嫌手机打字不方便，可以连上蓝牙键盘，只要思路顺，也能写到起飞。
 
