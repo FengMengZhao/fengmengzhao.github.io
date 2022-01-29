@@ -1,6 +1,6 @@
 ﻿---
 layout: post
-title: '程序员春节想“弯道超车”？冯兄支招另辟蹊径，可能更靠谱'
+title: '程序员春节想“弯道超车”？冯兄支招另辟蹊径，或大有可为！'
 subtitle: '程序员这个勤奋的群体不会放过春节弯道超车的大好时机，可平时都没“卷”过同事，两周内想超越谈何容易？不如听冯兄支招另辟蹊径，士别“三”日当刮目相待，来年再非“吴下阿蒙”。'
 background: '/img/posts/write-an-article-with-tools.jpg'
 comment: false
@@ -185,11 +185,11 @@ Android平台和Windows平台上`.md`文档的同步需要用坚果云支持的[
 
 1). 在`易码`上增加一个新的`笔记库`指向手机内部存储`/EasyMarkdown`。操作如下：
 
-![](write-article-create-easymarkdown-notedb.jpg)
+![](/img/posts/write-article-create-easymarkdown-notedb.jpg)
 
 2). `Markor`上设置工作目录为手机内部存储`/EasyMarkdown`，操作如下：
 
-![](write-article-markor-specific-phone-inner-storage-directory.jpg)
+![](/img/posts/write-article-markor-specific-phone-inner-storage-directory.jpg)
 
 这样，当在Windows平台上创建或者更新文档后，更新内容会同步到`坚果云`，手机端`易码`通过`WebDAV`同步坚果云文档。需要在手机端修改文档时，在`易码`上将`坚果云`笔记库对应文档移动到自定义手机内部存储的笔记库中，实际上就是将`坚果云`远端文档下载到手机本地内部存储目录，这样打开`Markor`读取同样手机本地内部存储目录，就能够显示并编辑文档。
 
@@ -197,7 +197,7 @@ Android平台和Windows平台上`.md`文档的同步需要用坚果云支持的[
 
 `易码`上操作移动文档到不同笔记库的操作如图：
 
-![](write-article-move-article-in-markor.jpg)
+![](/img/posts/write-article-move-article-in-markor.jpg)
 
 冯兄为ipad买了一个k380蓝牙键盘，也可以连手机，家中如果嫌手机打字不方便，可以连上蓝牙键盘，只要思路顺，也能写到起飞。
 
