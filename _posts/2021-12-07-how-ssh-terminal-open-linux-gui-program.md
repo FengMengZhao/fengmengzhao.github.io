@@ -1,4 +1,4 @@
----
+﻿---
 layout: post
 title: 'SSH终端怎们正确打开Linux gui程序-Window System？'
 subtitle: 'Windows系统上使用大多都是图形化界面程序，也有少数的命令行程序(比如netstat)，而Linux大多使用的是命令行程序，但是也有gui程序(比如jvisualvm)。但是有时候在Linux打开gui程序会报错，有时候又没有问题。这里面涉及到Linux gui程序显示用到的X Window System服务，本文一探究竟什么是X Window System，如何能正确在ssh终端中打开Linux gui程序。'
@@ -48,7 +48,7 @@ Windows系统中打开图形化应用程序很简单，这是因为Win程序的�
 
 `Window System`核心是`DISPLAY SERVER`（或者称为window server、compositor）。一个调用了`DISPLAY SERVER`来显示图形化的程序称之为该`DISPLAY SERVER`的客户端（**client**）。
 
-既有**client**（调用`DISPLAY SERVER`服务的gui程序），也有**server**（`DISPLAY SERVER`），它们的交互可能涉及到协议（protocol），这种协议就称为**display server protocol**。目前`X Window System`的`X DISPLAY SERVER`使用的协议就是`X 11`（11表示的是版本）。
+既有**client**（调用`DISPLAY SERVER`服务的gui程序），也有**server**（`DISPLAY SERVER`），它们的交互就涉及到协议（protocol），这种协议就称为**display server protocol**。目前`X Window System`的`X DISPLAY SERVER`使用的协议就是`X 11`（11表示的是版本）。
 
 `DISPLAY SERVER`的主要功能是协调操作系统、硬件和其他模块与gui程序之间的输入输出，它在图形化硬件上面提供一个抽象供更高级别的图形化接口（例如`window manager`）使用。
 
@@ -58,7 +58,7 @@ Window System的设计是有层级的，这也体现了Unix系统的设计哲学
 
 ![](/img/posts/x-server-hierarchical-design.png)
 
-如图所示，`DISPLAY SERVER`是`Window System`的核心所在。当你在Linux上打开一个gui程序的时候，该程序会调用`DISPLAY SERVER`的图形化显示服务。这个时候`DISPLAY SERVER`是服务端，而gui程序是客户端。这里和我们平时的理解有差异，一般我们认为服务端都是在远端，而客户端是在本地，这里`DISPLAY SERVER`服务的调用是反过来。
+如图所示，`DISPLAY SERVER`是`Window System`的核心所在。当你在Linux上打开一个gui程序的时候，该程序会调用`DISPLAY SERVER`的图形化显示服务。这个时候`DISPLAY SERVER`是服务端，而gui程序是客户端。这里和我们平时的理解有差异，一般我们认为服务端都是在远端，而客户端是在本地，这里`DISPLAY SERVER`服务的调用是反过来（远端调用本地，也就是GUI程序调用`DISPLAY SERVER`）。
 
 那到底`DISPLAY SERVER`在本地哪里呢？
 
@@ -66,13 +66,23 @@ Window System的设计是有层级的，这也体现了Unix系统的设计哲学
 
 Linux gui程序是如何找`DISPLAY SERVER`服务的呢？
 
-在程序启动的环境变量中会查找`DISPLAY`设置的服务地址。比如`EXPORT DISPLAY=:0.0`表示调用本机`DISPLAY SERVER`服务，服务的端口是`127.0.0.1:6000`；`EXPORT DISPLAY=:10.0`表示调用本机`DISPLAY SERVER`服务，服务的端口是`127.0.0.1:6010`；`EXPORT DISPLAY=172.26.18.37:3600.0`表示调用非本机**但在本地**`DISPLAY SERVER`，服务的端口是`172.26.18.37:9600`。
+在程序启动的环境变量中会查找`DISPLAY`设置的服务地址。比如：
+
+`EXPORT DISPLAY=:0.0`表示调用本机`DISPLAY SERVER`服务，服务的端口是`127.0.0.1:6000`。
+
+`EXPORT DISPLAY=:10.0`表示调用本机`DISPLAY SERVER`服务，服务的端口是`127.0.0.1:6010`。
+
+`EXPORT DISPLAY=172.26.18.37:3600.0`表示调用非本机（但可以在本地）`DISPLAY SERVER`，服务的端口是`172.26.18.37:9600`。
+
+> 这里说的“本机”指的是环境变量设置的主机，可能是本地主机，也可能是本地虚拟机，或者`ssh`远程的远端主机。“本地”指的是本地主机。
 
 这里实际`DISPLAY SERVER`服务监听的端口号是设置环境变量`:`后第一个数字`+6000`，正如上面`:3600.0`实际服务监听的端口就是`6000 + 3600 --> 9600`。配置完`DISPLAY`环境变量之后，可以使用`xhost +`来验证并禁用掉Access Control限制。
 
 > 有些Linux服务端查看`echo $DISPLAY`设置的是`:0.0`，但是并不能通过`netstat -nalp |grep 60000`找打对应的X SERVER监听服务，这样的X SERVER只能够正常打开本地的gui程序，远程其他host并配置当前机器`export DISPLAY=x.x.x.x:0.0`的DISPLAY属性并不能调通X SERVER服务。如果通过端口查看本地X服务在监听，则远程host配置本地X SERVER能够调用X SERVER服务并打开gui程序。
 
 X11 Forwarding和DISPLAY环境变量设置是两个概念。DISPLAY是告诉你的环境去哪里调用X SERVER服务，而X11 Forwarding能够将本地配置的DISLAY SERVICE转发到Forwarding服务启动的X SERVER上。
+
+使用`MobaXterm`连接远程服务器时，该`ssh`客户端会自动启动一个`X DISPLAY SERVER`服务并开启`X11 Forwarding`，保证你始终能正确打开Linux GUI程序。而`putty`没有相应的功能，这也是解释了文章开头处说的为什么这两个`ssh`客户端工具打开同样Linux GUI程序结果却不相同。
 
 常见的`DISPLAY SERVER`如下：
 
