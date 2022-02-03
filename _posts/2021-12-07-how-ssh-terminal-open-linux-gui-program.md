@@ -17,6 +17,7 @@ weixinurl: 'https://mp.weixin.qq.com/s/CWsezsKWrHQZWqqmOKrX3g'
 - [3. 使用Microsoft VcXsrv打开Linux gui程序](#3)
 - [4. 总结](#4)
 - [5. 引用](#5)
+- [更新记录](#99)
 
 ---
 
@@ -131,3 +132,7 @@ Unix like系统的gui程序图形化展示需要`Window System`服务的支持�
 - [https://unix.stackexchange.com/questions/345344/difference-between-xorg-and-gnome-kde-xfce](https://unix.stackexchange.com/questions/345344/difference-between-xorg-and-gnome-kde-xfce)
 - [https://www.jianshu.com/p/e6b45bb9c2e9](https://www.jianshu.com/p/e6b45bb9c2e9)
 - [https://www.cxyzjd.com/article/weixin_30588827/99384287](https://www.cxyzjd.com/article/weixin_30588827/99384287)
+
+<h3 id="99">更新记录</h3>
+
+- 2022-02-03 16:12 [掘金专栏](https://juejin.cn/column/7049191842297937956)发表前重读、优化、勘误
