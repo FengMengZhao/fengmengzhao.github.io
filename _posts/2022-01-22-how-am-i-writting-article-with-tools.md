@@ -4,6 +4,7 @@ title: '程序员春节想“弯道超车”？冯兄支招另辟蹊径，或大
 subtitle: '程序员这个勤奋的群体不会放过春节弯道超车的大好时机，可平时都没“卷”过同事，两周内想超越谈何容易？不如听冯兄支招另辟蹊径，士别“三”日当刮目相待，来年再非“吴下阿蒙”。'
 background: '/img/posts/write-an-article-with-tools.jpg'
 comment: false
+weixinurl: 'https://mp.weixin.qq.com/s/ab1YjlTK3zFMfLVaUchrlw'
 ---
 
 # 目录
