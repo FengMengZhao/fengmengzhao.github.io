@@ -33,11 +33,13 @@ comment: false
 
 打开控制台问题就解决了？真是奇怪！可能是控制台打开后，静态文件在浏览器端不再缓存造成的。
 
-禁止F12的`Network --> Disable cache`设置，果然问题能够复现，前端`js`的请求确实是缓存的。
+打开F12禁止控制台`Network --> Disable cache`设置，果然问题能够复现，前端`js`的请求确实是缓存的。
 
 初步判断两次刷新原因：前端`js`缓存，发送异步权限数据请求接口时没有权限（第一次请求刷新），然后重定向单点登录服务获取`service ticket`，重新登录后，再次请求权限数据接口（第二次请求刷新），页面成功展示。
 
 > 笔者对浏览器的行为不熟，这里只是猜测。
+
+> 笔者系统单点登录实现的`CAS`接口，所以应用`session`过期需要从新从单点服务处获取`service ticket`票据。
 
 浏览器刷新两次`fiddler`抓包如图：
 
@@ -51,7 +53,7 @@ comment: false
 
 在后台处理，后台是`springboot`项目，增加配置：
 
-```shell
+```yaml
 spring:
   resources:
     cache:
@@ -83,6 +85,8 @@ spring:
 
 在域`http://localhost:3000`下访问域`https://example.com`资源被禁止。
 
+了解后面的内容后，就会明白这些报错的真正含义，也就能处理跨域问题了。
+
 <h4 id="3.1">3.1 何谓同域（同源）？</h4>
 
 1. 相同协议（http、https）
@@ -90,6 +94,8 @@ spring:
 3. 相同端口（80、443、8080）
 
 满足三个条件是同源，否则就是不同的域。
+
+> 注意：`localhost`主机名虽然在网络层最终会解析未`127.0.0.1`，但是对于浏览器同源策略来说，`localhost`和`127.0.0.1`是不同的主机名，二者不同则为跨域。
 
 <h4 id="3.2">3.2 何谓跨域（跨域怎么发生？）</h4>
 
@@ -108,7 +114,7 @@ spring:
 
 当一个域中包含有上面`tag`的`html`渲染时，就会加载`subresource`，当这个`subresource`和当前域不同源时，跨域请求就发生了。例如，在一个域中`xmlhttprequest`（`ajax`）请求另外一个域的接口时就是跨域请求。
 
-> 世界上第一个[web页面](http://info.cern.ch/hypertext/WWW/TheProject.html)
+> 世界上第一个[web页面](http://info.cern.ch/hypertext/WWW/TheProject.html)，只包含纯文本和超链接。
 
 <h4 id="3.3">3.3 跨域有什么安全问题？</h4>
 
@@ -118,15 +124,15 @@ spring:
 
 可能有同学疑问：发送邮件接口如果需要认证才能成功调用，别人没有认证信息如何能成功调用呢？
 
-实际上用户在浏览器端完成登录后，用户信息就存储在浏览器端，这时打开恶意网站就有可能被恶意脚本携带用户信息完成攻击。
+实际上用户在浏览器端完成登录后，用户信息就存储在浏览器端（`cookie`），这时打开恶意网站就有可能被恶意脚本携带用户信息完成攻击。
 
-<h4 id="3.4">3.4 何谓浏览器同源策略（`same-origin policy`）</h4>
+<h4 id="3.4">3.4 何谓浏览器同源策略（same-origin policy）</h4>
 
 既然跨域请求有安全的问题，浏览器端就做了相关限制，称之为“浏览器同源策略”。
 
 同源策略阻止读取跨域请求得到的资源。
 
-> 这是广义的一个定义，实际上浏览器针对不同`subresource`有不同的限制策略，下面有详细说明。
+> 这是广义的一个定义，实际上浏览器针对不同`subresource`有不同的限制策略，下面有做详细说明。
 
 同源策略在1995年`网景浏览器2.02`中引入，最开始是为了保护跨域`DOM`而设计的。
 
@@ -158,7 +164,7 @@ CROS（`Cross-origin resource sharing`）跨域资源共享就是来放宽浏览
 
 > 所谓的请求“生命历程”是指：该请求从浏览器发起，到服务端响应，再到浏览器读取响应结果并展示这个过程。
 
-**如果是“简单”的`ajax`跨域请求，那么浏览器会放行改请求，但是会限制浏览器对请求到资源`reponse`的读取。**
+**如果是“简单”的`ajax`跨域请求，那么浏览器会放行该请求，如果服务端没有包含`Access-Control-Allow-Origin`的`header`信息，则浏览器会限制对请求到资源`reponse`的读取。**
 
 **如果是“复杂”的`ajax`跨域请求，那么浏览器会先自行触发一个`preflight`请求，根据服务端的相应`header`信息决定是否放行客户端请求。**
 
@@ -203,19 +209,25 @@ Kemal.run
 
 0). 同域下请求
 
+从`http://172.22.27.215:4000/greet`接口域下发送“简单”的`ajax`请求，如图：
+
 ![](/img/posts/same-origin-ajax-post-request.png)
 
 同域下请求，一切正常，接口能发起成功并且浏览器能读取响应接口数据。
 
+> 不同浏览器控制台实现方式不大相同（但实现的规范是一样的），这里以[FireFox浏览器](https://www.firefox.com.cn/)为测试浏览器。
+
 1). “简单”的`post`跨域读取
 
-从`http://172.22.27.215:4000/greet`接口域下发送“简单”的`ajax`请求，如图：
+从[天涯bbs论坛](http://bbs.tianya.cn)域下发送“简单”的`ajax`请求，如图：
 
 ![](/img/posts/cros-ajax-post-simple-request-console-and-network-message.png)
 
 接口能发起成功。但是，如上图控制台报错，浏览器同源策略禁止读取远端资源，提示`CORS header ‘Access-Control-Allow-Origin’ missing`，也就是说响应头信息中缺少`Access-Control-Allow-Origin`信息。
 
 > 这里之所以是“简单”请求，是因为`Content-Type`是`text/plain`，参考上面“复杂”请求规则，不满足任意一个。
+
+> 这里所以找一个`http`服务，是因为`Crystal`接口是`http`的，如果在`https`域下调用，浏览器会直接截止`https`域下请求`http`资源。
 
 2). “复杂”的`post`跨域写入
 
@@ -241,13 +253,13 @@ Kemal.run
 
 - `Access-Control-Allow-Methods`：`CROS`协议允许的请求方法，例如`GET`、`POST`等。
 - `Access-Control-Allow-Headers`：`CROS`协议允许的请求`header`，例如`Content-Type`等。
-- `Access-Control-Max-Age`：上面两个信息能够缓存的秒数（默认值是5），实际上只有上面2个`header`是必须的，当前`header`没有，不影响请求的生命历程。
+- `Access-Control-Max-Age`：设置上面两个信息能够缓存的秒数（默认值是5）。实际上只有上面2个`header`是必须的，当前`Access-Control-Max-Age`头信息如果服务端没有返回，不影响请求的生命历程。
 
 也就是说，根据`CROS`协议，`preflight`请求响应头信息中要明确返回`客户端实际请求`的方法（通过响应头信息`Access-Control-Allow-Methods`值）和头信息（通过响应头信息`Access-Control-Allow-Headers`值），这样浏览器才会同意发送`客户端实际请求`。当然`preflight`请求响应头`Access-Control-Max-Age`也可以指定上面2个信息缓存的时间，响应中不设置也可以，默认就是5秒钟。
 
-> 这里对`客户端实际请求`进行了标注，避免和`preflight`请求混为一谈。当一个“复杂”的跨域请求发起的时候，首先，**浏览器**会发送一个`preflight`请求，“试探”一下服务端是否允许该跨域请求，如果允许，浏览器才允许该“复杂”请求（也就是`客户端实际请求`）紧随`preflight`请求之后发起，否则就会被浏览器`blocked`。
+> 这里对`客户端实际请求`进行了代码块标注，是为了强调该请求避免和`preflight`请求混为一谈。当一个“复杂”的跨域请求发起的时候，首先，**浏览器**会发送一个`preflight`请求，“试探”一下服务端是否允许该跨域请求，如果允许，浏览器才允许该“复杂”请求（也就是这里所谓的`客户端实际请求`）紧随`preflight`请求之后发起，否则就会被浏览器`blocked`。
 
-那，按照要求实现下`preflight`的`OPTIONS`请求吧。
+那，按照要求实现下`preflight`请求吧。
 
 修改`basic_greet.cr`，增加`OPTIONS`实现：
 
@@ -264,7 +276,7 @@ end
 
 ![](/img/posts/cros-ajax-post-complex-request-with-options-implementation-but-withou-allow-origin-in-options.png)
 
-图中通过`Status 200 OK`可以看出`preflight`请求是成功的，但是下面控制台报错：响应头信息中缺少`Access-Control-Allow-Origin`信息。也就是说，`preflight`请求是成功了，`CROS`协议要求的`preflight`请求响应头信息也存在，但是由于`Access-Control-Allow-Origin`头信息的缺失，浏览器同源策略限制读取请求响应内容。
+图中通过`Status 200 OK`可以看出`preflight`请求是成功的，但是下面控制台报错：响应头信息中缺少`Access-Control-Allow-Origin`信息。也就是说，`preflight`请求是成功了，`CROS`协议要求必须存在的`preflight`请求响应头信息也存在，但是由于`Access-Control-Allow-Origin`头信息的缺失，浏览器同源策略限制读取请求响应内容。
 
 修改`basic_greet.cr`，响应信息头增加`env.response.headers["Access-Control-Allow-Origin"] = "http://bbs.tianya.cn"`：
 
@@ -285,7 +297,7 @@ end
 
 ![](/img/posts/cros-ajax-post-complex-request-with-options-implementation-but-real-request-access-allow-none1.png)
 
-控制台有`客户端实际请求`报错就很熟悉了：
+控制台还是有`客户端实际请求`报错，不过这个错误就很熟悉了：
 
 ![](/img/posts/cros-ajax-post-complex-request-with-options-implementation-but-real-request-access-allow-none2.png)
 
@@ -318,7 +330,8 @@ end
 
 <h3 id="99">更新记录</h3>
 
-- 2022-02097 18:10 首次提交文章到[冯兄话吉](https://fengmengzhao.github.io)。
+- 2022-02-07 18:10 首次提交文章到[冯兄话吉](https://fengmengzhao.github.io)。
+- 2022-02-08 18:27 微信公众号“冯兄画戟”文章发表前重读、优化、勘误
 
 <h3 id="100">相关文章推荐</h3>
 
