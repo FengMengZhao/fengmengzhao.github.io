@@ -1,6 +1,6 @@
 ﻿---
 layout: post
-title: 'bug现场谜之总不能告诉客户你要按F12(打开控制台)吧？（跨域详解）'
+title: 'bug现场谜之总不能告诉客户你要按F12(打开控制台)吧？(跨域详解)'
 subtitle: '现场两套系统，集成同一个单点登录。其中一个系统跳转到另外一个系统时现场浏览器会刷新两次。奇怪的是打开F12，问题就不能复现（问题消失了）。不敢让客户按F12打开控制台访问系统，还是看一看吧...'
 background: '/img/posts/bug-scene-cros-origin.png'
 comment: false
