@@ -159,7 +159,7 @@ spring:
 
 CORS（`Cross-origin resource sharing`）跨域资源共享就是来放宽浏览器同源策略的严格限制，便于某些场景的使用。
 
-这里重点讲述`ajax`跨域请求时，其请求过程和解决办法。
+这里重点讲述`ajax`跨域请求（使用浏览器内置`fetch()函数`）时，其请求过程和解决办法。
 
 一个域中`ajax`跨域请求另一个域的接口时，该请求的生命历程是由客户端和被请求资源服务端共同决定的。客户端的行为是浏览器同源策略指定的，被请求资源服务端行为由资源提供者具体实现提供。具体来说：
 
@@ -218,7 +218,7 @@ Kemal.run
 
 > 不同浏览器控制台实现方式不大相同（但实现的规范是一样的），这里以[FireFox浏览器](https://www.firefox.com.cn/)为测试浏览器。
 
-1). “简单”的`post`跨域读取
+1). “简单”的`post`跨域请求
 
 从[天涯bbs论坛](http://bbs.tianya.cn)域下发送“简单”的`ajax`请求，如图：
 
@@ -228,7 +228,7 @@ Kemal.run
 
 > 这里之所以是“简单”请求，是因为`Content-Type`是`text/plain`，参考上面“复杂”请求规则，不满足任意一个。
 
-> 这里所以找一个`http`服务，是因为`Crystal`接口是`http`的，如果在`https`域下调用，浏览器会直接截止`https`域下请求`http`资源。
+> 这里所以找一个`http`服务，是因为`Crystal`接口是`http`的，如果在`https`域下调用，浏览器会直接禁止`https`域下请求`http`资源。
 
 2). “复杂”的`post`跨域写入
 
@@ -246,6 +246,8 @@ Kemal.run
 
 图中`2.`为真正的`POST`请求，因为`1.`的`preflight`请求没有获得同源策略规定的头信息，所以`2.`的真正`POST`请求被浏览器级别`blocked`。
 
+> 注意图中`2.`的`OPTIONS`请求是浏览器发起的，浏览器会带上一些`header`信息，比如：`origin`、`Access-Control-Reqest-Method`和`Access-Control-Reqest-Headers`
+
 这种情况下的请求生命历程为：先行的`preflight`请求`404 Not Found`（“身先死”），真正的`POST`请求没有发起成功（“出师未捷”）。也就是所谓的：“出师未捷身先死”。
 
 那，“复杂”的跨域请求`preflight`要求怎样的实现呢，才能满足浏览器`CORS`协议的要求呢？
@@ -254,9 +256,10 @@ Kemal.run
 
 - `Access-Control-Allow-Methods`：`CORS`协议允许的请求方法，例如`GET`、`POST`等。
 - `Access-Control-Allow-Headers`：`CORS`协议允许的请求`header`，例如`Content-Type`等。
-- `Access-Control-Max-Age`：设置上面两个信息能够缓存的秒数（默认值是5）。实际上只有上面2个`header`是必须的，当前`Access-Control-Max-Age`头信息如果服务端没有返回，不影响请求的生命历程。
+- `Access-Control-Max-Age`：设置`preflight`请求能够缓存的秒数（默认值是5）。实际上只有上面2个`header`是必须的（针对请求生命历程来说），当前`Access-Control-Max-Age`头信息如果服务端没有返回，不影响请求的生命历程，只是设置时间外请求浏览器会重新发起`preflight`（如果在设置时间内，就会使用缓存，不发起`preflight`请求）。
+- `Access-Control-Allow-Credentials`：设置`客户端实际请求`是否能携带用户信息（例如`cookie`）。
 
-也就是说，根据`CORS`协议，`preflight`请求响应头信息中要明确返回`客户端实际请求`的方法（通过响应头信息`Access-Control-Allow-Methods`值）和头信息（通过响应头信息`Access-Control-Allow-Headers`值），这样浏览器才会同意发送`客户端实际请求`。当然`preflight`请求响应头`Access-Control-Max-Age`也可以指定上面2个信息缓存的时间，响应中不设置也可以，默认就是5秒钟。
+也就是说，根据`CORS`协议，`preflight`请求响应头信息中要明确返回`客户端实际请求`的方法（通过响应头信息`Access-Control-Allow-Methods`值）和头信息（通过响应头信息`Access-Control-Allow-Headers`值），这样浏览器才会同意发送`客户端实际请求`。当然`preflight`请求响应头`Access-Control-Max-Age`也可以指定`preflight`请求缓存的时间，响应中不设置也可以，默认就是5秒钟。如果`preflight`响应头中有`Access-Control-Allow-Credentials`头信息，`客户端实际请求`就能够能携带用户信息，否则不能携带。
 
 > 这里对`客户端实际请求`进行了代码块标注，是为了强调该请求避免和`preflight`请求混为一谈。当一个“复杂”的跨域请求发起的时候，首先，**浏览器**会发送一个`preflight`请求，“试探”一下服务端是否允许该跨域请求，如果允许，浏览器才允许该“复杂”请求（也就是这里所谓的`客户端实际请求`）紧随`preflight`请求之后发起，否则就会被浏览器`blocked`。
 
@@ -332,7 +335,8 @@ end
 <h3 id="99">更新记录</h3>
 
 - 2022-02-07 18:10 首次提交文章到[冯兄话吉](https://fengmengzhao.github.io)。
-- 2022-02-08 18:27 微信公众号“冯兄画戟”文章发表前重读、优化、勘误
+- 2022-02-08 18:27 微信公众号“冯兄画戟”文章发表前重读、优化、勘误。
+- 2022-02-09 12:40 [掘金专栏](https://juejin.cn/column/7049663804136751140)发表前重读、优化、勘误。
 
 <h3 id="100">相关文章推荐</h3>
 
