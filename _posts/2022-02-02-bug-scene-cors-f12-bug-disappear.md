@@ -15,7 +15,7 @@ comment: false
     - [3.2 何谓跨域（跨域怎么发生？）](#3.2)
     - [3.3 跨域有什么安全问题？](#3.3)
     - [3.4 何谓浏览器同源策略（`same-origin policy`）](#3.4)
-    - [3.5 何谓CROS（跨域资源共享）？](#3.5)
+    - [3.5 何谓CORS（跨域资源共享）？](#3.5)
 - [4. 总结](#4)
 - [引用](#98)
 - [更新记录](#99)
@@ -95,7 +95,7 @@ spring:
 
 满足三个条件是同源，否则就是不同的域。
 
-> 注意：`localhost`主机名虽然在网络层最终会解析未`127.0.0.1`，但是对于浏览器同源策略来说，`localhost`和`127.0.0.1`是不同的主机名，二者不同则为跨域。
+> 注意：`localhost`主机名虽然在网络层最终会解析为`127.0.0.1`，但是对于浏览器同源策略来说，`localhost`和`127.0.0.1`是不同的主机名，二者不同则为跨域。
 
 <h4 id="3.2">3.2 何谓跨域（跨域怎么发生？）</h4>
 
@@ -152,11 +152,11 @@ spring:
 - `<script>`：跨域内嵌允许，某些api的调用可能会被禁止（例如`ajax`跨域调用）。
 - `<img>`：跨域内嵌允许，通过JavaScript跨域读或者在`<canvas>`中加载被禁止。
 
-**何谓CROS（跨域资源共享）？**
+**何谓CORS（跨域资源共享）？**
 
 浏览器的同源策略能解决很多安全的问题，但是其限制也带来了不便。
 
-CROS（`Cross-origin resource sharing`）跨域资源共享就是来放宽浏览器同源策略的严格限制，便于某些场景的使用。
+CORS（`Cross-origin resource sharing`）跨域资源共享就是来放宽浏览器同源策略的严格限制，便于某些场景的使用。
 
 这里重点讲述`ajax`跨域请求时，其请求过程和解决办法。
 
@@ -247,15 +247,15 @@ Kemal.run
 
 这种情况下的请求生命历程为：先行的`preflight`请求`404 Not Found`（“身先死”），真正的`POST`请求没有发起成功（“出师未捷”）。也就是所谓的：“出师未捷身先死”。
 
-那，“复杂”的跨域请求`preflight`要求怎样的实现呢，才能满足浏览器`CROS`协议的要求呢？
+那，“复杂”的跨域请求`preflight`要求怎样的实现呢，才能满足浏览器`CORS`协议的要求呢？
 
 浏览器在发送`preflight`后会寻找相应中的3个`header`：
 
-- `Access-Control-Allow-Methods`：`CROS`协议允许的请求方法，例如`GET`、`POST`等。
-- `Access-Control-Allow-Headers`：`CROS`协议允许的请求`header`，例如`Content-Type`等。
+- `Access-Control-Allow-Methods`：`CORS`协议允许的请求方法，例如`GET`、`POST`等。
+- `Access-Control-Allow-Headers`：`CORS`协议允许的请求`header`，例如`Content-Type`等。
 - `Access-Control-Max-Age`：设置上面两个信息能够缓存的秒数（默认值是5）。实际上只有上面2个`header`是必须的，当前`Access-Control-Max-Age`头信息如果服务端没有返回，不影响请求的生命历程。
 
-也就是说，根据`CROS`协议，`preflight`请求响应头信息中要明确返回`客户端实际请求`的方法（通过响应头信息`Access-Control-Allow-Methods`值）和头信息（通过响应头信息`Access-Control-Allow-Headers`值），这样浏览器才会同意发送`客户端实际请求`。当然`preflight`请求响应头`Access-Control-Max-Age`也可以指定上面2个信息缓存的时间，响应中不设置也可以，默认就是5秒钟。
+也就是说，根据`CORS`协议，`preflight`请求响应头信息中要明确返回`客户端实际请求`的方法（通过响应头信息`Access-Control-Allow-Methods`值）和头信息（通过响应头信息`Access-Control-Allow-Headers`值），这样浏览器才会同意发送`客户端实际请求`。当然`preflight`请求响应头`Access-Control-Max-Age`也可以指定上面2个信息缓存的时间，响应中不设置也可以，默认就是5秒钟。
 
 > 这里对`客户端实际请求`进行了代码块标注，是为了强调该请求避免和`preflight`请求混为一谈。当一个“复杂”的跨域请求发起的时候，首先，**浏览器**会发送一个`preflight`请求，“试探”一下服务端是否允许该跨域请求，如果允许，浏览器才允许该“复杂”请求（也就是这里所谓的`客户端实际请求`）紧随`preflight`请求之后发起，否则就会被浏览器`blocked`。
 
@@ -276,7 +276,7 @@ end
 
 ![](/img/posts/cros-ajax-post-complex-request-with-options-implementation-but-withou-allow-origin-in-options.png)
 
-图中通过`Status 200 OK`可以看出`preflight`请求是成功的，但是下面控制台报错：响应头信息中缺少`Access-Control-Allow-Origin`信息。也就是说，`preflight`请求是成功了，`CROS`协议要求必须存在的`preflight`请求响应头信息也存在，但是由于`Access-Control-Allow-Origin`头信息的缺失，浏览器同源策略限制读取请求响应内容。
+图中通过`Status 200 OK`可以看出`preflight`请求是成功的，但是下面控制台报错：响应头信息中缺少`Access-Control-Allow-Origin`信息。也就是说，`preflight`请求是成功了，`CORS`协议要求必须存在的`preflight`请求响应头信息也存在，但是由于`Access-Control-Allow-Origin`头信息的缺失，浏览器同源策略限制读取请求响应内容。
 
 修改`basic_greet.cr`，响应信息头增加`env.response.headers["Access-Control-Allow-Origin"] = "http://bbs.tianya.cn"`：
 
