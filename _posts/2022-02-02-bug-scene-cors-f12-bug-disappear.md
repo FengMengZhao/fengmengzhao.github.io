@@ -4,6 +4,7 @@ title: 'bug现场谜之总不能告诉客户你要按F12(打开控制台)吧？(
 subtitle: '现场两套系统，集成同一个单点登录。其中一个系统跳转到另外一个系统时现场浏览器会刷新两次。奇怪的是打开F12，问题就不能复现（问题消失了）。不敢让客户按F12打开控制台访问系统，还是看一看吧...'
 background: '/img/posts/bug-scene-cros-origin.png'
 comment: false
+weixinurl: 'https://mp.weixin.qq.com/s/_s3_BvO0YmiPnZdYoXXP_Q'
 ---
 
 # 目录
@@ -14,7 +15,7 @@ comment: false
     - [3.1 何谓同域（同源）？](#3.1)
     - [3.2 何谓跨域（跨域怎么发生？）](#3.2)
     - [3.3 跨域有什么安全问题？](#3.3)
-    - [3.4 何谓浏览器同源策略（`same-origin policy`）](#3.4)
+    - [3.4 何谓浏览器同源策略（same-origin policy）](#3.4)
     - [3.5 何谓CORS（跨域资源共享）？](#3.5)
 - [4. 总结](#4)
 - [引用](#98)
