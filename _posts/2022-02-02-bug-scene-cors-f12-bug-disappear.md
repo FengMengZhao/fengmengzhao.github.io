@@ -272,7 +272,7 @@ Kemal.run
 - `Access-Control-Allow-Methods`：`CORS`协议允许的请求方法，例如`GET`、`POST`等。
 - `Access-Control-Allow-Headers`：`CORS`协议允许的请求`header`，例如`Content-Type`等。
 
-针对“复杂”请求的生命历程来说，上面2个`header`必须匹配`客户端实际请求`信息，否则`客户端实际请求`可能会被浏览器级别`blocked`。
+针对“复杂”请求的生命历程来说，上面2个`header`必须匹配`客户端实际请求`信息，否则`客户端实际请求`可能会被浏览器级别`blocked`。说白了，服务端允许发送什么样方法的请求、什么样的头信息，客户端才能够成功发送。
 
 `preflight`的响应信息还可以返回2个`header`，告诉客户端某些信息：
 
