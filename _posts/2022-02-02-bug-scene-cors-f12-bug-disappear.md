@@ -17,6 +17,7 @@ weixinurl: 'https://mp.weixin.qq.com/s/_s3_BvO0YmiPnZdYoXXP_Q'
     - [3.3 跨域有什么安全问题？](#3.3)
     - [3.4 何谓浏览器同源策略（same-origin policy）](#3.4)
     - [3.5 何谓CORS（跨域资源共享）？](#3.5)
+    - [3.6 “简单”和“复杂”跨域请求生命历程](#3.6)
 - [4. 总结](#4)
 - [引用](#98)
 - [更新记录](#99)
@@ -153,11 +154,23 @@ spring:
 - `<script>`：跨域内嵌允许，某些api的调用可能会被禁止（例如`ajax`跨域调用）。
 - `<img>`：跨域内嵌允许，通过JavaScript跨域读或者在`<canvas>`中加载被禁止。
 
-**何谓CORS（跨域资源共享）？**
+<h4 id="3.5">3.5 何谓CORS（跨域资源共享）？</h4>
 
 浏览器的同源策略能解决很多安全的问题，但是其限制也带来了不便。
 
 CORS（`Cross-origin resource sharing`）跨域资源共享就是来放宽浏览器同源策略的严格限制，便于某些场景的使用。
+
+同域请求，如图：
+
+![](/img/posts/bug-scene-cors-same-origin-request.jpg)
+
+跨域请求，如图：
+
+![](/img/posts/bug-scene-cors-cross-origin-request.jpg)
+
+> 图中涉及到`preflight`请求下面详解。
+
+<h4 id="3.6">3.6 “简单”和“复杂”跨域请求生命历程</h4>
 
 这里重点讲述`ajax`跨域请求（使用浏览器内置`fetch()函数`）时，其请求过程和解决办法。
 
