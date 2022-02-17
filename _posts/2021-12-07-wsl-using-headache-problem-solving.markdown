@@ -302,6 +302,11 @@ PasswordAuthentication yes
 
 #设置登录用户，这里是WSL实例用户
 AllowUsers ${wsl_yourusername}
+
+#server会60s自动发送信号到Client，Client没有回应会记录下来，达到ClientAliveCountMax的次数
+ClientAliveInterval 60
+# 600分钟后断开连接
+ClientAliveCountMax 600
 ```
 
 **启动sshd**
@@ -328,7 +333,7 @@ netsh interface portproxy add v4tov4 listenport=${Windows主机端口} connectpo
 
 更多端口映射理解请参考：[WSL动态IP，如何从外部访问？](#2.1)
 
-现在就可以通过ssh客户端命令`ssh ${wsl_yourusername}@${Windows主机端口}`登录WSL实例了。
+现在就可以通过ssh客户端命令`ssh -p ${Windows主机端口} ${wsl_yourusername}@${Windows主机IP}`登录WSL实例了，例如：`ssh -p 2222 user@172.22.28.22`
 
 <h3 id="3">3. WSL2使用遇到的问题</h3>
 
