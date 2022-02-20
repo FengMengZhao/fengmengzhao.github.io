@@ -1,0 +1,1317 @@
+﻿---
+layout: post
+title: 'tcpdump抓包学习Nginx(反向代理)，学完不怵nginx了，还总想跃跃欲试！(Nginx使用、原理完整版手册)'
+subtitle: '之前遇到Nginx总是把配置文件改吧改吧能用就可以了，不理解也不敢改动相关的配置文件，总是云里雾里。抽时间整体上将Nginx捋一遍，囊括了Nginx的基础配置、功能使用。tcpdump抓包探究反向代理实现。学完再看到Nginx，总想试一试！'
+background: '/img/posts/nginx-switch-army-knife.jpg'
+comment: false
+---
+
+- [0. 前话](#0)
+- [1. Nginx基本介绍](#1)
+- [2. 怎么安装nginx](#2)
+- [3. Nginx配置文件管理](#3)
+- [4. Nginx配置为一个基本的Web Server](#4)
+    - [4.1 写第一个配置文件](#4.1)
+    - [4.2 校验、重载Nginx配置文件](#4.2)
+    - [4.3 理解Nginx配置文件中的Directives和Contexts](#4.3)
+    - [4.4 使用Nginx作为静态文件服务器](#4.4)
+    - [4.5 Nginx中处理静态文件类型解析](#4.5)
+    - [4.6 Nginx子配置引入](#4.6)
+- [5. Nginx的动态路由](#5)
+    - [5.1 地址匹配](#5.1)
+    - [5.2 Nginx的变量](#5.2)
+    - [5.3 重定向和重写](#5.3)
+    - [5.4 多文件容错(try_files)](#5.4)
+- [6. Nginx的日志](#6)
+- [7. Nginx作为反向代理服务器](#7)
+    - [7.1 什么是反向代理](#7.1)
+    - [7.2 反向代理基本原理](#7.2)
+    - [7.3 反向代理基本配置](#7.3)
+    - [7.4 反向代理header重写](#7.4)
+    - [7.5 反向代理试试，tcpdump抓包解析，探个中究竟](#7.5)
+    - [7.6 反向代理处理相对路径问题](#7.6)
+- [8. Nginx作为一个负载均衡服务器](#8)
+- [9. 优化Nginx性能](#9)
+    - [9.1 怎么设置工作进程数(Worker Processes)和工作连接数(Worker Connections)](#9.1)
+    - [9.2 怎样缓存静态文件](#9.2)
+    - [9.3 怎样压缩相应(response)](#9.3)
+- [10. 理解Nginx整个配置文件](#10)
+- [11. 如何配置SSL和HTTP/2](#11)
+    - [11.1 如何配置SSL](#11.1)
+    - [11.2 如何开启HTTP/2](#11.2)
+    - [11.3 如何开启服务端推送](#11.3)
+
+<h3 id="0">0. Nginx基本介绍</h3>
+
+俄罗斯年轻程序员[Igor Sysoev](https://en.wikipedia.org/wiki/Igor_Sysoev)为了解决所谓[C10K problem](https://en.wikipedia.org/wiki/C10k_problem)，也就是以前的Web Server不能支持超10k并发请求的问题，在2002年开启了新的Web Server的开发。
+
+[Nginx](https://nginx.org/)2004年在[2-clause BSD](https://en.wikipedia.org/wiki/2-clause_BSD)证书下发布于众，根据[2021年3月Web Server的调查](https://news.netcraft.com/archives/2021/03/29/march-2021-web-server-survey.html)，Nginx持有35.3%的市场占有率，为4.196亿网站提供服务。
+
+感谢[DigitalOcean](https://digitalocean.com/)公司的[NGINXConfig](https://www.digitalocean.com/community/tools/nginx)项目，提供了很多写好的Nginx模板供下载，这样就可以在不理解Nginx配置的情况下复制粘贴配置Nginx。
+
+![](/img/posts/nginx-programmer-copy-and-paste.jpg)
+
+这里不是说复制粘贴是不对的，而是如果只复制粘贴并不理解的话，迟早会出问题。所以，你必须理解Nginx的配置，通过学习本文，你能够：
+
+- 理解工具生成或者别人配置的Nginx。
+- 从0到1配置Web服务器、方向代理服务器和负载均衡服务器。
+- 优化Nginx获取最大性能。
+- 配置HTTPS和HTTP/2。
+
+学习本文需要有一定的Linux基础，会执行例如`ls`、`cat`等Linux命令，还需要你对前后端至少有一定的了解，不过这些对前端或者后端程序员都很容易。
+
+<h3 id="1">1. Nginx基本介绍</h3>
+
+Nginx是一个高性能的Web服务器，着眼于高性能、高并发和低资源消耗。尽管Nginx作为一个Web服务器被大家所熟知，它另外的一个核心功能时反向代理。
+
+Nginx不是市场上唯一的Web服务器，它最大的竞争对手[Apache HTTP Server(httpd)](https://httpd.apache.org/)在1995年就发布了。人们在选择Nginx作为Web服务器时候，基于下面两点考虑：
+
+- 支持更高的并发。
+- 用更少的硬件资源提供静态文件服务。
+
+Nginx和Apache谁更好的争论没有意义，如果想了解更多Nginx和Apache的区别可以参考[Justin Ellingwood](https://www.digitalocean.com/community/users/jellingwood)的[文章](https://www.digitalocean.com/community/tutorials/apache-vs-nginx-practical-considerations)。
+
+从处理请求的技术角度，引用Justin的文章解释如下：
+
+Nginx在Apache之后出现，更多认识到网站业务扩张之后面临的并发性问题，所以从一开始就设计为异步、非阻塞和事件驱动连接处理的算法。
+
+Nginx工作时候会设定worker进程(worker process)，每一个worker进程都能够处理数千个连接。worker进程通过`fast looping`的机制来不断查询和处理事件。将具体处理请求的工作和连接解耦能够让每一个worker进程仅当新的事件触发的时候将其与一个连接关联。
+
+Nginx基本工作原理图：
+
+![](/img/posts/nginx-basic-working-process.png)
+
+Nginx之所以能够在低资源消耗的情况下高性能提供静态文件服务，是因为它没有内置动态编程语言处理器。当一个静态文件请求到达后，Nginx就是简答的响应请求文件，并没有做什么额外的处理。
+
+这不是说Nginx不能够整合动态编程语言处理器，它可以将请求任务代理到独立的进程上，例如`PHP-FPM`、`Node.js`或者`Python`。一旦第三方进程处理完请求，再将响应代理回客户端，工作如图：
+
+![](/img/posts/nginx-basic-working-with-external-process.png)
+
+<h3 id="2">2. 怎么安装nginx</h3>
+
+Nginx的安装网上示例很多，这里以`Ubuntu`为例：
+
+```shell
+#更新源
+sudo apt update && sudo apt upgrade -y
+
+#安装
+sudo apt install nginx -y
+```
+
+这种方式安装Nginx成功之后，Nginx回注册为`systemd`系统服务，查看服务：
+
+```shell
+sudo systemctl status nginx
+
+#如果没有注册为systemd服务，可以用service查看试下
+sudo service nginx status
+```
+
+Nginx的配置文件经常放在`/etc/nginx`目录中，默认的配置端口是`80`，如果启动成功，可以访问并得到页面：
+
+![](/img/posts/nginx-install-success.png)
+
+恭喜！Nginx安装成功了！
+
+<h3 id="3">3. Nginx配置文件管理</h3>
+
+Nginx为静态或者动态文件提供服务，具体怎么样提供服务是由配置文件设置的。
+
+Nginx的配置文件以`.conf`结尾，常常位于`/etc/nginx`目录中。访问`/etc/nginx`目录：
+
+```shell
+cd /etc/nginx
+
+ls -lh
+
+# drwxr-xr-x 2 root root 4.0K Apr 21  2020 conf.d
+# -rw-r--r-- 1 root root 1.1K Feb  4  2019 fastcgi.conf
+# -rw-r--r-- 1 root root 1007 Feb  4  2019 fastcgi_params
+# -rw-r--r-- 1 root root 2.8K Feb  4  2019 koi-utf
+# -rw-r--r-- 1 root root 2.2K Feb  4  2019 koi-win
+# -rw-r--r-- 1 root root 3.9K Feb  4  2019 mime.types
+# drwxr-xr-x 2 root root 4.0K Apr 21  2020 modules-available
+# drwxr-xr-x 2 root root 4.0K Apr 17 14:42 modules-enabled
+# -rw-r--r-- 1 root root 1.5K Feb  4  2019 nginx.conf
+# -rw-r--r-- 1 root root  180 Feb  4  2019 proxy_params
+# -rw-r--r-- 1 root root  636 Feb  4  2019 scgi_params
+# drwxr-xr-x 2 root root 4.0K Apr 17 14:42 sites-available
+# drwxr-xr-x 2 root root 4.0K Apr 17 14:42 sites-enabled
+# drwxr-xr-x 2 root root 4.0K Apr 17 14:42 snippets
+# -rw-r--r-- 1 root root  664 Feb  4  2019 uwsgi_params
+# -rw-r--r-- 1 root root 3.0K Feb  4  2019
+```
+
+该目录中的`/etc/nginx/nginx.conf`就是Nginx的主配置文件。如果你打开这个配置文件，会发现很多内容，不要害怕，本文就是一点一点的要学会它。
+
+在进行配置文件修改的时候，不建议直接修改`/etc/nginx/nginx.conf`，可以将之备份之后再修改：
+
+```shell
+#重命名文件
+sudo mv nginx.conf nginx.conf.backup
+
+#新建配置文件
+sudo touch nginx.conf
+```
+
+<h3 id="4">4. Nginx配置为一个基本的Web Server</h3>
+
+这一部分，将会从零一步步学习Nginx配置文件的书写，目的是了解Nginx配置文件的基本语法和基本概念。
+
+<h4 id="4.1">4.1 写第一个配置文件</h4>
+
+`vim /etc/nginx/nginx.conf`打开配置文件并更新内容：
+
+```shell
+events {
+
+}
+
+http {
+
+    server {
+
+        listen 80;
+        server_name nginx-handbook.test;
+
+        return 200 "Bonjour, mon ami!\n";
+        #配置重定向
+        #return 302 https://www.baidu.com$request_uri;
+    }
+
+}
+```
+
+重启Nginx并访问，你会得到如下信息：
+
+```shell
+curl -i http://127.0.0.1
+
+HTTP/1.1 200 OK
+Server: nginx/1.18.0 (Ubuntu)
+Date: Sat, 19 Feb 2022 08:31:59 GMT
+Content-Type: text/plain
+Content-Length: 21
+Connection: keep-alive
+
+Bonjour, mon ami!
+```
+
+<h3 id="4.2">4.2 校验、重载Nginx配置文件</h3>
+
+Nginx的配置文件是否正确可以通过`-t`参数校验：
+
+```shell
+sudo nginx -t
+
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+```
+
+如果有相关的语法错误，上述命令会有相关提示。
+
+如果你想该变Nginx的相关状态，例如重启、重载等，可以有两种办法。一种是通过`-s`(signal)参数向Nginx发送信号，
+
+nginx信号：`nginx -s reload|quit|stop|reopen`，分别表示重载配置文件、优雅停止Nginx、无条件停止Nginx和重新代开log文件。
+
+> 所谓的“优雅停止”Nginx，是指处理完目前的请求再停止；而“无条件停止”Nginx，相当于`kill -9`，进程直接被杀死。
+
+<h4 id="4.3">4.3 理解Nginx配置文件中的Directives和Contexts</h4>
+
+Nginx的配置文件虽然看起来只是简单的配置文本，但是它是包含语法的。技术上来讲配置文件中的内容都是`Directives`。`Directives`分为两种：
+
+- `Simple Directives`
+- `Block Directives`
+
+`Simple Directives`：包含名称和空格，以分号（`;`）结尾。例如`listen`、`return`等。
+
+`Block Directives`：包裹在`{}`中，`{}`由`Simple Directives`组成，称之为`Contexts`。
+
+Nginx配置中核心的`Contexts`：
+
+- `events{}`：总体配置nginx如何处理请求，只能在配置文件中出现一次。
+- `http{}`：配置nginx如何处理`http`或者`https`请求，只能在配置文件中出现一次。
+- `server{}`：内嵌在`http{}`中，用来配置一个独立主机上指定的虚拟主机。`http{}`可以配置多个`server{}`，表示多个虚拟主机。
+- `main`：上述3个`Contexts`之外的配置都在该`Contex`上。
+
+在主机上设置不同的虚拟主机（多个`server{}`、相同`server_name`），监听不同的端口（`listen`不同）：
+
+```shell
+http {
+    server {
+        listen 80;
+        server_name nginx-handbook.test;
+
+        return 200 "hello from port 80!\n";
+    }
+
+
+    server {
+        listen 8080;
+        server_name nginx-handbook.test;
+
+        return 200 "hello from port 8080!\n";
+    }
+}
+```
+
+不同的虚拟主机，监听同一个端口（多个`server{}`、不同`server_name`），监听同一个端口（`listen`相同）
+
+```shell
+http {
+    server {
+        listen 8088;
+        server_name library.test;
+
+        return 200 "your local library!\n";
+    }
+
+
+    server {
+        listen 8088;
+        server_name librarian.library.test;
+
+        return 200 "welcome dear librarian!\n";
+    }
+}
+```
+
+当访问不同的域名时，会返回不同的结果：
+
+```shell
+curl -i http://library.test:8088
+
+HTTP/1.1 200 OK
+Server: nginx/1.18.0 (Ubuntu)
+Date: Sun, 20 Feb 2022 08:02:20 GMT
+Content-Type: application/octet-stream
+Content-Length: 21
+Connection: keep-alive
+
+your local library !
+
+curl -i http://librarian.library.test:8088
+
+HTTP/1.1 200 OK
+Server: nginx/1.18.0 (Ubuntu)
+Date: Sun, 20 Feb 2022 08:04:26 GMT
+Content-Type: application/octet-stream
+Content-Length: 24
+Connection: keep-alive
+
+welcome dear librarian!
+```
+
+这样能成功的提前是指定的域名解析到同一个IP，或者在本地的hosts文件中配置好域名：
+
+```shell
+172.19.146.188 library.test librarian.library.test
+```
+
+> 注意，这里`return`这个`Directive`后面可以跟两个参数，一个是状态码，一个是返回的文本信息，文本信息要用引号引起来。
+
+<h4 id="4.4">4.4 使用Nginx作为静态文件服务器</h4>
+
+更新Nginx配置文件如下：
+
+```shell
+events {
+
+}
+
+http {
+
+    server {
+
+        listen 8088;
+        server_name nginx-handbook.test;
+
+        root /usr/share/nginx/html;
+    }
+
+}
+```
+
+> 这里对Nginx默认的展示页面做了修改，在文件`/assets/mystyle.css`写入`p {background: red;}`并在`html`文件中引入，这样正常段落的背景会变成红色。
+
+访问页面，展示的是`index.html`，但是段落的背景没有生效。debug一下`css`文件：
+
+```shell
+curl -i http://fengmengzhao.hypc:8088/assets/mystyle.css
+
+HTTP/1.1 200 OK
+Server: nginx/1.18.0 (Ubuntu)
+Date: Sun, 20 Feb 2022 08:43:58 GMT
+Content-Type: text/plain
+Content-Length: 27
+Last-Modified: Sun, 20 Feb 2022 08:38:54 GMT
+Connection: keep-alive
+ETag: "6211fe1e-1b"
+Accept-Ranges: bytes
+
+p {
+    background: red;
+}
+```
+
+注意`Content-Type`是`text/plain`，而不是`text/css`。也就是说Nginx将`css`文件做为一个普通的文本提供服务，而没有当做`stylesheet`，浏览器自然就不会渲染样式。
+
+<h4 id="4.5">4.5 Nginx中处理静态文件类型解析</h4>
+
+实际上这里涉及到Nginx对静态文件类型解析的处理，默认不进行任何设置情况下，Nginx认为文本文件的类型是`text/plain`。
+
+修改配置文件如下：
+
+```shell
+events {
+
+}
+
+http {
+
+    types {
+        text/html html;
+        text/css css;
+    }
+
+    server {
+
+        listen 8088;
+        server_name nginx-handbook.test;
+
+        root /usr/share/nginx/html;
+    }
+}
+```
+
+重新访问页面，样式正常，`mystyle.css`文件的`response`头`Content-Type`为`text/css`：
+
+![](/img/posts/nginx-learn-file-type-handle-right.png)
+
+这里在`http{}`中引入了`types{}`，通过文件的后缀映射文件的类型。需要注意，如果没有`types{}`，nginx会认为`.html`文件的类型是`text/html`，但是一旦引入`types{}`，nginx只会解析定义的类型映射。所以这里引入`types{}`后，不能只定义`css`的类型映射，同样要显式定义`html`的类型映射，否则nginx会将`html`解析为普通文本文件。
+
+<h4 id="4.6">4.6 Nginx子配置引入</h4>
+
+手动在`http{}`中增加`types{}`来映射文件类型对于小项目还可以，对大型项目来说手动配置就太繁琐了，Nginx提供了默认的解析映射（常常在`/etc/nginx/mime.types`文件中），可以通过`include`语法将子配置引入配置文件中。
+
+修改配置如下：
+
+```shell
+events {
+
+}
+
+http {
+
+    include /etc/nginx/mime.types;
+
+    server {
+
+        listen 80;
+        server_name nginx-handbook.test;
+
+        root /srv/nginx-handbook-projects/static-demo;
+    }
+
+}
+```
+
+重启Nginx，自定义的`css`文件能够正常展示。
+
+<h3 id="5">5. Nginx的动态路由</h3>
+
+1). Location Matches
+
+```shell
+events {
+
+}
+
+http {
+
+    server {
+
+        listen 80;
+        server_name nginx-handbook.test;
+        #前缀匹配
+        location /agatha {
+            return 200 "前缀匹配-Miss Marple.\nHercule Poirot.\n";
+        }
+        #完全匹配
+        location = /agatha {
+            return 200 "完全匹配-Miss Marple.\nHercule Poirot.\n";
+        }
+        #正则匹配，大小写敏感        
+        location ~ /agatha[0-9]{
+            return 200 "正则匹配，大小写敏感-Miss Marple.\nHercule Poirot.\n";
+        }
+        #正则匹配，大小写不敏感
+        location ~* /agatha[0-9]{
+            return 200 "正则匹配，大小写不敏感-Miss Marple.\nHercule Poirot.\n";
+        }
+        #优先前缀匹配
+        #在前缀匹配前加^~即可转化为优先前缀匹配
+        location ^~ /Agatha {
+            return 200 "优先前缀匹配-Miss Marple.\nHercule Poirot.\n";
+        }
+    }
+}
+```
+
+匹配规则总结：
+
+ 匹配 | 关键字
+---|---
+完全  | `=`
+ 优先前缀 | `^~`
+ 正则 |  `~`或者`~*`
+  前缀|  `None`
+
+如果一个请求满足多个配置的匹配，正则匹配的优先级大于前缀匹配，而优先前缀匹配的优先级大于正则匹配。
+
+**nginx中的变量（`Variables`）**
+
+设置变量：
+
+```shell
+set $<variable_name> <variable_value>;
+
+# set name "Farhan"
+# set age 25
+# set is_working true*
+```
+
+变量类型：
+
+- String
+- Integer
+- Boolean
+
+除了自定义变量外，nginx有内置的变量，参考[https://nginx.org/en/docs/varindex.html](https://nginx.org/en/docs/varindex.html)。
+
+例如，如下配置中使用内置变量：
+
+```shell
+events {
+
+}
+
+http {
+
+    server {
+
+        listen 80;
+        server_name nginx-handbook.test;
+
+        return 200 "Host - $host\ - $uri\nArgs - $args\n";
+    }
+
+}
+
+# curl http://nginx-handbook.test/user?name=Farhan
+
+# Host - nginx-handbook.test
+# URI - /user
+# Args - name=Farhan
+```
+
+上面使用了`$host`、`$uri`和`$args`内置变量，分别表示主机名、请求相对路径和请求参数。变量可以作为值赋值给自定义变量，例如：
+
+```shell
+events {
+
+}
+
+http {
+
+    server {
+
+        listen 80;
+        server_name nginx-handbook.test;
+        
+        set $name $arg_name; # $arg_<query string name>
+
+        return 200 "Name - $name\n";
+    }
+
+}
+```
+
+上面出现了`$arg`内置变量，使用`$arg_<query string name>`可以获取`$args`变量中指定的`query string`。
+
+**重定向（`Redirects`）和重写（`Rewrites`）**
+
+nginx中的重定向和其他平台上见到的重定向一样，`response`返回`3xx`的状态码和`location`头信息。如果是在浏览器中访问，浏览器会自动重新发起`location`指定的请求，地址栏`url`也会发生改变。
+
+重定向示例：
+
+```shell
+events {
+
+}
+
+http {
+
+    include /etc/nginx/mime.types;
+
+    server {
+
+        listen 80;
+        server_name nginx-handbook.test;
+
+        root /srv/nginx-handbook-projects/static-demo;
+
+        location = /index_page {
+                return 307 /index.html;
+        }
+
+        location = /about_page {
+                return 307 /about.html;
+        }
+    }
+}
+
+#curl -I http://nginx-handbook.test/about_page
+
+# HTTP/1.1 307 Temporary Redirect
+# Server: nginx/1.18.0 (Ubuntu)
+# Date: Thu, 22 Apr 2021 18:02:04 GMT
+# Content-Type: text/html
+# Content-Length: 180
+# Location: http://nginx-handbook.test/about.html
+# Connection: keep-alive
+```
+
+重写（`Rewrites`）和重定向不一样，重写内部转发了请求，地址栏不会发生改变。示例如下：
+
+```shell
+events {
+
+}
+
+http {
+
+    include /etc/nginx/mime.types;
+
+    server {
+
+        listen 80;
+        server_name nginx-handbook.test;
+
+        root /srv/nginx-handbook-projects/static-demo;
+
+        rewrite /index_page /index.html;
+
+        rewrite /about_page /about.html;
+    }
+}
+
+#curl -i http://nginx-handbook.test/about_page
+
+# HTTP/1.1 200 OK
+# Server: nginx/1.18.0 (Ubuntu)
+# Date: Thu, 22 Apr 2021 18:09:31 GMT
+# Content-Type: text/html
+# Content-Length: 960
+# Last-Modified: Wed, 21 Apr 2021 11:27:06 GMT
+# Connection: keep-alive
+# ETag: "60800c0a-3c0"
+# Accept-Ranges: bytes
+
+# <!DOCTYPE html>
+# <html lang="en">
+# ...
+```
+
+> When a rewrite happens, the server context gets re-evaluated by NGINX. So, a rewrite is a more expensive operation than a redirect.
+
+**`try_files`尝试多个文件**
+
+`try_files`示例：
+
+```shell
+events {
+
+}
+
+http {
+
+    include /etc/nginx/mime.types;
+
+    server {
+
+        listen 80;
+        server_name nginx-handbook.test;
+
+        root /srv/nginx-handbook-projects/static-demo;
+
+        try_files /the-nginx-handbook.jpg /not_found;
+
+        location /not_found {
+                return 404 "sadly, you've hit a brick wall buddy!\n";
+        }
+    }
+}
+```
+
+示例查找`/the-nginx-handbook.jpg`文件，如果不存在就查找`/not_found`路径。
+
+`try_files`常常和`$uri`内置变量一起使用：
+
+```shell
+events {
+
+}
+
+http {
+
+    include /etc/nginx/mime.types;
+
+    server {
+
+        listen 80;
+        server_name nginx-handbook.test;
+
+        root /srv/nginx-handbook-projects/static-demo;
+
+        try_files $uri /not_found;
+        #当访问http://nginx-handbook.test返回404
+        #加$uri/即可作为一个目录被访问到
+        #try_files $uri $uri/ /not_found;
+
+        location /not_found {
+                return 404 "sadly, you've hit a brick wall buddy!\n";
+        }
+    }
+}
+```
+
+**nginx中的日志**
+
+日志位置：
+
+```shell
+ls -lh /var/log/nginx/
+
+# -rw-r----- 1 www-data adm     0 Apr 25 07:34 access.log
+# -rw-r----- 1 www-data adm     0 Apr 25 07:34 error.log
+```
+
+清空日志文件：
+
+```shell
+# delete the old files
+sudo rm /var/log/nginx/access.log /var/log/nginx/error.log
+
+# create new files
+sudo touch /var/log/nginx/access.log /var/log/nginx/error.log
+
+# reopen the log files
+sudo nginx -s reopen
+```
+
+这里如果采用上面删除文件后再创建文件的方法清空日志，就需要`nginx -s reopen`重载nginx，否则新的日志文件不会被写入日志，因为nginx的输出流还是之前删除的日志文件。实际上这里想清空日志文件可以采用`echo "" > /var/log/nginx/access.log`的方法，这样就不用`reopen` nginx了。
+
+访问nginx并查看日志：
+
+```shell
+curl -I http://nginx-handbook.test
+
+# HTTP/1.1 200 OK
+# Server: nginx/1.18.0 (Ubuntu)
+# Date: Sun, 25 Apr 2021 08:35:59 GMT
+# Content-Type: text/html
+# Content-Length: 960
+# Last-Modified: Sun, 25 Apr 2021 08:35:33 GMT
+# Connection: keep-alive
+# ETag: "608529d5-3c0"
+# Accept-Ranges: bytes
+
+sudo cat /var/log/nginx/access.log 
+
+# 192.168.20.20 - - [25/Apr/2021:08:35:59 +0000] "HEAD / HTTP/1.1" 200 0 "-" "curl/7.68.0"
+```
+
+默认情况下，任何访问的日志都会记录在`access.log`文件中，但是也可以通过`access_log`来自定义：
+
+```shell
+events {
+
+}
+
+http {
+
+    include /etc/nginx/mime.types;
+
+    server {
+
+        listen 80;
+        server_name nginx-handbook.test;
+        
+        location / {
+            return 200 "this will be logged to the default file.\n";
+        }
+        
+        location = /admin {
+            access_log /var/logs/nginx/admin.log;
+            
+            return 200 "this will be logged in a separate file.\n";
+        }
+        
+        location = /no_logging {
+            access_log off;
+            
+            return 200 "this will not be logged.\n";
+        }
+    }
+}
+```
+
+在`location{}`中可以自定义`access.log`的路径，也可以用`access_log off`来关闭指定路径的log输出。
+
+`error_log`也可以自定义nginx的`error.log`路径及日志级别：
+
+```shell
+events {
+
+}
+
+http {
+
+    include /etc/nginx/mime.types;
+
+    server {
+
+        listen 80;
+        server_name nginx-handbook.test;
+	
+    	error_log /var/log/error.log warn;
+        #return后面只能跟两个参数，这里是为了让nginx报错，输出错误日志
+        return 200 "..." "...";
+    }
+
+}
+```
+
+**配置nginx为反向代理**
+
+nginx作为反向代理时，处在客户端和服务端之间。客户端发送请求到nginx（反向代理），nginx将请求发送给服务端。一旦服务端处理完请求，会将结果返回给nginx，nginx再将结果返回给客户端。
+
+在这整个过程中，客户端并不知道实际上谁处理了请求。看一个简单的反向代理配置：
+
+```shell
+events {
+
+}
+
+http {
+
+    include /etc/nginx/mime.types;
+
+    server {
+        listen 80;
+        server_name nginx.test;
+
+        location / {
+                proxy_pass "https://nginx.org/";
+        }
+    }
+}
+```
+
+`proxy_pass`能够简单的将客户端请求转发给第三方服务端并反向代理响应结果返回给客户端。
+
+反向代理`node.js`接口并设置参数：
+
+```shell
+events {
+
+}
+  
+http {
+    listen 80;
+    server_name nginx-handbook.test
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+    }
+}
+```
+
+**配置nginx负载均衡服务**
+
+配置示例：
+
+```shell
+events {
+
+}
+
+http {
+
+    upstream backend_servers {
+        server localhost:3001;
+        server localhost:3002;
+        server localhost:3003;
+    }
+
+    server {
+
+        listen 80;
+        server_name nginx-handbook.test;
+
+        location / {
+            proxy_pass http://backend_servers;
+        }
+    }
+}
+```
+
+`upstream{}`可以包含多个服务并且作为一个服务端被引用。
+
+测试负载均衡：
+
+```shell
+while sleep 0.5; do curl http://nginx-handbook.test; done
+
+# response from server - 2.
+# response from server - 3.
+# response from server - 1.
+# response from server - 2.
+# response from server - 3.
+# response from server - 1.
+# response from server - 2.
+# response from server - 3.
+# response from server - 1.
+# response from server - 2.
+```
+
+**nginx性能优化**
+
+配置Worker进程和Worker连接：
+
+```shell
+#一般情况，主机有多少核，就设置Worker进程的个数为多少
+worker_processes 2;
+#根据主机cpu的不同自动设置Worker进程的个数
+#worker_processes auto;
+
+events {
+
+}
+
+http {
+
+    server {
+
+        listen 80;
+        server_name nginx-handbook.test;
+
+        return 200 "worker processes and worker connections configuration!\n";
+    }
+}
+```
+
+`worker_connections`表示一个Worker进程能够处理的最大连接数，该参数跟主机cpu core个数和一个core能打开的文件个数有关（该值可以通过命令`ulimit -n`查询）。
+
+`worker_connections`设置：
+
+```shell
+worker_processes auto;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+
+    server {
+
+        listen 80;
+        server_name nginx-handbook.test;
+
+        return 200 "worker processes and worker connections configuration!\n";
+    }
+}
+```
+
+**怎么缓存静态内容**
+
+```shell
+worker_processes auto;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+
+    include /env/nginx/mime.types;
+
+    server {
+
+        listen 80;
+        server_name nginx-handbook.test;
+
+        root /srv/nginx-handbook-demo/static-demo;
+        #正则匹配，大小写不敏感
+        location ~* \.(css|js|jpg)$ {
+            access_log off;
+            
+            add_header Cache-Control public;
+            add_header Pragma public;
+            add_header Vary Accept-Encoding;
+            expires 1M;
+        }
+    }
+}
+```
+
+像之前反向代理设置中的`proxy_set_header`给可以给代理到后端的请求增加`header`一样，使用`add_header`可以给response增加`header`。
+
+`Cache-Control`头信息设置为`public`，是在告诉client该请求内容可以被缓存。`Pragma`是`Cache-Control`的old version。
+
+`Vary`头信息设置为`Accept-Encoding`，后续详解。
+
+`expires` directive表示设置`Expires`头信息，其值可以是`1M`（1 month）、`10m/10 minutes`或者`24h/24 hours`等。
+
+测试请求的响应信息：
+
+```shell
+curl -I http://nginx-handbook.test/the-nginx-handbook.jpg
+
+# HTTP/1.1 200 OK
+# Server: nginx/1.18.0 (Ubuntu)
+# Date: Sun, 25 Apr 2021 15:58:22 GMT
+# Content-Type: image/jpeg
+# Content-Length: 19209
+# Last-Modified: Sun, 25 Apr 2021 08:35:33 GMT
+# Connection: keep-alive
+# ETag: "608529d5-4b09"
+# Expires: Tue, 25 May 2021 15:58:22 GMT
+# Cache-Control: max-age=2592000
+# Cache-Control: public
+# Pragma: public
+# Vary: Accept-Encoding
+# Accept-Ranges: bytes
+```
+
+**怎么压缩响应**
+
+压缩配置：
+
+```shell
+worker_processes auto;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include /env/nginx/mime.types;
+
+    gzip on;
+    gzip_comp_level 3;
+
+    gzip_types text/css text/javascript;
+
+    server {
+
+        listen 80;
+        server_name nginx-handbook.test;
+
+        root /srv/nginx-handbook-demo/static-demo;
+        
+        location ~* \.(css|js|jpg)$ {
+            access_log off;
+            
+            add_header Cache-Control public;
+            add_header Pragma public;
+            add_header Vary Accept-Encoding;
+            expires 1M;
+        }
+    }
+}
+```
+
+默认nginx会对`html`文件进行`gzip`压缩，如果要对其他类型文件压缩，需要设置`gzip_types text/css text/javascript;`。
+
+`gzip_comp_level`不是设置的越大越好，一般设置为1-4。
+
+服务端设置`gzip`之后，客户端需要增加`header`信息`"Accept-Encoding: gzip"`才能完成服务端到客户端的压缩传输。
+
+客户端请求没有`"Accept-Encoding: gzip"`的示例：
+
+```shell
+curl -I http://nginx-handbook.test/mini.min.css
+
+# HTTP/1.1 200 OK
+# Server: nginx/1.18.0 (Ubuntu)
+# Date: Sun, 25 Apr 2021 16:30:32 GMT
+# Content-Type: text/css
+# Content-Length: 46887
+# Last-Modified: Sun, 25 Apr 2021 08:35:33 GMT
+# Connection: keep-alive
+# ETag: "608529d5-b727"
+# Expires: Tue, 25 May 2021 16:30:32 GMT
+# Cache-Control: max-age=2592000
+# Cache-Control: public
+# Pragma: public
+# Vary: Accept-Encoding
+# Accept-Ranges: bytes
+```
+
+客户端请求设置"Accept-Encoding: gzip"的示例：
+
+```shell
+curl -I -H "Accept-Encoding: gzip" http://nginx-handbook.test/mini.min.css
+
+# HTTP/1.1 200 OK
+# Server: nginx/1.18.0 (Ubuntu)
+# Date: Sun, 25 Apr 2021 16:31:38 GMT
+# Content-Type: text/css
+# Last-Modified: Sun, 25 Apr 2021 08:35:33 GMT
+# Connection: keep-alive
+# ETag: W/"608529d5-b727"
+# Expires: Tue, 25 May 2021 16:31:38 GMT
+# Cache-Control: max-age=2592000
+# Cache-Control: public
+# Pragma: public
+# Vary: Accept-Encoding
+# Content-Encoding: gzip
+```
+
+注意，这里response的`header`中有`Vary: Accept-Encoding`信息，该头信息告诉客户端，根据客户端设置的`Accept-Encoding`头信息的不同，服务端响应会发生变化。
+
+对比压缩前后传输内容的大小：
+
+```shell
+cd ~
+mkdir compression-test && cd compression-test
+
+curl http://nginx-handbook.test/mini.min.css > uncompressed.css
+
+curl -H "Accept-Encoding: gzip" http://nginx-handbook.test/mini.min.css > compressed.css
+
+ls -lh
+
+# -rw-rw-r-- 1 vagrant vagrant 9.1K Apr 25 16:35 compressed.css
+# -rw-rw-r-- 1 vagrant vagrant  46K Apr 25 16:35 uncompressed.css
+```
+
+没压缩的版本大小是是`46k`，而压缩后的版本大小事`9.1k`。
+
+**理解nginx `main` Contexts配置**
+
+完整nginx配置文件：
+
+```shell
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+	worker_connections 768;
+	# multi_accept on;
+}
+
+http {
+
+	##
+	# Basic Settings
+	##
+
+	sendfile on;
+	tcp_nopush on;
+	tcp_nodelay on;
+	keepalive_timeout 65;
+	types_hash_max_size 2048;
+	# server_tokens off;
+
+	# server_names_hash_bucket_size 64;
+	# server_name_in_redirect off;
+
+	include /etc/nginx/mime.types;
+	default_type application/octet-stream;
+
+	##
+	# SSL Settings
+	##
+
+	ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3; # Dropping SSLv3, ref: POODLE
+	ssl_prefer_server_ciphers on;
+
+	##
+	# Logging Settings
+	##
+
+	access_log /var/log/nginx/access.log;
+	error_log /var/log/nginx/error.log;
+
+	##
+	# Gzip Settings
+	##
+
+	gzip on;
+
+	# gzip_vary on;
+	# gzip_proxied any;
+	# gzip_comp_level 6;
+	# gzip_buffers 16 8k;
+	# gzip_http_version 1.1;
+	# gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+	##
+		# Virtual Host Configs
+	##
+
+	include /etc/nginx/conf.d/*.conf;
+	include /etc/nginx/sites-enabled/*;
+}
+
+
+#mail {
+#	# See sample authentication script at:
+#	# http://wiki.nginx.org/ImapAuthenticateWithApachePhpScript
+# 
+#	# auth_http localhost/auth.php;
+#	# pop3_capabilities "TOP" "USER";
+#	# imap_capabilities "IMAP4rev1" "UIDPLUS";
+# 
+#	server {
+#		listen     localhost:110;
+#		protocol   pop3;
+#		proxy      on;
+#	}
+# 
+#	server {
+#		listen     localhost:143;
+#		protocol   imap;
+#		proxy      on;
+#	}
+#}
+```
+
+`pid /run/nginx.pid;`设置nginx进程的process id。
+
+`include /etc/nginx/modules-enabled/*.conf;`设置`include`指定目录中任何`.conf`结尾的配置文件。该目录用来设置nginx的动态模块。
+
+在`http{}`下，有基本的优化设置，如下：
+
+- `sendfile on;`：禁止静态文件buffering。
+- `tcp_nopush on;`：允许在一个包中发送响应头信息。
+- `tcp_nodelay on;`：disables Nagle's Algorithm resulting in faster static file delivery。
+
+`keepalive_timeout`设置http connection的连接时间。`types_hash_maxsize`设置`Hash map`的大小。
+
+**配置SSL和http/2**
+
+**实践**
+
+```shell
+server {
+    listen 80;
+    server_name example.net;
+    root /path/to/aaa;
+
+    location /bbb/ {
+        proxy_pass http://example.com/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+    location ~ \.(svg|ttf|js|css|svgz|eot|otf|woff|jpg|jpeg|gif|png|ico)$ {
+        access_log off;
+        log_not_found off;
+        expires max;
+    }
+}
+```
+
+The problem is basically that using a proxy_pass directive won't rewrite HTML code and therefor relative URL's to for instance a img src="/assets/image.png" won't magically change to img src="/bbb/assets/image.png".
+
+I wrote about potential strategies to address that in Apache httpd here and similar solutions are possible for nginx as well:
+
+方法一：
+
+If you have control over example.com and the how the application/content is deployed there, deploy in the same base URI you want to use on example.net for the reverse proxy. deploy your code in example.com/bbb and then your proxy_pass will become quite an easy as /assets/image.png will have been moved to /bbb/assets/image.png:
+
+```shell
+location /bbb/ {
+    proxy_pass http://example.com/bbb/;
+}
+```
+
+方法二：
+
+If you have control over example.com and the how the application/content is deployed: change to relative paths, i.e. rather than img src="/assets/image.png" refer to img src="./assets/image.png" from a page example.com/index.html and to img src="../../assets/image.png"from a page example.com/some/path/index.html
+
+方法三：
+
+Maybe you're lucky and example.com only uses a few URI paths in the root and non of those are used by example.net, then simply reverse proxy every necessary subdirectory:
+
+```shell
+location /bbb/ {
+     proxy_pass http://example.com/; 
+}
+location /assets/ {
+     proxy_pass http://example.com/assets/; 
+}
+location /styles/ {
+     proxy_pass http://example.com/styles/;
+}
+```
+
+方法四：
+
+give up using a example.com as subdirectory on example.net and instead host it on a subdomain of example.net:
+
+```shell
+server { 
+  server_name bbb.example.net 
+  location / {
+     proxy_pass http://example.com/; 
+  }
+}
+```
+
+方法五：
+
+rewrite the (HTML) content by enabling the nginx ngx_http_sub_module. That will also allow you to rewrite absolute URL's with something similar to:
+
+```shell
+location /bbb/ {
+     sub_filter 'src="/assets/'  'src="/bbb/assets/';
+     sub_filter 'src="http://example.com/js/' 'src="http://www.example.net/bbb/js/' ;
+     sub_filter_once off;
+     proxy_pass http://example.com/; 
+}
+```
+
+**反向代理**
+
+所谓的反向代理就是将客户端发送来的请求转发给实际处理请求服务端（`proxy_pass`指定的服务端），服务端响应之后，再将响应代理回客户端。如图：
+
+![](/img/posts/)
+
+既然是代理，就不仅仅简单的只做转发，在代理收到客户端请求后，准备转发到指定代理服务端之前，会对请求的`header`信息进行重写，默认情况下规则如下：
+
+1. 值为空的`header`不会进行转发；`header`的`key`中包含有`_`下划线的不会进行转发。
+2. 默认改写`Host`和`Connection`两个`header`，分别为：`Host: $proxy_host`、`Connection: close`。
+
+> 如果代理服务器只是转发，还要什么代理？就像生活中的代理一样，会提供增值服务，什么事情都帮你搞定。
+
+**引用**
+
+- [https://www.freecodecamp.org/news/the-nginx-handbook/](https://www.freecodecamp.org/news/the-nginx-handbook/)
+- [https://serverfault.com/questions/932628/how-to-handle-relative-urls-correctly-with-a-nginx-reverse-proxy](https://serverfault.com/questions/932628/how-to-handle-relative-urls-correctly-with-a-nginx-reverse-proxy)
+- [https://www.cnblogs.com/sky-cheng/p/11058221.html](https://www.cnblogs.com/sky-cheng/p/11058221.html)
+- [https://stackoverflow.com/questions/15414810/whats-the-difference-of-host-and-http-host-in-nginx](https://stackoverflow.com/questions/15414810/whats-the-difference-of-host-and-http-host-in-nginx)
