@@ -26,6 +26,7 @@ weixinurl: 'https://mp.weixin.qq.com/s/5g-Dx9wl1iyW2pxwe4qtVg'
     - [2.3 Win和WSL系统如何打通任督二脉？](#2.3)
         - [2.3.1 文件系统互通](#2.3.1)
         - [2.3.2 程序调用互通](#2.3.2)
+    - [2.4 设置WSL sshd服务（让你的Windows能ssh远程登录）](#2.4)
 - [3. WSL2使用遇到的问题](#3)
     - [3.1 WSL和VirtualBox对于Hyper-v冲突](#3.1)
     - [3.2 Centos6在wsl2 docker上运行有问题](#3.1)
@@ -279,6 +280,60 @@ if [ ! -S "$DOCKER_SOCK" ]; then
 ![](/img/posts/wsl2-win-open-wslping.png)
 
 二者的命令还可以组合使用，例如：在`PowerShell`中执行：`wsl ls -la | findstr "git"`。更多请参考：[https://docs.microsoft.com/en-us/windows/wsl/filesystems](https://docs.microsoft.com/en-us/windows/wsl/filesystems)
+
+<h4 id="2.4">2.4 设置WSL sshd服务（让你的Windows能ssh远程登录）</h4>
+
+WSL和你的Windows主机已经互通了，如果能够通过ssh访问WSL，那么就相当于ssh能访问Windows。
+
+基本的配置思路：
+
+1. WSL实例中开启sshd服务。
+2. 将WSL的sshd服务监听端口和Windows主机某个端口做映射。
+3. 外界（和Windows主机映射端口可达）通过ssh客户端连接WSL。
+
+**配置WSL sshd服务**
+
+```shell
+#修改配置文件
+#vim /etc/ssh/sshd_config
+
+#设置需要认证
+PasswordAuthentication yes
+
+#设置登录用户，这里是WSL实例用户
+AllowUsers ${wsl_yourusername}
+
+#server会60s自动发送信号到Client，Client没有回应会记录下来，达到ClientAliveCountMax的次数
+ClientAliveInterval 60
+# 600分钟后断开连接
+ClientAliveCountMax 600
+```
+
+**启动sshd**
+
+```shell
+#查看ssh状态
+service ssh status
+
+#启动服务
+sudo service start 
+
+#重启
+sudo service ssh --full-restart
+```
+
+**ssh端口映射到Windows主机上**
+
+```shell
+netsh interface portproxy reset
+$wsl_ip = (wsl hostname -I).trim().split()[0]
+Write-Host "WSL Machine IP: ""$wsl_ip"""
+netsh interface portproxy add v4tov4 listenport=${Windows主机端口} connectport=22 connectaddress=$wsl_ip
+```
+
+更多端口映射理解请参考：[WSL动态IP，如何从外部访问？](#2.1)
+
+现在就可以通过ssh客户端命令`ssh -p ${Windows主机端口} ${wsl_yourusername}@${Windows主机IP}`登录WSL实例了，例如：`ssh -p 2222 user@172.22.28.22`
 
 <h3 id="3">3. WSL2使用遇到的问题</h3>
 
