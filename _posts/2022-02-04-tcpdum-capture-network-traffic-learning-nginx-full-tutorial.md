@@ -41,7 +41,7 @@ comment: false
     - [11.2 如何开启HTTP/2](#11.2)
     - [11.3 如何开启服务端推送](#11.3)
 
-<h3 id="0">0. Nginx基本介绍</h3>
+<h3 id="0">0. 前话</h3>
 
 俄罗斯年轻程序员[Igor Sysoev](https://en.wikipedia.org/wiki/Igor_Sysoev)为了解决所谓[C10K problem](https://en.wikipedia.org/wiki/C10k_problem)，也就是以前的Web Server不能支持超10k并发请求的问题，在2002年开启了新的Web Server的开发。
 
@@ -404,7 +404,7 @@ http {
     server {
 
         listen 8088;
-        server_name nginx-handbook.test;
+        server_name localhost;
 
         root /usr/share/nginx/html;
     }
@@ -447,7 +447,15 @@ http {
 
 <h3 id="5">5. Nginx的动态路由</h3>
 
-1). Location Matches
+上面的示例非常简单，访问`root`定义目录下的文件，存在就返回，不存在就返回默认`404`页面。
+
+接下来学习Nginx的`location`动态路由用法，包括重定向、重写和`try_files` Directive。
+
+> 所谓的动态路径就是用户访问的路径到达Nginx后，Nginx如何匹配访问内容。
+
+**Location Matches**
+
+修改配置文件，如下：
 
 ```shell
 events {
@@ -458,29 +466,35 @@ http {
 
     server {
 
+        #设置默认的Content-Type text/html，否则将以流的方式下载
+        default_type text/html;
+        #设置字符编码为utf-8，否则页面会乱码
+        charset utf-8;
+
         listen 80;
-        server_name nginx-handbook.test;
-        #前缀匹配
+        server_name localhost;
+        #前缀匹配，示例：http://fengmengzhao.hypc:8088/agatha----
         location /agatha {
             return 200 "前缀匹配-Miss Marple.\nHercule Poirot.\n";
         }
-        #完全匹配
+        #完全匹配，示例：http://fengmengzhao.hypc:8088/agatha
         location = /agatha {
             return 200 "完全匹配-Miss Marple.\nHercule Poirot.\n";
         }
-        #正则匹配，大小写敏感        
+        #正则匹配，默认大小写敏感，示例：http://fengmengzhao.hypc:8088/agatha01234
+        #正则匹配的优先级要高于前缀匹配，低于优先前缀匹配
         location ~ /agatha[0-9]{
             return 200 "正则匹配，大小写敏感-Miss Marple.\nHercule Poirot.\n";
         }
-        #正则匹配，大小写不敏感
+        #正则匹配，大小写不敏感，示例：http://fengmengzhao.hypc:8088/AGatHa01234
         location ~* /agatha[0-9]{
             return 200 "正则匹配，大小写不敏感-Miss Marple.\nHercule Poirot.\n";
         }
-        #优先前缀匹配
+        #优先前缀匹配，示例：http://fengmengzhao.hypc:8088/Agatha01234
         #在前缀匹配前加^~即可转化为优先前缀匹配
         location ^~ /Agatha {
             return 200 "优先前缀匹配-Miss Marple.\nHercule Poirot.\n";
-        }
+        } 
     }
 }
 ```
@@ -494,7 +508,7 @@ http {
  正则 |  `~`或者`~*`
   前缀|  `None`
 
-如果一个请求满足多个配置的匹配，正则匹配的优先级大于前缀匹配，而优先前缀匹配的优先级大于正则匹配。
+如果一个请求满足多个配置的匹配，正则匹配的优先级大于前缀匹配，而优先前缀匹配的优先级大于正则匹配，完全匹配优先级最高。
 
 **nginx中的变量（`Variables`）**
 
@@ -528,16 +542,16 @@ http {
     server {
 
         listen 80;
-        server_name nginx-handbook.test;
+        server_name localhost;
 
         return 200 "Host - $host\ - $uri\nArgs - $args\n";
     }
 
 }
 
-# curl http://nginx-handbook.test/user?name=Farhan
+# curl http://localhost/user?name=Farhan
 
-# Host - nginx-handbook.test
+# Host - localhost
 # URI - /user
 # Args - name=Farhan
 ```
@@ -554,7 +568,7 @@ http {
     server {
 
         listen 80;
-        server_name nginx-handbook.test;
+        server_name localhost;
         
         set $name $arg_name; # $arg_<query string name>
 
@@ -564,7 +578,7 @@ http {
 }
 ```
 
-上面出现了`$arg`内置变量，使用`$arg_<query string name>`可以获取`$args`变量中指定的`query string`。
+上面出现了`$arg_*`内置变量，使用`$arg_<query string name>`可以获取`$args`变量中指定的`query string`。
 
 **重定向（`Redirects`）和重写（`Rewrites`）**
 
@@ -584,29 +598,29 @@ http {
     server {
 
         listen 80;
-        server_name nginx-handbook.test;
+        server_name localhost;
 
-        root /srv/nginx-handbook-projects/static-demo;
+        root /usr/share/nginx/html;
 
         location = /index_page {
-                return 307 /index.html;
+                return 307 https://fengmengzhao.github.io;
         }
 
         location = /about_page {
-                return 307 /about.html;
+                return 307 https://fengmengzhao.github.io/about;
         }
     }
 }
 
-#curl -I http://nginx-handbook.test/about_page
+#curl -I http://localhost/about_page
 
-# HTTP/1.1 307 Temporary Redirect
-# Server: nginx/1.18.0 (Ubuntu)
-# Date: Thu, 22 Apr 2021 18:02:04 GMT
-# Content-Type: text/html
-# Content-Length: 180
-# Location: http://nginx-handbook.test/about.html
-# Connection: keep-alive
+HTTP/1.1 307 Temporary Redirect
+Server: nginx/1.18.0 (Ubuntu)
+Date: Mon, 21 Feb 2022 11:47:42 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 180
+Connection: keep-alive
+Location: https://fengmengzhao.github.io/about
 ```
 
 重写（`Rewrites`）和重定向不一样，重写内部转发了请求，地址栏不会发生改变。示例如下：
@@ -623,34 +637,32 @@ http {
     server {
 
         listen 80;
-        server_name nginx-handbook.test;
+        server_name localhost;
 
-        root /srv/nginx-handbook-projects/static-demo;
+        root /usr/share/nginx/html;
 
-        rewrite /index_page /index.html;
-
-        rewrite /about_page /about.html;
+        rewrite /image /assets/generate.png;
     }
 }
 
-#curl -i http://nginx-handbook.test/about_page
+#curl -i http://localhost/image
 
-# HTTP/1.1 200 OK
-# Server: nginx/1.18.0 (Ubuntu)
-# Date: Thu, 22 Apr 2021 18:09:31 GMT
-# Content-Type: text/html
-# Content-Length: 960
-# Last-Modified: Wed, 21 Apr 2021 11:27:06 GMT
-# Connection: keep-alive
-# ETag: "60800c0a-3c0"
-# Accept-Ranges: bytes
+HTTP/1.1 200 OK
+Server: nginx/1.18.0 (Ubuntu)
+Date: Mon, 21 Feb 2022 11:56:42 GMT
+Content-Type: image/png
+Content-Length: 144082
+Last-Modified: Sun, 20 Feb 2022 08:35:21 GMT
+Connection: keep-alive
+ETag: "6211fd49-232d2"
+Accept-Ranges: bytes
 
-# <!DOCTYPE html>
-# <html lang="en">
-# ...
+Warning: Binary output can mess up your terminal. Use "--output -" to tell
+Warning: curl to output it to your terminal anyway, or consider "--output
+Warning: <FILE>" to save to a file.
 ```
 
-> When a rewrite happens, the server context gets re-evaluated by NGINX. So, a rewrite is a more expensive operation than a redirect.
+如果在浏览器上访问`http://fengmengzhao.hypc:8088/image`，即可展示图片。
 
 **`try_files`尝试多个文件**
 
@@ -668,11 +680,11 @@ http {
     server {
 
         listen 80;
-        server_name nginx-handbook.test;
+        server_name localhost;
 
-        root /srv/nginx-handbook-projects/static-demo;
+        root /usr/share/nginx/html;
 
-        try_files /the-nginx-handbook.jpg /not_found;
+        try_files /assets/xxx.jpg /not_found;
 
         location /not_found {
                 return 404 "sadly, you've hit a brick wall buddy!\n";
@@ -681,7 +693,7 @@ http {
 }
 ```
 
-示例查找`/the-nginx-handbook.jpg`文件，如果不存在就查找`/not_found`路径。
+示例查找`/assets/xxx.jpg`文件，如果不存在就查找`/not_found`路径。
 
 `try_files`常常和`$uri`内置变量一起使用：
 
@@ -697,13 +709,13 @@ http {
     server {
 
         listen 80;
-        server_name nginx-handbook.test;
+        server_name localhost;
 
-        root /srv/nginx-handbook-projects/static-demo;
+        root /usr/share/nginx/html;
 
         try_files $uri /not_found;
-        #当访问http://nginx-handbook.test返回404
-        #加$uri/即可作为一个目录被访问到
+        #当访问http://localhost返回404
+        #这里表示，当访问$uri文件不存在时，尝试$uri/作为一个目录访问
         #try_files $uri $uri/ /not_found;
 
         location /not_found {
@@ -713,7 +725,7 @@ http {
 }
 ```
 
-**nginx中的日志**
+<h3 id="6">6. Nginx的日志</h3>
 
 日志位置：
 
@@ -742,7 +754,7 @@ sudo nginx -s reopen
 访问nginx并查看日志：
 
 ```shell
-curl -I http://nginx-handbook.test
+curl -I http://localhost
 
 # HTTP/1.1 200 OK
 # Server: nginx/1.18.0 (Ubuntu)
@@ -773,7 +785,7 @@ http {
     server {
 
         listen 80;
-        server_name nginx-handbook.test;
+        server_name localhost;
         
         location / {
             return 200 "this will be logged to the default file.\n";
@@ -810,7 +822,7 @@ http {
     server {
 
         listen 80;
-        server_name nginx-handbook.test;
+        server_name localhost;
 	
     	error_log /var/log/error.log warn;
         #return后面只能跟两个参数，这里是为了让nginx报错，输出错误日志
@@ -857,7 +869,7 @@ events {
   
 http {
     listen 80;
-    server_name nginx-handbook.test
+    server_name localhost
 
     location / {
         proxy_pass http://localhost:3000;
@@ -888,7 +900,7 @@ http {
     server {
 
         listen 80;
-        server_name nginx-handbook.test;
+        server_name localhost;
 
         location / {
             proxy_pass http://backend_servers;
@@ -902,7 +914,7 @@ http {
 测试负载均衡：
 
 ```shell
-while sleep 0.5; do curl http://nginx-handbook.test; done
+while sleep 0.5; do curl http://localhost; done
 
 # response from server - 2.
 # response from server - 3.
@@ -935,7 +947,7 @@ http {
     server {
 
         listen 80;
-        server_name nginx-handbook.test;
+        server_name localhost;
 
         return 200 "worker processes and worker connections configuration!\n";
     }
@@ -958,7 +970,7 @@ http {
     server {
 
         listen 80;
-        server_name nginx-handbook.test;
+        server_name localhost;
 
         return 200 "worker processes and worker connections configuration!\n";
     }
@@ -981,7 +993,7 @@ http {
     server {
 
         listen 80;
-        server_name nginx-handbook.test;
+        server_name localhost;
 
         root /srv/nginx-handbook-demo/static-demo;
         #正则匹配，大小写不敏感
@@ -1008,7 +1020,7 @@ http {
 测试请求的响应信息：
 
 ```shell
-curl -I http://nginx-handbook.test/the-nginx-handbook.jpg
+curl -I http://localhost/the-nginx-handbook.jpg
 
 # HTTP/1.1 200 OK
 # Server: nginx/1.18.0 (Ubuntu)
@@ -1048,7 +1060,7 @@ http {
     server {
 
         listen 80;
-        server_name nginx-handbook.test;
+        server_name localhost;
 
         root /srv/nginx-handbook-demo/static-demo;
         
@@ -1073,7 +1085,7 @@ http {
 客户端请求没有`"Accept-Encoding: gzip"`的示例：
 
 ```shell
-curl -I http://nginx-handbook.test/mini.min.css
+curl -I http://localhost/mini.min.css
 
 # HTTP/1.1 200 OK
 # Server: nginx/1.18.0 (Ubuntu)
@@ -1094,7 +1106,7 @@ curl -I http://nginx-handbook.test/mini.min.css
 客户端请求设置"Accept-Encoding: gzip"的示例：
 
 ```shell
-curl -I -H "Accept-Encoding: gzip" http://nginx-handbook.test/mini.min.css
+curl -I -H "Accept-Encoding: gzip" http://localhost/mini.min.css
 
 # HTTP/1.1 200 OK
 # Server: nginx/1.18.0 (Ubuntu)
@@ -1119,9 +1131,9 @@ curl -I -H "Accept-Encoding: gzip" http://nginx-handbook.test/mini.min.css
 cd ~
 mkdir compression-test && cd compression-test
 
-curl http://nginx-handbook.test/mini.min.css > uncompressed.css
+curl http://localhost/mini.min.css > uncompressed.css
 
-curl -H "Accept-Encoding: gzip" http://nginx-handbook.test/mini.min.css > compressed.css
+curl -H "Accept-Encoding: gzip" http://localhost/mini.min.css > compressed.css
 
 ls -lh
 
