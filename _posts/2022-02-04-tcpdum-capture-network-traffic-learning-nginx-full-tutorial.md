@@ -1,7 +1,7 @@
 ﻿---
 layout: post
 title: 'tcpdump抓包学习Nginx(反向代理)，学完不怵nginx了，还总想跃跃欲试！(Nginx使用、原理完整版手册)'
-subtitle: '之前遇到Nginx总是把配置文件改吧改吧能用就可以了，不理解也不敢改动相关的配置文件，总是云里雾里。抽时间整体上将Nginx捋一遍，囊括了Nginx的基础配置、功能使用。tcpdump抓包探究反向代理实现。学完再看到Nginx，总想试一试！'
+subtitle: '之前遇到Nginx总是把配置文件改吧改吧能用就可以了，不理解也不敢改动相关的配置文件，云里雾里。抽时间整体上将Nginx捋一遍，囊括了Nginx的基础配置、功能使用。tcpdump抓包探究反向代理实现。学完再看到Nginx，总想试一试！'
 background: '/img/posts/nginx-switch-army-knife.jpg'
 comment: false
 ---
@@ -58,7 +58,7 @@ comment: false
 - 优化Nginx获取最大性能。
 - 配置HTTPS和HTTP/2。
 
-学习本文需要有一定的Linux基础，会执行例如`ls`、`cat`等Linux命令，还需要你对前后端至少有一定的了解，不过这些对前端或者后端程序员都很容易。
+学习本文需要有一定的Linux基础，会执行例如`ls`、`cat`等Linux命令，还需要你对前后端有一定的了解，不过这些对前端或者后端程序员都很容易。
 
 <h3 id="1">1. Nginx基本介绍</h3>
 
@@ -71,11 +71,11 @@ Nginx不是市场上唯一的Web服务器，它最大的竞争对手[Apache HTTP
 
 Nginx和Apache谁更好的争论没有意义，如果想了解更多Nginx和Apache的区别可以参考[Justin Ellingwood](https://www.digitalocean.com/community/users/jellingwood)的[文章](https://www.digitalocean.com/community/tutorials/apache-vs-nginx-practical-considerations)。
 
-从处理请求的技术角度，引用Justin的文章解释如下：
+关于Nginx对请求处理的新特点，引用Justin的文章解释如下：
 
-Nginx在Apache之后出现，更多认识到网站业务扩张之后面临的并发性问题，所以从一开始就设计为异步、非阻塞和事件驱动连接处理的算法。
+Nginx在Apache之后出现，更多认识到网站业务扩大之后面临的并发性问题，所以从一开始就设计为异步、非阻塞和事件驱动连接处理的算法。
 
-Nginx工作时候会设定worker进程(worker process)，每一个worker进程都能够处理数千个连接。worker进程通过`fast looping`的机制来不断查询和处理事件。将具体处理请求的工作和连接解耦能够让每一个worker进程仅当新的事件触发的时候将其与一个连接关联。
+Nginx工作时候会设定worker进程(worker process)，每一个worker进程都能够处理数千个连接。worker进程通过`fast looping`的机制来不断轮询处理事件。将具体处理请求的工作和连接解耦能够让每一个worker进程仅当新的事件触发的时候将其与一个连接关联。
 
 Nginx基本工作原理图：
 
@@ -99,7 +99,7 @@ sudo apt update && sudo apt upgrade -y
 sudo apt install nginx -y
 ```
 
-这种方式安装Nginx成功之后，Nginx回注册为`systemd`系统服务，查看服务：
+这种方式安装Nginx成功之后，Nginx会注册为`systemd`系统服务，查看服务：
 
 ```shell
 sudo systemctl status nginx
@@ -108,7 +108,7 @@ sudo systemctl status nginx
 sudo service nginx status
 ```
 
-Nginx的配置文件经常放在`/etc/nginx`目录中，默认的配置端口是`80`，如果启动成功，可以访问并得到页面：
+Nginx的配置文件经常放在`/etc/nginx`目录中，默认的配置端口是`80`，如果启动成功，可以访问得到页面：
 
 ![](/img/posts/nginx-install-success.png)
 
@@ -173,7 +173,7 @@ http {
     server {
 
         listen 80;
-        server_name nginx-handbook.test;
+        server_name localhost;
 
         return 200 "Bonjour, mon ami!\n";
         #配置重定向
@@ -211,15 +211,37 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 
 如果有相关的语法错误，上述命令会有相关提示。
 
-如果你想该变Nginx的相关状态，例如重启、重载等，可以有两种办法。一种是通过`-s`(signal)参数向Nginx发送信号，
+如果你想改变Nginx的相关状态，例如重启、重载等，可以有三种办法。一是通过`-s`(signal)参数向Nginx发送信号；二是使用系统服务管理工具`systemd`或者`service`等；三是使用`kill`命令对Linux进程操作。
+
+**向Nginx发送信号**
 
 nginx信号：`nginx -s reload|quit|stop|reopen`，分别表示重载配置文件、优雅停止Nginx、无条件停止Nginx和重新代开log文件。
 
 > 所谓的“优雅停止”Nginx，是指处理完目前的请求再停止；而“无条件停止”Nginx，相当于`kill -9`，进程直接被杀死。
 
+**系统服务管理Nginx**
+
+```shell
+#使用systemctl
+sudo systemctl start|restart|stop nginx
+
+#或者使用service
+sudo service nginx start|restart|stop
+```
+
+**kill命令杀死进程并手动启动**
+
+```shell
+#杀死主进程及各子进程
+sudo kill -TERM $MASTER_PID
+
+#指定配置文件启动Nginx
+sudo /usr/sbin/nginx -c /etc/nginx/nginx.conf
+```
+
 <h4 id="4.3">4.3 理解Nginx配置文件中的Directives和Contexts</h4>
 
-Nginx的配置文件虽然看起来只是简单的配置文本，但是它是包含语法的。技术上来讲配置文件中的内容都是`Directives`。`Directives`分为两种：
+Nginx的配置文件虽然看起来只是简单的配置文本，但它是包含语法的。实际上配置文件中的内容都是`Directives`。`Directives`分为两种：
 
 - `Simple Directives`
 - `Block Directives`
@@ -241,7 +263,7 @@ Nginx配置中核心的`Contexts`：
 http {
     server {
         listen 80;
-        server_name nginx-handbook.test;
+        server_name localhost;
 
         return 200 "hello from port 80!\n";
     }
@@ -249,14 +271,16 @@ http {
 
     server {
         listen 8080;
-        server_name nginx-handbook.test;
+        server_name localhost;
 
         return 200 "hello from port 8080!\n";
     }
 }
 ```
 
-不同的虚拟主机，监听同一个端口（多个`server{}`、不同`server_name`），监听同一个端口（`listen`相同）
+不同的虚拟主机，监听同一个端口（多个`server{}`、不同`server_name`），监听同一个端口（`listen`相同）：
+
+> 这种情况必须用域名，Nginx会将请求头中`header`信息取出来和服务端配置`server_name`做匹配，匹配到哪个就就进入到那个处理块中。
 
 ```shell
 http {
@@ -303,7 +327,7 @@ Connection: keep-alive
 welcome dear librarian!
 ```
 
-这样能成功的提前是指定的域名解析到同一个IP，或者在本地的hosts文件中配置好域名：
+这样能成功的提前是指定的域名解析到同一个IP，或者在本地的hosts文件中配置好域名进行本地测试：
 
 ```shell
 172.19.146.188 library.test librarian.library.test
@@ -325,7 +349,7 @@ http {
     server {
 
         listen 8088;
-        server_name nginx-handbook.test;
+        server_name localhost;
 
         root /usr/share/nginx/html;
     }
@@ -333,7 +357,7 @@ http {
 }
 ```
 
-> 这里对Nginx默认的展示页面做了修改，在文件`/assets/mystyle.css`写入`p {background: red;}`并在`html`文件中引入，这样正常段落的背景会变成红色。
+> 这里对Nginx默认的展示页面做了修改，在文件`/usr/share/nginx/html/assets/mystyle.css`写入`p {background: red;}`并在`html`文件中引入该`css`，这样正常情况段落的背景会变成红色。
 
 访问页面，展示的是`index.html`，但是段落的背景没有生效。debug一下`css`文件：
 
@@ -355,7 +379,9 @@ p {
 }
 ```
 
-注意`Content-Type`是`text/plain`，而不是`text/css`。也就是说Nginx将`css`文件做为一个普通的文本提供服务，而没有当做`stylesheet`，浏览器自然就不会渲染样式。
+注意，这里响应头信息`Content-Type`是`text/plain`，而不是`text/css`。也就是说Nginx将`css`文件做为一个普通的文本提供服务，而没有当做`stylesheet`，浏览器自然就不会渲染样式。
+
+> 本文会在本地`hosts`文件增加域名解析，所以会在示例中看到对域名请求。在操作本文示例时，要根据自己环境对ip或者端口做相应修改。
 
 <h4 id="4.5">4.5 Nginx中处理静态文件类型解析</h4>
 
@@ -409,9 +435,9 @@ http {
     server {
 
         listen 80;
-        server_name nginx-handbook.test;
+        server_name localhost;
 
-        root /srv/nginx-handbook-projects/static-demo;
+        root /usr/share/nginx/html;
     }
 
 }
