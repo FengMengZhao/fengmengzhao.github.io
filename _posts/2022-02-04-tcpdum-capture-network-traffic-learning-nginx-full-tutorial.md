@@ -280,7 +280,7 @@ http {
 
 不同的虚拟主机，监听同一个端口（多个`server{}`、不同`server_name`），监听同一个端口（`listen`相同）：
 
-> 这种情况必须用域名，Nginx会将请求头中`header`信息取出来和服务端配置`server_name`做匹配，匹配到哪个就就进入到那个处理块中。
+> 这种情况必须用域名，Nginx会将请求头中`Host`信息取出来和服务端配置`server_name`做匹配，匹配到哪个就就进入到那个处理块中。
 
 ```shell
 http {
@@ -333,7 +333,7 @@ welcome dear librarian!
 172.19.146.188 library.test librarian.library.test
 ```
 
-> 注意，这里`return`这个`Directive`后面可以跟两个参数，一个是状态码，一个是返回的文本信息，文本信息要用引号引起来。
+> 注意，这里`return`这个`Directive`后面跟两个参数，一个是状态码，一个是返回的文本信息，文本信息要用引号引起来。
 
 <h4 id="4.4">4.4 使用Nginx作为静态文件服务器</h4>
 
@@ -359,7 +359,7 @@ http {
 
 > 这里对Nginx默认的展示页面做了修改，在文件`/usr/share/nginx/html/assets/mystyle.css`写入`p {background: red;}`并在`html`文件中引入该`css`，这样正常情况段落的背景会变成红色。
 
-访问页面，展示的是`index.html`，但是段落的背景没有生效。debug一下`css`文件：
+访问页面，展示的是`index.html`，但是段落的背景色没有生效。debug一下`css`文件：
 
 ```shell
 curl -i http://fengmengzhao.hypc:8088/assets/mystyle.css
@@ -381,7 +381,7 @@ p {
 
 注意，这里响应头信息`Content-Type`是`text/plain`，而不是`text/css`。也就是说Nginx将`css`文件做为一个普通的文本提供服务，而没有当做`stylesheet`，浏览器自然就不会渲染样式。
 
-> 本文会在本地`hosts`文件增加域名解析，所以会在示例中看到对域名请求。在操作本文示例时，要根据自己环境对ip或者端口做相应修改。
+> 本文会在本地`hosts`文件增加域名解析，所以会在示例中看到对域名请求。在操作本文示例时，要根据自己环境对ip（域名）或者端口做相应修改。
 
 <h4 id="4.5">4.5 Nginx中处理静态文件类型解析</h4>
 
@@ -749,7 +749,7 @@ sudo touch /var/log/nginx/access.log /var/log/nginx/error.log
 sudo nginx -s reopen
 ```
 
-这里如果采用上面删除文件后再创建文件的方法清空日志，就需要`nginx -s reopen`重载nginx，否则新的日志文件不会被写入日志，因为nginx的输出流还是之前删除的日志文件。实际上这里想清空日志文件可以采用`echo "" > /var/log/nginx/access.log`的方法，这样就不用`reopen` nginx了。
+这里如果采用上面删除文件后再创建文件的方法清空日志，就需要`nginx -s reopen`重载nginx，否则新的日志文件不会被写入日志，因为nginx的输出流指向还是之前删除的日志文件。实际上这里想清空日志文件可以采用`echo "" > /var/log/nginx/access.log`的方法，这样就不用`reopen` Nginx了。
 
 访问nginx并查看日志：
 
@@ -771,7 +771,7 @@ sudo cat /var/log/nginx/access.log
 # 192.168.20.20 - - [25/Apr/2021:08:35:59 +0000] "HEAD / HTTP/1.1" 200 0 "-" "curl/7.68.0"
 ```
 
-默认情况下，任何访问的日志都会记录在`access.log`文件中，但是也可以通过`access_log`来自定义：
+默认情况下，任何访问的日志都会记录在`access.log`文件中，但是也可以通过`access_log` Directive来自定义：
 
 ```shell
 events {
@@ -792,6 +792,7 @@ http {
         }
         
         location = /admin {
+            #日志会输出在/var/logs/nginx/admin.log文件中
             access_log /var/logs/nginx/admin.log;
             
             return 200 "this will be logged in a separate file.\n";
@@ -808,7 +809,59 @@ http {
 
 在`location{}`中可以自定义`access.log`的路径，也可以用`access_log off`来关闭指定路径的log输出。
 
-`error_log`也可以自定义nginx的`error.log`路径及日志级别：
+同样，`error_log`也可以自定义nginx的`error.log`路径及日志级别：
+
+```shell
+events {
+
+}
+
+http {
+
+    include /etc/nginx/mime.types;
+
+    server {
+
+        listen 80;
+        server_name localhost;
+	
+    	   error_log /var/log/error.log warn;
+        #return后面只能跟两个参数，这里是为了让nginx报错，输出错误日志
+        return 200 "..." "...";
+    }
+
+}
+```
+
+使用`nginx -s reload`重载Nginx：
+
+```shell
+sudo nginx -s reload
+
+# nginx: [emerg] invalid number of arguments in "return" directive in /etc/nginx/nginx.conf:14
+```
+
+访问错误日志文件，有同样的错误信息：
+
+```shell
+sudo cat /var/log/nginx/error.log 
+
+# 2021/04/25 08:35:45 [notice] 4169#4169: signal process started
+# 2021/04/25 10:03:18 [emerg] 8434#8434: invalid number of arguments in "return" directive in /etc/nginx/nginx.conf:14
+```
+
+Nginx error日志信息是有级别的：
+
+- `debug`：能帮忙排查哪里出错了。
+- `info`：可以了解但是不必要的信息。
+- `notice`：比`info`更值得了解的信息，但不知道也没什么。
+- `warn`：意料之外的事情发生了，哪里出问题了，但还能工作。
+- `error`：什么失败了信息。
+- `crit`：严重问题，急需解决。
+- `alert`：迫在眉睫。
+- `emerg`：系统不稳定，十万火急。
+
+默认情况下，Nginx记录所有级别的Error信息，可以通过`error_log`第二个参数覆写。如果要设置最低级别的日志输出为`warn`，更新配置文件如下：
 
 ```shell
 events {
@@ -825,12 +878,22 @@ http {
         server_name localhost;
 	
     	error_log /var/log/error.log warn;
-        #return后面只能跟两个参数，这里是为了让nginx报错，输出错误日志
+
         return 200 "..." "...";
     }
 
 }
 ```
+
+重载Nginx并查看日志：
+
+```shell
+cat /var/log/nginx/error.log
+
+# 2021/04/25 11:27:02 [emerg] 12769#12769: invalid number of arguments in "return" directive in /etc/nginx/nginx.conf:16
+```
+
+这里可以看到，没有输出之前的`[notice]`日志了。
 
 **配置nginx为反向代理**
 
