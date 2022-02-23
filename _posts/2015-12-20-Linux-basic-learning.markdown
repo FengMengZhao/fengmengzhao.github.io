@@ -43,6 +43,7 @@ comment: false
         - [6.6.3 将FTP文件映射为本地目录](#6.6.3)
         - [6.6.4 将本地的一个目录挂载到另外一个目录上](#6.6.4)
         - [6.6.5 curl命令也可以交互ftp](#6.6.5)
+    - [6.7 Linux rz sz 上传下载文件的使用](#6.7)
 - [7. 日常小技巧](#7)
     - [7.1 监控某个端口的数据](#7.1)
     - [7.2 浏览器中点点点密码显示](#7.2)
@@ -903,6 +904,20 @@ ftpserver.user.$FTP_USER.userpassword=$PASSWD
 ftpserver.user.$FTP_USER.homedirectory=/data/ftp_data
 ...
 ```
+
+<h4 id="6.7">6.7 Linux rz sz 上传下载文件的使用</h4>
+
+安装：`yum -y install lrzsz`。
+
+使用：
+
+- `rz`(receive Zmodem)：上传文件。
+- `sz`(send Zmodem)：下载文件到本地。
+
+`lrzsz`需要`Zmodem`协议的支持，默认`MobaXterm`和`XShell`都有实现。在`MobaXterm`上使用`lrzsz`：
+
+1. 输入rz/bz
+2. Ctrl加右点击，选择Receive file using Z-modem/Send file using Z-modem。
 
 ---
 
