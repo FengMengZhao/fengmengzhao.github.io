@@ -905,13 +905,13 @@ cat /var/log/nginx/error.log
 
 正向代理示意图：
 
-![](/img/posts/)
+![](/img/posts/forward_proxy-3.png)
 
 反向代理一般代理的是服务端，客户端直接和代理服务打交道（如果有反向代理的话），而对被代理的服务一无所知。客户端请求到达代理服务之后，代理服务再将请求转发到被代理的服务并将响应返回给客户端。
 
 反向代理示意图：
 
-![](/img/posts/)
+![](/img/posts/reverse_proxy-resized-600.png)
 
 Nginx作为反向代理时，处在客户端和服务端之间。客户端发送请求到Nginx（反向代理），Nginx将请求发送给服务端。一旦服务端处理完请求，会将结果返回给Nginx，Nginx再将结果返回给客户端。在这整个过程中，客户端并不知道实际上谁处理了请求。
 
@@ -949,32 +949,29 @@ http {
         server_name localhost;
 
         location / {
-                proxy_pass "https://nginx.org/";
+                proxy_pass "https://bbs.tianya.cn/";
         }
     }
 }
 ```
 
+代理后页面如下：
+
+![](/img/posts/nginx-bbs-tianya-cn-proxy.png)
+
+> 因为是`http`反向代理了`https`，运营商竟然还在右下角插入了广告（`https://bbs.tianya.cn/`不会）。
+
 `proxy_pass`能够简单的将客户端请求转发给第三方服务端并反向代理响应结果返回给客户端。
 
-反向代理`node.js`接口并设置参数：
+这只是简单的代理，如果你要反向代理一个接口并且使用`WebSocket`，那么就要覆写`header`信息：
 
 ```shell
-events {
-
-}
-  
-http {
-    listen 80;
-    server_name localhost
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-    }
-}
+#WebSocket需要http/1.1，默认是http/1.0
+proxy_http_version 1.1;
+#覆写header Upgrade为$http_upgrade的值，该值为Nginx获取客户端请求过来的Upgrade头信息值
+proxy_set_header Upgrade $http_upgrade;
+#覆写header Connection为'upgrade'
+proxy_set_header Connection 'upgrade';
 ```
 
 **配置nginx负载均衡服务**
@@ -1450,3 +1447,4 @@ location /bbb/ {
 - [https://serverfault.com/questions/932628/how-to-handle-relative-urls-correctly-with-a-nginx-reverse-proxy](https://serverfault.com/questions/932628/how-to-handle-relative-urls-correctly-with-a-nginx-reverse-proxy)
 - [https://www.cnblogs.com/sky-cheng/p/11058221.html](https://www.cnblogs.com/sky-cheng/p/11058221.html)
 - [https://stackoverflow.com/questions/15414810/whats-the-difference-of-host-and-http-host-in-nginx](https://stackoverflow.com/questions/15414810/whats-the-difference-of-host-and-http-host-in-nginx)
+- [https://www.jscape.com/blog/bid/87783/forward-proxy-vs-reverse-proxy](https://www.jscape.com/blog/bid/87783/forward-proxy-vs-reverse-proxy)
