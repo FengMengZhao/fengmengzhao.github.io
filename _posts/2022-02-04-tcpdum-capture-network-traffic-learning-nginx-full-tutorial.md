@@ -727,7 +727,7 @@ http {
 
 <h3 id="6">6. Nginx的日志</h3>
 
-日志位置：
+日志位置（常常在`/var/log/nginx`）：
 
 ```shell
 ls -lh /var/log/nginx/
@@ -736,7 +736,7 @@ ls -lh /var/log/nginx/
 # -rw-r----- 1 www-data adm     0 Apr 25 07:34 error.log
 ```
 
-清空日志文件：
+删除日志文件并`reopen` Nginx：
 
 ```shell
 # delete the old files
@@ -749,9 +749,9 @@ sudo touch /var/log/nginx/access.log /var/log/nginx/error.log
 sudo nginx -s reopen
 ```
 
-这里如果采用上面删除文件后再创建文件的方法清空日志，就需要`nginx -s reopen`重载nginx，否则新的日志文件不会被写入日志，因为nginx的输出流指向还是之前删除的日志文件。实际上这里想清空日志文件可以采用`echo "" > /var/log/nginx/access.log`的方法，这样就不用`reopen` Nginx了。
+这里如果采用上面删除文件后再创建文件的方法清空日志，就需要`nginx -s reopen`重载Nginx，否则新的日志文件不会被写入日志，因为Nginx的输出流指向还是之前删除的日志文件。实际上这里想清空日志文件可以采用`echo "" > /var/log/nginx/access.log`的方法，这样就不用`reopen` Nginx了。
 
-访问nginx并查看日志：
+访问Nginx并查看日志：
 
 ```shell
 curl -I http://localhost
@@ -771,7 +771,7 @@ sudo cat /var/log/nginx/access.log
 # 192.168.20.20 - - [25/Apr/2021:08:35:59 +0000] "HEAD / HTTP/1.1" 200 0 "-" "curl/7.68.0"
 ```
 
-默认情况下，任何访问的日志都会记录在`access.log`文件中，但是也可以通过`access_log` Directive来自定义：
+默认情况下，任何访问的日志都会记录在`access.log`文件中，但是也可以通过`access_log` Directive来自定义路径：
 
 ```shell
 events {
@@ -809,7 +809,7 @@ http {
 
 在`location{}`中可以自定义`access.log`的路径，也可以用`access_log off`来关闭指定路径的log输出。
 
-同样，`error_log`也可以自定义nginx的`error.log`路径及日志级别：
+同样，`error_log`也可以自定义Nginx的`error.log`路径：
 
 ```shell
 events {
@@ -825,8 +825,8 @@ http {
         listen 80;
         server_name localhost;
 	
-    	   error_log /var/log/error.log warn;
-        #return后面只能跟两个参数，这里是为了让nginx报错，输出错误日志
+        error_log /var/log/error.log warn;
+        #return后面只能跟两个参数，这里是为了让Nginx报错，输出错误日志
         return 200 "..." "...";
     }
 
@@ -856,7 +856,7 @@ Nginx error日志信息是有级别的：
 - `info`：可以了解但是不必要的信息。
 - `notice`：比`info`更值得了解的信息，但不知道也没什么。
 - `warn`：意料之外的事情发生了，哪里出问题了，但还能工作。
-- `error`：什么失败了信息。
+- `error`：什么失败了的信息。
 - `crit`：严重问题，急需解决。
 - `alert`：迫在眉睫。
 - `emerg`：系统不稳定，十万火急。
@@ -877,7 +877,7 @@ http {
         listen 80;
         server_name localhost;
 	
-    	error_log /var/log/error.log warn;
+        error_log /var/log/error.log warn;
 
         return 200 "..." "...";
     }
@@ -895,11 +895,45 @@ cat /var/log/nginx/error.log
 
 这里可以看到，没有输出之前的`[notice]`日志了。
 
-**配置nginx为反向代理**
+<h3 id="7">7. Nginx作为反向代理服</h3>
 
-nginx作为反向代理时，处在客户端和服务端之间。客户端发送请求到nginx（反向代理），nginx将请求发送给服务端。一旦服务端处理完请求，会将结果返回给nginx，nginx再将结果返回给客户端。
+<h4 id="7.1">7.1 什么是反向代理？</h4>
 
-在这整个过程中，客户端并不知道实际上谁处理了请求。看一个简单的反向代理配置：
+所谓的反向代理，首先是一种代理，是客户端和服务端之外的第三方。把正向代理（Forward proxy）和反向代理（Reverse proxy）比较起来看就很容易理解。
+
+正向代理一般代理的是客户端，用户（客户端）是知道代理存在（一般是客户端配置的）。客户端对目标服务的请求会经由代理转发并将目标服务响应返回给客户端。常见的`VPN`代理、浏览器（设置）代理、Git（设置）代理和`Fiddler`抓包软件等都是正向代理。
+
+正向代理示意图：
+
+![](/img/posts/)
+
+反向代理一般代理的是服务端，客户端直接和代理服务打交道（如果有反向代理的话），而对被代理的服务一无所知。客户端请求到达代理服务之后，代理服务再将请求转发到被代理的服务并将响应返回给客户端。
+
+反向代理示意图：
+
+![](/img/posts/)
+
+Nginx作为反向代理时，处在客户端和服务端之间。客户端发送请求到Nginx（反向代理），Nginx将请求发送给服务端。一旦服务端处理完请求，会将结果返回给Nginx，Nginx再将结果返回给客户端。在这整个过程中，客户端并不知道实际上谁处理了请求。
+
+<h4 id="7.2">7.2 反向代理基本原理</h4>
+
+笔者刚接触反向代理的时候，感觉这是一个很神奇的事情。进行简单的配置就能将第三方的网站代理到自己的主机上吗？
+
+实际上，不尽然。有些网站能够将主页代理过来，但功能不能完全使用；有些代理过来样式、图片等加载会出问题。只有理解了个中原理，才能够解释各种各样的情况。
+
+反向代理就是将客户端的请求，重写`header`信息之后，在代理服务的服务端转发请求到被代理服务，被代理服务处理请求将响应返回给代理服务，代理服务进而转发响应回客户端。
+
+> 代理服务转发的请求是代理服务端重新发起，因此在客户端的浏览器或者`Fiddler`工具进行网络抓包是抓不到的。要看具体的代理发起网络请求需要用`Wireshark`工具抓包代理服务器对应的网卡。
+
+别理解复杂了，就是`客户端<--->代理<--->被代理服务`。Nginx的反向代理不会改变响应的内容，被代理服务响应页面的绝对引用（`/assets/image/abc.jpg`）、相对引用（`assets/image/abc.jpg`）或者图床引用（`https://image.com/image/abc.jpg`）代理回客户端的时候不会发生改变。这些引用在客户端解析`html`时候会重新在当前域发起新请求，如果请求指向了代理服务，会同样进行`请求<--->代理<--->被代理服务`。
+
+> `--->`表示请求，`<---`表示响应。
+
+有些时候代理之后之所以情况变得复杂，是因为被代理服务存在重定向或者权鉴的约束产生的，而代理的过程就是`请求<--->代理<--->被代理服务`这么简单，并且不会改变被代理服务的响应内容。
+
+<h4 id="7.3">7.3 反向代理基本配置</h4>
+
+看一个简单的反向代理配置：
 
 ```shell
 events {
@@ -912,7 +946,7 @@ http {
 
     server {
         listen 80;
-        server_name nginx.test;
+        server_name localhost;
 
         location / {
                 proxy_pass "https://nginx.org/";
