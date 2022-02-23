@@ -27,9 +27,10 @@ comment: false
     - [7.1 什么是反向代理](#7.1)
     - [7.2 反向代理基本原理](#7.2)
     - [7.3 反向代理基本配置](#7.3)
-    - [7.4 反向代理header重写](#7.4)
-    - [7.5 反向代理试试，tcpdump抓包解析，探个中究竟](#7.5)
-    - [7.6 反向代理处理相对路径问题](#7.6)
+    - [7.4 Nginx反向代理地址匹配规则](#7.4)
+    - [7.5 反向代理header重写](#7.5)
+    - [7.6 反向代理试试，tcpdump抓包解析，探个中究竟](#7.6)
+    - [7.7 反向代理处理相对路径问题](#7.7)
 - [8. Nginx作为一个负载均衡服务器](#8)
 - [9. 优化Nginx性能](#9)
     - [9.1 怎么设置工作进程数(Worker Processes)和工作连接数(Worker Connections)](#9.1)
@@ -974,7 +975,125 @@ proxy_set_header Upgrade $http_upgrade;
 proxy_set_header Connection 'upgrade';
 ```
 
-**配置nginx负载均衡服务**
+<h4 id="7.4">7.4 Nginx反向代理地址匹配规则</h4>
+
+客户端发送给Nginx的请求，究竟Nginx会怎样拼接到`proxy_pass`指定的上游服务呢？Nginx有一定的规则：
+
+1. 如果`proxy_pass`代理的上游服务是域名加端口（没有端口时默认端口为80或者443），那么客户端请求的代理路径会直接拼到上游服务地址上。示例，`proxy_pass http://redis.cn`就只是对域名（和端口）的代理。
+2. 如果`proxy_pass`代理的上游服务有请求路径，那么客户端请求的代理路径将会是把客户端请求路径裁剪掉匹配路径后再拼到上游服务地址上。示例，`proxy_pass http://redis.cn/`或者`proxy_pass http://redis.cn/commands`是有请求路径的代理。
+
+> 上面1、2分别定义为“情况1”和“情况2”，下面中有引用。
+
+```shell
+events {
+
+}
+
+http {
+
+    include /etc/nginx/mime.types;
+
+    server {
+        listen 8088;
+        server_name localhost;
+
+        location / {
+            #情况1，客户端路径和代理路径映射：
+            #http://fengmengzhao.hypc:8088/commands --> http://redis.cn/commands
+            proxy_pass http://redis.cn;
+        }
+
+        #location /redis {
+            #情况1，客户端路径和代理路径映射：
+            #http://fengmengzhao.hypc:8088/redis/commands --> http://redis.cn/redis/commands
+        #   proxy_pass http://redis.cn;
+        #}
+
+        location /redis {
+            #情况2，客户端路径和代理路径映射：
+            #http://fengmengzhao.hypc:8088/redis/commands --> http://redis.cn/redis//commands
+            proxy_pass http://redis.cn/;
+        }
+
+        location /redis/ {
+            #情况2，客户端路径和代理路径映射：
+            #http://fengmengzhao.hypc:8088/redis/commands --> http://redis.cn/redis/commands
+            proxy_pass http://redis.cn/;
+        }
+
+        #location /redis-commands {
+            #情况2，客户端路径和代理路径映射：
+            #http://fengmengzhao.hypc:8088/redis-commands --> http://redis.cn/redis/commands
+            #http://fengmengzhao.hypc:8088/redis-commands/keys.html --> http://redis.cn/redis/commands/keys.html
+        #   proxy_pass http://redis.cn/commands;
+        #}
+
+        #location /redis-commands/ {
+             #情况2，客户端路径和代理路径映射：
+        #    #http://fengmengzhao.hypc:8088/redis-commands/keys.html --> http://fengmengzhao.hypc:8088/commandskeys.html
+        #    proxy_pass http://redis.cn/commands;
+        #}
+
+        #location /redis-commands/ {
+             #情况2，客户端路径和代理路径映射：
+        #    #http://fengmengzhao.hypc:8088/redis-commands/keys.html --> http://fengmengzhao.hypc:8088/commands/keys.html
+        #    proxy_pass http://redis.cn/commands/;
+        #}
+
+        location /redis-commands {
+            #情况2，客户端路径和代理路径映射：
+            #http://fengmengzhao.hypc:8088/redis-commands/keys.html --> http://fengmengzhao.hypc:8088/commands//keys.html
+            proxy_pass http://redis.cn/commands/;
+        }
+
+    }
+}
+```
+
+总结客户端请求和代理端转发请求的对应关系，如下：
+
+| 匹配路径     | proxy_pass                | 客户端请求                                       | 代理后请求                            |
+| ------------ | ------------------------- | ------------------------------------------------ | ------------------------------------- |
+| `/`          | http://redis.cn           | http://fengmengzhao.hypc:8088                    | http://redis.cn                       |
+| `/redis`     | http://redis.cn           | http://fengmengzhao.hypc:8088/redis              | **http://redis.cn/redis**             |
+| `/`          | http://redis.cn/          | http://fengmengzhao.hypc:8088                    | http://redis.cn/                      |
+| `/`          | http://redis.cn/          | http://fengmengzhao.hypc:8088/                   | http://redis.cn/                      |
+| `/redis`     | http://redis.cn/          | http://fengmengzhao.hypc:8088/redis              | http://redis.cn/                      |
+| `/redis`     | http://redis.cn/          | http://fengmengzhao.hypc:8088/redis/commands     | **http://redis.cn//commands**         |
+| `/redis/`    | http://redis.cn/          | http://fengmengzhao.hypc:8088/redis              | http://redis.cn/                      |
+| `/redis/`    | http://redis.cn/          | http://fengmengzhao.hypc:8088/redis/commands     | http://redis.cn/commands              |
+| `/redis-commands`  | http://redis.cn/commands  | http://fengmengzhao.hypc:8088/redis-commands           | http://redis.cn/commands              |
+| `/redis-commands`  | http://redis.cn/commands  | http://fengmengzhao.hypc:8088/redis-commands/keys.html | http://redis.cn/commands/keys.html    |
+| `/redis-commands/` | http://redis.cn/commands  | http://fengmengzhao.hypc:8088/redis-commands           | http://redis.cn/commands              |
+| `/redis-commands/` | http://redis.cn/commands  | http://fengmengzhao.hypc:8088/redis-commands/keys.html | **http://redis.cn/commandskeys.html** |
+| `/redis-commands`  | http://redis.cn/commands/ | http://fengmengzhao.hypc:8088/redis-commands           | http://redis.cn/commands/             |
+| `/redis-commands`  | http://redis.cn/commands/ | http://fengmengzhao.hypc:8088/redis-commands/keys.html | **http://redis.cn/commands//keys.html**   |
+| `/redis-commands/` | http://redis.cn/commands/ | http://fengmengzhao.hypc:8088/redis-commands           | http://redis.cn/commands/             |
+| `/redis-commands/` | http://redis.cn/commands/ | http://fengmengzhao.hypc:8088/redis-commands/keys.html | http://redis.cn/commands/keys.html    |
+
+代理后的请求在客户端看不到网络请求，可以用`tcpdump`抓包代理服务所在主机的网卡生成`.cap`文件，并在`Wireshark`中查看具体请求。
+
+`tcpdump`监听命令：
+
+```shell
+#172.19.146.188是Nginx代理IP；121.42.46.75是被代理上游服务IP，也就是redis.cn域名的解析IP
+#ech0是172.19.146.188使用的网卡IP
+sudo tcpdump -i eth0 tcp port 8088 and host 172.19.146.188 or host 121.42.46.75 -c 100 -n -vvv -w /opt/nginx-2.cap
+```
+
+启动后，访问代理服务，数据包经过网卡`eth0`就会被捕捉到。将`nginx-2.cap`文件在`Wireshark`中打开即可查看具体网络包。
+
+以下表请求为`demo`，抓包获取代理请求，如下图：
+
+| 匹配路径     | proxy_pass                | 客户端请求                                       | 代理后请求                            |
+| ------------ | ------------------------- | ------------------------------------------------ | ------------------------------------- |
+| `/redis-commands/` | http://redis.cn/commands  | http://fengmengzhao.hypc:8088/redis-commands/keys.html | **http://redis.cn/commandskeys.html** |
+
+![](/img/posts/nginx-wireshark-capture-location-match-get-proxy-request.png)
+
+<h4 id="7.5">7.5 反向代理header重写</h4>
+
+<h3 id="8">8. Nginx作为一个负载均衡服务器</h3>
 
 配置示例：
 
