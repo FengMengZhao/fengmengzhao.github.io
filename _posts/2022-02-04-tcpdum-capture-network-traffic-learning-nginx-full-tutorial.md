@@ -1054,22 +1054,24 @@ http {
 
 | 匹配路径     | proxy_pass                | 客户端请求                                       | 代理后请求                            |
 | ------------ | ------------------------- | ------------------------------------------------ | ------------------------------------- |
-| `/`          | http://redis.cn           | http://fengmengzhao.hypc:8088                    | http://redis.cn                       |
-| `/redis`     | http://redis.cn           | http://fengmengzhao.hypc:8088/redis              | **http://redis.cn/redis**             |
-| `/`          | http://redis.cn/          | http://fengmengzhao.hypc:8088                    | http://redis.cn/                      |
-| `/`          | http://redis.cn/          | http://fengmengzhao.hypc:8088/                   | http://redis.cn/                      |
-| `/redis`     | http://redis.cn/          | http://fengmengzhao.hypc:8088/redis              | http://redis.cn/                      |
-| `/redis`     | http://redis.cn/          | http://fengmengzhao.hypc:8088/redis/commands     | **http://redis.cn//commands**         |
-| `/redis/`    | http://redis.cn/          | http://fengmengzhao.hypc:8088/redis              | http://redis.cn/                      |
-| `/redis/`    | http://redis.cn/          | http://fengmengzhao.hypc:8088/redis/commands     | http://redis.cn/commands              |
-| `/redis-commands`  | http://redis.cn/commands  | http://fengmengzhao.hypc:8088/redis-commands           | http://redis.cn/commands              |
-| `/redis-commands`  | http://redis.cn/commands  | http://fengmengzhao.hypc:8088/redis-commands/keys.html | http://redis.cn/commands/keys.html    |
-| `/redis-commands/` | http://redis.cn/commands  | http://fengmengzhao.hypc:8088/redis-commands           | http://redis.cn/commands              |
-| `/redis-commands/` | http://redis.cn/commands  | http://fengmengzhao.hypc:8088/redis-commands/keys.html | **http://redis.cn/commandskeys.html** |
-| `/redis-commands`  | http://redis.cn/commands/ | http://fengmengzhao.hypc:8088/redis-commands           | http://redis.cn/commands/             |
-| `/redis-commands`  | http://redis.cn/commands/ | http://fengmengzhao.hypc:8088/redis-commands/keys.html | **http://redis.cn/commands//keys.html**   |
-| `/redis-commands/` | http://redis.cn/commands/ | http://fengmengzhao.hypc:8088/redis-commands           | http://redis.cn/commands/             |
-| `/redis-commands/` | http://redis.cn/commands/ | http://fengmengzhao.hypc:8088/redis-commands/keys.html | http://redis.cn/commands/keys.html    |
+| `/`          | http://redis.cn           |                     |                        |
+| `/redis`     | http://redis.cn           | /redis              | **/redis**             |
+| `/`          | http://redis.cn/          |                     | /                      |
+| `/`          | http://redis.cn/          | /                   | /                      |
+| `/redis`     | http://redis.cn/          | /redis              | /                      |
+| `/redis`     | http://redis.cn/          | /redis/commands     | **//commands**         |
+| `/redis/`    | http://redis.cn/          | /redis              | /                      |
+| `/redis/`    | http://redis.cn/          | /redis/commands     | /commands              |
+| `/redis-commands`  | http://redis.cn/commands  | /redis-commands           | /commands              |
+| `/redis-commands`  | http://redis.cn/commands  | /redis-commands/keys.html | /commands/keys.html    |
+| `/redis-commands/` | http://redis.cn/commands  | /redis-commands           | /commands              |
+| `/redis-commands/` | http://redis.cn/commands  | /redis-commands/keys.html | **/commandskeys.html** |
+| `/redis-commands`  | http://redis.cn/commands/ | /redis-commands           | /commands/             |
+| `/redis-commands`  | http://redis.cn/commands/ | /redis-commands/keys.html | **/commands//keys.html**   |
+| `/redis-commands/` | http://redis.cn/commands/ | /redis-commands           | /commands/             |
+| `/redis-commands/` | http://redis.cn/commands/ | /redis-commands/keys.html | /commands/keys.html    |
+
+> 表格中为空表示只有域名+端口的访问，没有请求路径。
 
 代理后的请求在客户端看不到网络请求，可以用`tcpdump`抓包代理服务所在主机的网卡生成`.cap`文件，并在`Wireshark`中查看具体请求。
 
@@ -1087,7 +1089,7 @@ sudo tcpdump -i eth0 tcp port 8088 and host 172.19.146.188 or host 121.42.46.75 
 
 | 匹配路径     | proxy_pass                | 客户端请求                                       | 代理后请求                            |
 | ------------ | ------------------------- | ------------------------------------------------ | ------------------------------------- |
-| `/redis-commands/` | http://redis.cn/commands  | http://fengmengzhao.hypc:8088/redis-commands/keys.html | **http://redis.cn/commandskeys.html** |
+| `/redis-commands/` | http://redis.cn/commands  | /redis-commands/keys.html | **/commandskeys.html** |
 
 ![](/img/posts/nginx-wireshark-capture-location-match-get-proxy-request.png)
 
