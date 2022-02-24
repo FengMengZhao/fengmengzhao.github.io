@@ -1095,6 +1095,122 @@ sudo tcpdump -i eth0 tcp port 8088 and host 172.19.146.188 or host 121.42.46.75 
 
 <h4 id="7.5">7.5 反向代理header重写</h4>
 
+Nginx在服务端代理的请求和客户端发的请求是很不一样的，主要的不同在于请求的`header`信息，Nginx会对客户端发过来的请求的`header`进行修改，规则如下：
+
+1. Nginx删除空值的`header`。Nginx这样做是因为空值的`Header`发送服务端也没有意义，当然利用这一点，如果想然代理不发送某个`header`信息，可以在配置中用`proxy_set_header`覆写`header`值为空。
+2. Nginx默认认为`header`的名称中如果包含`_`下划线是无效`header`。这个行为也可以通过配置文件中设置`underscores_in_headers on`来开启，否则任何含有`_`的`header`信息都不会被代理到目标上游服务。
+3. 代理的`Host`头信息会被覆写为变量`$proxy_host`，该变量是被代理上游服务的IP加端口，其值在`proxy_pass`中定义。
+4. 代理的`Connection`头信息会被覆写为"close"，该请求头告诉被代理上游服务，一旦服务端响应代理请求，该连接就会被关闭，不会被持久化(persistent)。
+
+第3点的`Host`头信息覆写在Nginx的反向代理中是比较重要的，Nginx定义不同的变量代表不同的值：
+
+- `$proxy_host`：上面提过了，是默认反向代理覆写的`header`，其值是`proxy_pass`定义的上游服务IP和端口。
+- `$http_host`：是Nginx获取客户端请求的`Host`头。Nginx使用`$http_`作为前缀加上客户端`header`名称的小写，并将`-`符号用`_`替代拼接后就代表客户端实际请求的头信息。
+- `$Host`：常常和`$http_host`一样，但是会将`http_host`转化为小写并去除端口。如果`http_host`不存在或者是空的情况，`$host`的值等于Nginx配置中`server_name`的值。
+
+Nginx可以通过`proxy_set_header`来覆写客户端发送过来请求的`header`并转发。除了上面说的`Host`头比较中，经常用到的`header`还有：
+
+- `X-Forwarded-Proto`：配置值`$schema`。告诉上游被代理服务，原始的客户端请求是`http`还是`https`。
+- `X-Real-IP`：配置值`$remote_addr`。告诉代理服务客户端的IP地址，辅助代理服务决策或者日志输出。
+- `X-Forwarded-For`：配置值`$proxy_add_x_forwarded_for`。包含请求经过每一次代理的IP。
+
+<h4 id="7.6">7.6 反向代理试试，tcpdump抓包解析，探个中究竟</h4>
+
+笔者也一直在理解这个`Host`在`http`请求中的作用，正常当一个`http`请求发送之后，`tcp`连接已经知道了IP和端口，那还需要`Host`头信息做什么呢？
+
+首先，[MDN Web Docs](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Host)对`Host`头的说明：
+
+> 所有HTTP/1.1 请求报文中必须包含一个Host头字段。对于缺少Host头或者含有超过一个Host头的HTTP/1.1 请求，可能会收到400（Bad Request）状态码。
+
+那Nginx反向代理默认对`Host`头覆写为`$proxy_host`的作用是什么，如果改写了会怎么样？用`tcpdump`工具抓包一探究竟。
+
+看示例，反向代理`http://redis.cn`，配置如下（情况一）：
+
+```shell
+events {
+
+}
+
+http {
+
+    include /etc/nginx/mime.types;
+
+    server {
+        listen 8088;
+        server_name localhost;
+
+        location / {
+            proxy_pass http://redis.cn;
+        }
+
+}
+```
+
+最普通的反向代理设置，没有进行任何`header`覆写。用`tcpdump`工具监控网卡：
+
+```shell
+#先用ping或者nslookup找到redis.cn的IP，这里找到是121.42.46.75
+#这里 host 121.42.46.75，代表过滤指定IP的包。不过滤的话包会很多，不太好看
+#-c 100 捕捉到100个包，会自动退出并生产文件
+#需要将cap文件Wireshark中打开
+sudo tcpdump -i eth0 host 121.42.46.75 -c 100 -n -vvv -w /opt/nginx-redis-1.cap
+```
+
+这时候访问`http://fengmengzhao.hypc:8088/`，代理页面很正常：
+
+![](/img/posts/nginx-tcpdum-simple-capture.png)
+
+Nginx服务端的`tcpdump`包也抓到了：
+
+![](/img/posts/nginx-tcpdump-simple-capture-package-generation.png)
+
+用Wireshark查看包请求：
+
+![](/img/posts/nginx-tcpdum-simple-capture-Host-default.png)
+
+修改Nginx配置`proxy_set_header Host $http_host`（情况二）：
+
+```shell
+events {
+
+}
+
+http {
+
+    include /etc/nginx/mime.types;
+
+    server {
+        listen 8088;
+        server_name localhost;
+
+        location / {
+            proxy_pass http://redis.cn;
+            proxy_set_header Host $http_host;
+        }
+
+}
+```
+
+访问`http://fengmengzhao.hypc:8088/`，代理页面：
+
+![](/img/posts/nginx-tcpdum-http_host-capture.png)
+
+这是什么页面？如果直接用[redis.cn](http://redis.cn)的IP地址[http://121.42.46.75](http://121.42.46.75)同样的页面。为什么？
+
+看看抓到了包情况：
+
+![](/img/posts/nginx-tcpdum-simple-capture-Host-http_host.png)
+
+从`tcpdump`抓包来看，该响应是正常从服务端响应的。那为何返回的页面会不同呢？
+
+情况二设置`proxy_set_header $http_host`之后Nginx代理请求的`Host`为客户端请求的`Host`(fengmengzhao.hypc:8088)，而情况一的`Host`为上游被代理服务的`Host`(redis.cn)。说明在`redis.cn`该域名对应的主机`121.42.46.75`不止提供一个`80`端口的服务。
+
+这种在一个主机上提供多个域名服务（端口相同）称之为虚拟主机。[理解Nginx配置文件中的Directives和Contexts](#4.3)章节中提到的Nginx可以设置不同域名同一端口的虚拟主机就可以实现这种情况。另外，Apache也支持配置不同域名的虚拟主机。这两种情况，归根结底都是在请求到达服务端后获取请求中的`Host`信息并匹配到不同的虚拟服务。
+
+所以，Nginx反向代理中对`Host`头信息的覆写要看上游被代理服务是否有特殊需要到该信息。如果没有特殊实现上需要，默认的`proxy_host`就可以；如果是特殊的实现机制，就要小心对待。
+
+> 这里的特殊需要是例如上面虚拟主机那种情况，`Host`头信息在`HTTP/1.1`中是必须带的。
+
 <h3 id="8">8. Nginx作为一个负载均衡服务器</h3>
 
 配置示例：
@@ -1569,3 +1685,7 @@ location /bbb/ {
 - [https://www.cnblogs.com/sky-cheng/p/11058221.html](https://www.cnblogs.com/sky-cheng/p/11058221.html)
 - [https://stackoverflow.com/questions/15414810/whats-the-difference-of-host-and-http-host-in-nginx](https://stackoverflow.com/questions/15414810/whats-the-difference-of-host-and-http-host-in-nginx)
 - [https://www.jscape.com/blog/bid/87783/forward-proxy-vs-reverse-proxy](https://www.jscape.com/blog/bid/87783/forward-proxy-vs-reverse-proxy)
+- [https://tarunlalwani.com/post/nginx-proxypass-server-paths/](https://tarunlalwani.com/post/nginx-proxypass-server-paths/)
+- [https://www.digitalocean.com/community/tutorials/understanding-nginx-http-proxying-load-balancing-buffering-and-caching](https://www.digitalocean.com/community/tutorials/understanding-nginx-http-proxying-load-balancing-buffering-and-caching)
+- [https://stackoverflow.com/questions/43156023/what-is-http-host-header](https://stackoverflow.com/questions/43156023/what-is-http-host-header)
+- [https://blog.csdn.net/gui951753/article/details/83070180](https://blog.csdn.net/gui951753/article/details/83070180)
