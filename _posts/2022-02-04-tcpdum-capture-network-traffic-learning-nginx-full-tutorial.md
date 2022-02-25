@@ -904,6 +904,8 @@ cat /var/log/nginx/error.log
 
 正向代理一般代理的是客户端，用户（客户端）是知道代理存在（一般是客户端配置的）。客户端对目标服务的请求会经由代理转发并将目标服务响应返回给客户端。常见的`VPN`代理、浏览器（设置）代理、Git（设置）代理和`Fiddler`抓包软件等都是正向代理。
 
+> 本文行所述的“目标服务”、“被代理的上游服务”、“被代理的服务”、“服务端”均指代`proxy_pass`配置的被代理的服务。“代理服务”、“代理服务的服务端”指代的是Nginx提供的代理服务。
+
 正向代理示意图：
 
 ![](/img/posts/forward_proxy-3.png)
@@ -914,7 +916,9 @@ cat /var/log/nginx/error.log
 
 ![](/img/posts/reverse_proxy-resized-600.png)
 
-Nginx作为反向代理时，处在客户端和服务端之间。客户端发送请求到Nginx（反向代理），Nginx将请求发送给服务端。一旦服务端处理完请求，会将结果返回给Nginx，Nginx再将结果返回给客户端。在这整个过程中，客户端并不知道实际上谁处理了请求。
+> 上面二图，可以理解蓝色背景的服务是相互知晓的。
+
+Nginx作为反向代理时，处在客户端和服务端之间。客户端发送请求到Nginx（反向代理），Nginx将请求发送给服务端。一旦服务端处理完请求，会将结果返回给Nginx，Nginx再将结果返回给客户端。在这整个过程中，客户端并不知道实际上谁处理了请求（真正的处理请求并产生响应，而不是代理）。
 
 <h4 id="7.2">7.2 反向代理基本原理</h4>
 
@@ -926,11 +930,11 @@ Nginx作为反向代理时，处在客户端和服务端之间。客户端发送
 
 > 代理服务转发的请求是代理服务端重新发起，因此在客户端的浏览器或者`Fiddler`工具进行网络抓包是抓不到的。要看具体的代理发起网络请求需要用`Wireshark`工具抓包代理服务器对应的网卡。
 
-别理解复杂了，就是`客户端<--->代理<--->被代理服务`。Nginx的反向代理不会改变响应的内容，被代理服务响应页面的绝对引用（`/assets/image/abc.jpg`）、相对引用（`assets/image/abc.jpg`）或者图床引用（`https://image.com/image/abc.jpg`）代理回客户端的时候不会发生改变。这些引用在客户端解析`html`时候会重新在当前域发起新请求，如果请求指向了代理服务，会同样进行`请求<--->代理<--->被代理服务`。
+别理解复杂了，就是`客户端<--->代理服务<--->被代理服务`。Nginx的反向代理不会改变响应的内容，被代理服务响应页面的绝对引用（`/assets/image/abc.jpg`）、相对引用（`assets/image/abc.jpg`）或者图床引用（`https://image.com/image/abc.jpg`）代理回客户端的时候不会发生改变。这些引用在客户端解析`html`时候会重新在当前域发起请求，如果请求指向了代理服务，会同样进行`请求<--->代理服务<--->被代理服务`这个流程。
 
 > `--->`表示请求，`<---`表示响应。
 
-有些时候代理之后之所以情况变得复杂，是因为被代理服务存在重定向或者权鉴的约束产生的，而代理的过程就是`请求<--->代理<--->被代理服务`这么简单，并且不会改变被代理服务的响应内容。
+有些时候代理之后之所以情况变得复杂，是因为被代理服务存在重定向或者权鉴的约束产生的，而代理的过程就是`请求<--->代理服务<--->被代理服务`这么简单，并且不会改变被代理服务的响应内容。
 
 <h4 id="7.3">7.3 反向代理基本配置</h4>
 
@@ -1011,20 +1015,20 @@ http {
 
         location /redis {
             #情况2，客户端路径和代理路径映射：
-            #http://fengmengzhao.hypc:8088/redis/commands --> http://redis.cn/redis//commands
+            #http://fengmengzhao.hypc:8088/redis/commands --> http://redis.cn//commands
             proxy_pass http://redis.cn/;
         }
 
         location /redis/ {
             #情况2，客户端路径和代理路径映射：
-            #http://fengmengzhao.hypc:8088/redis/commands --> http://redis.cn/redis/commands
+            #http://fengmengzhao.hypc:8088/redis/commands --> http://redis.cn/commands
             proxy_pass http://redis.cn/;
         }
 
         #location /redis-commands {
             #情况2，客户端路径和代理路径映射：
-            #http://fengmengzhao.hypc:8088/redis-commands --> http://redis.cn/redis/commands
-            #http://fengmengzhao.hypc:8088/redis-commands/keys.html --> http://redis.cn/redis/commands/keys.html
+            #http://fengmengzhao.hypc:8088/redis-commands --> http://redis.cn/commands
+            #http://fengmengzhao.hypc:8088/redis-commands/keys.html --> http://redis.cn/commands/keys.html
         #   proxy_pass http://redis.cn/commands;
         #}
 
@@ -1054,22 +1058,22 @@ http {
 
 | 匹配路径     | proxy_pass                | 客户端请求                                       | 代理后请求                            |
 | ------------ | ------------------------- | ------------------------------------------------ | ------------------------------------- |
-| `/`          | http://redis.cn           |                     |                        |
-| `/redis`     | http://redis.cn           | /redis              | **/redis**             |
-| `/`          | http://redis.cn/          |                     | /                      |
-| `/`          | http://redis.cn/          | /                   | /                      |
-| `/redis`     | http://redis.cn/          | /redis              | /                      |
-| `/redis`     | http://redis.cn/          | /redis/commands     | **//commands**         |
-| `/redis/`    | http://redis.cn/          | /redis              | /                      |
-| `/redis/`    | http://redis.cn/          | /redis/commands     | /commands              |
-| `/redis-commands`  | http://redis.cn/commands  | /redis-commands           | /commands              |
-| `/redis-commands`  | http://redis.cn/commands  | /redis-commands/keys.html | /commands/keys.html    |
-| `/redis-commands/` | http://redis.cn/commands  | /redis-commands           | /commands              |
-| `/redis-commands/` | http://redis.cn/commands  | /redis-commands/keys.html | **/commandskeys.html** |
-| `/redis-commands`  | http://redis.cn/commands/ | /redis-commands           | /commands/             |
-| `/redis-commands`  | http://redis.cn/commands/ | /redis-commands/keys.html | **/commands//keys.html**   |
-| `/redis-commands/` | http://redis.cn/commands/ | /redis-commands           | /commands/             |
-| `/redis-commands/` | http://redis.cn/commands/ | /redis-commands/keys.html | /commands/keys.html    |
+| /          | http://redis.cn           |                     |                        |
+| /redis     | http://redis.cn           | /redis              | **/redis**             |
+| /          | http://redis.cn/          |                     | /                      |
+| /          | http://redis.cn/          | /                   | /                      |
+| /redis     | http://redis.cn/          | /redis              | /                      |
+| /redis     | http://redis.cn/          | /redis/commands     | **//commands**         |
+| /redis/    | http://redis.cn/          | /redis              | /                      |
+| /redis/    | http://redis.cn/          | /redis/commands     | /commands              |
+| /redis-commands  | http://redis.cn/commands  | /redis-commands           | /commands              |
+| /redis-commands  | http://redis.cn/commands  | /redis-commands/keys.html | /commands/keys.html    |
+| /redis-commands/ | http://redis.cn/commands  | /redis-commands           | /commands              |
+| /redis-commands/ | http://redis.cn/commands  | /redis-commands/keys.html | **/commandskeys.html** |
+| /redis-commands  | http://redis.cn/commands/ | /redis-commands           | /commands/             |
+| /redis-commands  | http://redis.cn/commands/ | /redis-commands/keys.html | **/commands//keys.html**   |
+| /redis-commands/ | http://redis.cn/commands/ | /redis-commands           | /commands/             |
+| /redis-commands/ | http://redis.cn/commands/ | /redis-commands/keys.html | /commands/keys.html    |
 
 > 表格中为空表示只有域名+端口的访问，没有请求路径。
 
@@ -1089,34 +1093,34 @@ sudo tcpdump -i eth0 tcp port 8088 and host 172.19.146.188 or host 121.42.46.75 
 
 | 匹配路径     | proxy_pass                | 客户端请求                                       | 代理后请求                            |
 | ------------ | ------------------------- | ------------------------------------------------ | ------------------------------------- |
-| `/redis-commands/` | http://redis.cn/commands  | /redis-commands/keys.html | **/commandskeys.html** |
+| /redis-commands/ | http://redis.cn/commands  | /redis-commands/keys.html | **/commandskeys.html** |
 
 ![](/img/posts/nginx-wireshark-capture-location-match-get-proxy-request.png)
 
 <h4 id="7.5">7.5 反向代理header重写</h4>
 
-Nginx在服务端代理的请求和客户端发的请求是很不一样的，主要的不同在于请求的`header`信息，Nginx会对客户端发过来的请求的`header`进行修改，规则如下：
+Nginx在服务端代理的请求和客户端发的请求不是完全相同的，主要的不同在于请求的`header`信息，Nginx会对客户端发过来的请求的`header`进行修改，规则如下：
 
-1. Nginx删除空值的`header`。Nginx这样做是因为空值的`Header`发送服务端也没有意义，当然利用这一点，如果想然代理不发送某个`header`信息，可以在配置中用`proxy_set_header`覆写`header`值为空。
-2. Nginx默认认为`header`的名称中如果包含`_`下划线是无效`header`。这个行为也可以通过配置文件中设置`underscores_in_headers on`来开启，否则任何含有`_`的`header`信息都不会被代理到目标上游服务。
-3. 代理的`Host`头信息会被覆写为变量`$proxy_host`，该变量是被代理上游服务的IP加端口，其值在`proxy_pass`中定义。
+1. Nginx删除空值的`header`。Nginx这样做是因为空值的`Header`发送服务端也没有意义，当然利用这一点，如果想让代理不发送某个`header`信息，可以在配置中用`proxy_set_header`覆写`header`值为空。
+2. Nginx默认`header`的名称中如果包含`_`下划线是无效`header`。这个行为也可以通过配置文件中设置`underscores_in_headers on`来开启，否则任何含有`_`的`header`信息都不会被代理到目标上游服务。
+3. 代理的`Host`头信息会被覆写为变量`$proxy_host`，该变量是被代理上游服务的IP(或域名)加端口，其值在`proxy_pass`中定义。
 4. 代理的`Connection`头信息会被覆写为"close"，该请求头告诉被代理上游服务，一旦服务端响应代理请求，该连接就会被关闭，不会被持久化(persistent)。
 
 第3点的`Host`头信息覆写在Nginx的反向代理中是比较重要的，Nginx定义不同的变量代表不同的值：
 
 - `$proxy_host`：上面提过了，是默认反向代理覆写的`header`，其值是`proxy_pass`定义的上游服务IP和端口。
 - `$http_host`：是Nginx获取客户端请求的`Host`头。Nginx使用`$http_`作为前缀加上客户端`header`名称的小写，并将`-`符号用`_`替代拼接后就代表客户端实际请求的头信息。
-- `$Host`：常常和`$http_host`一样，但是会将`http_host`转化为小写并去除端口。如果`http_host`不存在或者是空的情况，`$host`的值等于Nginx配置中`server_name`的值。
+- `$Host`：常常和`$http_host`一样，但是会将`http_host`转化为小写(域名情况)并去除端口。如果`http_host`不存在或者是空的情况，`$host`的值等于Nginx配置中`server_name`的值。
 
-Nginx可以通过`proxy_set_header`来覆写客户端发送过来请求的`header`并转发。除了上面说的`Host`头比较中，经常用到的`header`还有：
+Nginx可以通过`proxy_set_header`来覆写客户端发送过来请求的`header`再转发。除了上面说的`Host`头比较重要，经常用到的`header`还有：
 
 - `X-Forwarded-Proto`：配置值`$schema`。告诉上游被代理服务，原始的客户端请求是`http`还是`https`。
-- `X-Real-IP`：配置值`$remote_addr`。告诉代理服务客户端的IP地址，辅助代理服务决策或者日志输出。
+- `X-Real-IP`：配置值`$remote_addr`。告诉代理服务客户端的IP地址，辅助代理服务做出某种决定或者日志输出。
 - `X-Forwarded-For`：配置值`$proxy_add_x_forwarded_for`。包含请求经过每一次代理的IP。
 
 <h4 id="7.6">7.6 反向代理试试，tcpdump抓包解析，探个中究竟</h4>
 
-笔者也一直在理解这个`Host`在`http`请求中的作用，正常当一个`http`请求发送之后，`tcp`连接已经知道了IP和端口，那还需要`Host`头信息做什么呢？
+笔者也一直在理解这个`Host`在`http`请求中的作用，正常当一个`http`请求发送之后，`tcp`连接已经指定了IP和端口，那还需要`Host`头信息做什么呢？
 
 首先，[MDN Web Docs](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Host)对`Host`头的说明：
 
@@ -1195,7 +1199,7 @@ http {
 
 ![](/img/posts/nginx-tcpdum-http_host-capture.png)
 
-这是什么页面？如果直接用[redis.cn](http://redis.cn)的IP地址[http://121.42.46.75](http://121.42.46.75)同样的页面。为什么？
+这是什么页面？如果直接用[redis.cn](http://redis.cn)的IP地址[http://121.42.46.75](http://121.42.46.75)访问，得到同样的页面。为什么？
 
 看看抓到了包情况：
 
@@ -1203,13 +1207,99 @@ http {
 
 从`tcpdump`抓包来看，该响应是正常从服务端响应的。那为何返回的页面会不同呢？
 
-情况二设置`proxy_set_header $http_host`之后Nginx代理请求的`Host`为客户端请求的`Host`(fengmengzhao.hypc:8088)，而情况一的`Host`为上游被代理服务的`Host`(redis.cn)。说明在`redis.cn`该域名对应的主机`121.42.46.75`不止提供一个`80`端口的服务。
+情况二设置`proxy_set_header $http_host`之后Nginx代理请求的`Host`为客户端请求的`Host`(fengmengzhao.hypc:8088)，而情况一的`Host`为上游被代理服务的`Host`(redis.cn)。可能在`redis.cn`该域名对应的主机`121.42.46.75`不止提供一个`80`端口的服务。
 
-这种在一个主机上提供多个域名服务（端口相同）称之为虚拟主机。[理解Nginx配置文件中的Directives和Contexts](#4.3)章节中提到的Nginx可以设置不同域名同一端口的虚拟主机就可以实现这种情况。另外，Apache也支持配置不同域名的虚拟主机。这两种情况，归根结底都是在请求到达服务端后获取请求中的`Host`信息并匹配到不同的虚拟服务。
+这种在一个主机上提供多个域名服务（端口相同）称之为虚拟主机。[理解Nginx配置文件中的Directives和Contexts](#4.3)章节中提到的Nginx可以设置不同域名同一端口的虚拟主机就可以实现这种情况。另外，Apache也支持配置不同域名的虚拟主机。这两种情况，归根结底都是在请求到达服务端后，服务端会获取请求中的`Host`头信息并匹配到不同的虚拟服务。
 
 所以，Nginx反向代理中对`Host`头信息的覆写要看上游被代理服务是否有特殊需要到该信息。如果没有特殊实现上需要，默认的`proxy_host`就可以；如果是特殊的实现机制，就要小心对待。
 
 > 这里的特殊需要是例如上面虚拟主机那种情况，`Host`头信息在`HTTP/1.1`中是必须带的。
+
+<h4 id="7.7>7.7 反向代理处理相对路径问题</h4>
+
+基于上面讲解的对反向代理的理解，我们处理一下实际工作中遇到的问题，增加对Nginx反向代理的认识。
+
+假设被代理的上游服务是一个简单的静态页面（`http：//127.0.0.1:80`），页面中引用了两个相同的图片，分别是绝对引用`/assets/generate.png`和相对引用`assets/generate.png`。我们进行如下的反向代理配置：
+
+```shell
+events {
+
+}
+
+http {
+
+    include /etc/nginx/mime.types;
+
+    server {
+        listen 8088;
+        server_name localhost;
+
+        location /static {
+            proxy_pass http://127.0.0.1;
+        }
+
+}
+```
+
+这时候，访问`http://fengmengzhao.hypc:8088/static`会发现其中绝对引用（`/assets/generate.png`）的图片加载失败，通过浏览器网络查看，其客户端加载的请求是`http://fengmengzhao.hypc:8088/assets/generate.png`。该请求在我们的配置中会默认寻找`root`匹配（一般默认是`/usr/share/nginx/html`路径），会找不到对应的资源。
+
+实际上不管是绝对应用还是相对应用我们想让客户端的请求都是`http://fengmengzhao.hypc:8088/static/assets/generate.png`，这里可以看到，如果采用上面的代理方式，并且上游服务有绝对路径的引用，就会出现加载异常的情况。
+
+> 这里我们也可以看出来，Nginx反向代理默认对响应的内容是不会修改的，目标服务中相对路径或者绝对路径的引用反向代理之后返回给客户端的跟直接访问目标服务端响应是一样的。
+
+怎么样解决呢，有如下方案：
+
+**1).** 如果目标上游服务可以修改，可以将所有的绝对路径的引用改为相对路径引用。一级目录静态文件引用`/assets/generate.png`要改为`./assets/generate.p你g`或者`assets/generate.png`；二级目录静态文件引用要改为`../xxx/assets/generate.png`。总之，页面上绝对路径的引用要改为相对路径的引用。
+
+**2).** 可以将不能正常代理的图片添加代理，如下配置：
+
+```shell
+events {
+
+}
+
+http {
+
+    include /etc/nginx/mime.types;
+
+    server {
+        listen 8088;
+        server_name localhost;
+
+        location /static {
+            proxy_pass http://127.0.0.1;
+        }
+        
+        location /assets {
+            proxy_pass http://127.0.0.1/assets;
+        }
+
+}
+```
+
+这样绝对引用`http://fengmengzhao.hypc:8088/assets/generate.png`就能够代理到`http://127.0.0.1/assets/generate.png`，就能够正常加载图片了。
+
+**3).** 放弃子目录的方案，用独立域名就没问题了，配置如下：
+
+```shell
+events {
+
+}
+
+http {
+
+    include /etc/nginx/mime.types;
+
+    server {
+        listen 8088;
+        server_name static.fengmengzhao.hypc;
+
+        location / {
+            proxy_pass http://127.0.0.1;
+        }
+
+}
+```
 
 <h3 id="8">8. Nginx作为一个负载均衡服务器</h3>
 
