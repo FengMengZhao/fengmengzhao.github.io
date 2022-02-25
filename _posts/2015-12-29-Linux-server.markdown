@@ -1973,7 +1973,7 @@ fi
 
 将export语句加入java.sh(Java环境变量)或者maven.sh(maven环境变量)
 
-`javac -d . -cp ".:/path/to/classpath"` *.java: 为Java file编译时添加CLASSPATH
+`javac -d . -cp ".:/path/to/classpath"` \*.java: 为Java file编译时添加CLASSPATH
 
 #### Linux时区设置正确,时间不正确[?]
 
@@ -1986,3 +1986,13 @@ fi
     #将系统时间写入硬件时间
     hwclock --systohc
 
+### Linux Rsyslog
+
+Linux Resyslog是Linux系统级别的日志，可以将本机内核级别即应用级别（应用需要对接该日志系统）的日志记录下来，并且可配置发送到远程服务中。其命令：
+
+```shell
+#查看进程是否存在
+ps -ef |grep rsyslog
+#重启、查看rsyslog
+systemctl status|restart|start rsyslog
+```
