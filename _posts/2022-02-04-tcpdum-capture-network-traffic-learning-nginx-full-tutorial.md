@@ -1339,6 +1339,8 @@ http {
 
 ![](/img/posts/nginx-relative-path-load-success-demo.png)
 
+这里要注意一个点，当你的访问路径是`http://fengmengzhao.hypc:8088/static`（情况一），其响应`html`中有引用`assets/generate.png`，对该`generate.png`的请求路径是：`http://fengmengzhao.hypc:8088/assets/gnerate.png`。而当你的访问路径是`http://fengmengzhao.hypc:8088/static/`（情况二），其响应`html`同样引用`assets/generate.png`，对图片的请求会变为：`http://fengmengzhao.hypc:8088/static/assets/generate.png`。情况二访问路径和情况一的区别是`URI`的最后有没有跟`/`，如果有`/`结尾的话，认为当前访问是一个目录，所以其相对引用就从当前地址栏中的路径开始；如果没有`/`结尾的话，认为当前访问是一个文件，其相对路径就是文件所在的路径，也就是`URI`往前数有出现`/`那个层级，在这里就是根目录，所以情况一虽然是相对引用，但是请求路径还是从根目录开始。
+
 <h3 id="8">8. Nginx作为一个负载均衡服务器</h3>
 
 配置示例：
