@@ -1215,7 +1215,7 @@ http {
 
 > 这里的特殊需要是例如上面虚拟主机那种情况，`Host`头信息在`HTTP/1.1`中是必须带的。
 
-<h4 id="7.7>7.7 反向代理处理相对路径问题</h4>
+<h4 id="7.7">7.7 反向代理处理相对路径问题</h4>
 
 基于上面讲解的对反向代理的理解，我们处理一下实际工作中遇到的问题，增加对Nginx反向代理的认识。
 
@@ -1234,8 +1234,8 @@ http {
         listen 8088;
         server_name localhost;
 
-        location /static {
-            proxy_pass http://127.0.0.1;
+        location /static/ {
+            proxy_pass http://127.0.0.1/;
         }
 
 }
@@ -1243,7 +1243,9 @@ http {
 
 这时候，访问`http://fengmengzhao.hypc:8088/static`会发现其中绝对引用（`/assets/generate.png`）的图片加载失败，通过浏览器网络查看，其客户端加载的请求是`http://fengmengzhao.hypc:8088/assets/generate.png`。该请求在我们的配置中会默认寻找`root`匹配（一般默认是`/usr/share/nginx/html`路径），会找不到对应的资源。
 
-实际上不管是绝对应用还是相对应用我们想让客户端的请求都是`http://fengmengzhao.hypc:8088/static/assets/generate.png`，这里可以看到，如果采用上面的代理方式，并且上游服务有绝对路径的引用，就会出现加载异常的情况。
+实际上不管是绝对应用还是相对应用我们想让客户端的请求都是`http://fengmengzhao.hypc:8088/static/assets/generate.png`，这里可以看到，如果采用上面的代理方式，并且上游服务有绝对路径的引用，就会出现加载异常的情况。示例：
+
+![](/img/posts/nginx-relative-path-load-error-demo.png)
 
 > 这里我们也可以看出来，Nginx反向代理默认对响应的内容是不会修改的，目标服务中相对路径或者绝对路径的引用反向代理之后返回给客户端的跟直接访问目标服务端响应是一样的。
 
@@ -1266,12 +1268,12 @@ http {
         listen 8088;
         server_name localhost;
 
-        location /static {
-            proxy_pass http://127.0.0.1;
+        location /static/ {
+            proxy_pass http://127.0.0.1/;
         }
         
-        location /assets {
-            proxy_pass http://127.0.0.1/assets;
+        location /assets/ {
+            proxy_pass http://127.0.0.1/assets/;
         }
 
 }
@@ -1295,11 +1297,47 @@ http {
         server_name static.fengmengzhao.hypc;
 
         location / {
-            proxy_pass http://127.0.0.1;
+            proxy_pass http://127.0.0.1/;
         }
 
 }
 ```
+
+这样访问`http://static.fengmengzhao.hypc:8088`就能够成功代理`http://127.0.0.1`了。
+
+**4).** Nginx重写目标服务端响应内容
+
+文中强调过多次，Nginx反向代理默认是不会修改目标服务端响应内容的。但Nginx也支持对响应内容进行修改，需要开启Nginx的[ngx_http_sub_module](http://nginx.org/en/docs/http/ngx_http_sub_module.html)。
+
+> 可以通过`nginx -V`查看是否报刊`http_sub_module`就知道当前Nginx是否有`ngx_http_sub_module`模块。
+
+开启`ngx_http_sub_module`模块后，修改配置如下：
+
+```shell
+events {
+
+}
+
+http {
+
+    include /etc/nginx/mime.types;
+
+    server {
+        listen 8088;
+        server_name localhost;
+
+        location /static/ {
+            sub_filter 'src="/assets/' 'src="./assets/';
+            sub_filter_once off;
+            proxy_pass http://127.0.0.1/;
+        }
+        
+}
+```
+
+通过上面的任意方法，可以获取正确的代理响应：
+
+![](/img/posts/nginx-relative-path-load-success-demo.png)
 
 <h3 id="8">8. Nginx作为一个负载均衡服务器</h3>
 
