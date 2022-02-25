@@ -251,4 +251,11 @@ git config --global --list #查看全局设置列表
 git config --local --list #查看本仓库设置列表
 ```
 
+**报错：Git, fatal: The remote end hung up unexpectedly**
+
+```shell
+#原因可能是上传的文件大小超过了Git的默认设置，用这个命令覆写即可
+git config http.postBuffer 524288000
+```
+
 ---
