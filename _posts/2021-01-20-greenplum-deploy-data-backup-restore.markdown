@@ -39,6 +39,7 @@ comment: false
     - [3.3 Greenplum节点间的通信模式](#3.3)
     - [3.4 Greenplum节点network error segment slice1 6000 check your network](#3.4)
     - [3.5 Greenplum报错：insufficient memory reserved for statement](#3.5)
+    - [3.6 Greenplum报错：Canceling query because of high VMEM usage. Used 2308M, available 819M](#3.6)
 - [更新记录](#99)
 
 ---
@@ -661,9 +662,24 @@ gpconfig -c statement_mem -v 512MB
 
 > 参考文章：[https://community.pivotal.io/s/article/Greenplum-Queries-Fail-with-ERROR-insufficient-memory-reserved-for-statement?language=en_US](https://community.pivotal.io/s/article/Greenplum-Queries-Fail-with-ERROR-insufficient-memory-reserved-for-statement?language=en_US)
 
+<h4 id="3.6">3.6 Greenplum报错：Canceling query because of high VMEM usage. Used 2308M, available 819M</h4>
+
+该报错表示`segment`占用的内存超过了`gp_vmem_protect_limit`的一定比例（比如95%），这个比例在`/etc/sysctl.conf`配置`vm.overcommit_ratio`中配置。
+
+上面的参数`statement_mem`代表每一个`statement`的最大使用内存，在一个节点的`segment`上，可能并发运行多个`statement`，这时候`segment`占用的内存就可能超过`gp_vmem_protect_limit`设置值。这时候执行的语句就会被取消。
+
+这个时候，一种办法是`statement_mem`小一点，可以有更多的并发量，但是会慢一点；另一种办法是增加节点的RAM（内存），这样就可以设置更高的`gp_vmem_protect_limit`。
+
+> 查考文章：\
+- [https://community.pivotal.io/s/article/Query-Failing-with-ERROR-Canceling-query-because-of-high-VMEM-usage?language=en_US](https://community.pivotal.io/s/article/Query-Failing-with-ERROR-Canceling-query-because-of-high-VMEM-usage?language=en_US)
+- [https://stackoverflow.com/questions/61747639/greenplum-error-canceling-query-because-of-high-vmem-usage](https://stackoverflow.com/questions/61747639/greenplum-error-canceling-query-because-of-high-vmem-usage)
+- [https://greenplum.org/calc/](https://greenplum.org/calc/)
+
+
 ---
 
 <h3 id="99">更新记录</h3>
 
 - 2022-01-10 10:27 现场发现GP库报错报错，新增`3.5`内容。
 - 2022-01-14 09:56 现场发现Greenplum库`too many clients`，补充“3.2”部分内容。
+- 2022-02-28 18:30 现场报错补充“high VMEM usage”，补充“3.6”部分内容。
