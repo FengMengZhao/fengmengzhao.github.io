@@ -38,6 +38,7 @@ comment: false
     - [9.3 怎样压缩响应(response)](#9.3)
 - [10. 理解Nginx整个配置文件](#10)
 - [引用](#11)
+- [后话](#12)
 
 <h3 id="0">0. 前话</h3>
 
@@ -769,7 +770,7 @@ sudo cat /var/log/nginx/access.log
 # 192.168.20.20 - - [25/Apr/2021:08:35:59 +0000] "HEAD / HTTP/1.1" 200 0 "-" "curl/7.68.0"
 ```
 
-默认情况下，任何访问的日志都会记录在`access.log`文件中，但是也可以通过`access_log` Directive来自定义路径：
+默认情况下，任何访问的日志都会记录在`access.log`文件中，也可以通过`access_log` Directive来自定义路径：
 
 ```shell
 events {
@@ -786,6 +787,7 @@ http {
         server_name localhost;
         
         location / {
+            #日志会在默认配置日志文件输出
             return 200 "this will be logged to the default file.\n";
         }
         
@@ -797,6 +799,7 @@ http {
         }
         
         location = /no_logging {
+            #禁止日志输出
             access_log off;
             
             return 200 "this will not be logged.\n";
@@ -805,7 +808,7 @@ http {
 }
 ```
 
-在`location{}`中可以自定义`access.log`的路径，也可以用`access_log off`来关闭指定路径的log输出。
+在`location{}`中可以自定义`access.log`的路径，也可以用`access_log off`来关闭log输出。
 
 同样，`error_log`也可以自定义Nginx的`error.log`路径：
 
@@ -823,7 +826,7 @@ http {
         listen 80;
         server_name localhost;
 	
-        error_log /var/log/error.log warn;
+        error_log /var/log/error.log;
         #return后面只能跟两个参数，这里是为了让Nginx报错，输出错误日志
         return 200 "..." "...";
     }
@@ -1378,7 +1381,7 @@ http {
 }
 ```
 
-`upstream{}`可以包含多个服务并且作为一个服务端被引用。
+`upstream{}`可以包含多个服务并且作为一个上游服务被引用。
 
 测试负载均衡：
 
@@ -1495,7 +1498,7 @@ http {
 
 <h4 id="9.2">9.2 怎样缓存静态文件</h4>
 
-不管使用Nginx提供什么样的服务，总是有一些静态文件（js或者css等）时不经常发生改变的，可以将它们缓存起来提高Nginx的性能。Nginx对静态文件的缓存配置非常方便：
+不管使用Nginx提供什么样的服务，总是有一些静态文件（js或者css等）是不经常发生改变的，可以将它们缓存起来提高Nginx的性能。Nginx对静态文件的缓存配置非常方便：
 
 ```shell
 worker_processes auto;
@@ -1516,7 +1519,7 @@ http {
         root /usr/share/nginx/html;
         #正则匹配，大小写不敏感
         #已.css或者.js或者.jpg结尾的匹配
-        location ~* \.(css|js|jpg)$ {
+        location ~* \.(css|js|jpg|png)$ {
             access_log off;
             
             add_header Cache-Control public;
@@ -1535,7 +1538,7 @@ http {
 
 `Vary`头信息设置为`Accept-Encoding`，后续详解。
 
-`expires` directive表示设置`Expires`头信息，其值可以是`1M`（1 month）、`10m/10 minutes`或者`24h/24 hours`等。
+`expires` directive表示Nginx缓存响应的时间，可以帮助很方便设置响应`Expires`头信息，其值可以是`1M`（1 month）、`10m/10 minutes`或者`24h/24 hours`等。
 
 > `Cache-Control`告诉客户端，该response在服务端缓存，客户端可以以任意的形式缓存。另外根据Nginx的`expires`设置的缓存时间，增加`Cache-Control: max-age=2592000`，这里`Cache-Control: max-age`代表该response在max-age时间内不会刷新。`2592000`单位是秒，等于`expire`设置的`1M`（一个月，30x24x3600=2592000）。
 
@@ -1544,27 +1547,25 @@ http {
 ```shell
 curl -I http://fengmengzhao.hypc:8088/assets/generate.png
 
-# HTTP/1.1 200 OK
-# Server: nginx/1.18.0 (Ubuntu)
-# Date: Sun, 25 Apr 2021 15:58:22 GMT
-# Content-Type: image/jpeg
-# Content-Length: 19209
-# Last-Modified: Sun, 25 Apr 2021 08:35:33 GMT
-# Connection: keep-alive
-# ETag: "608529d5-4b09"
-# Expires: Tue, 25 May 2021 15:58:22 GMT
-# Cache-Control: max-age=2592000
-# Cache-Control: public
-# Pragma: public
-# Vary: Accept-Encoding
-# Accept-Ranges: bytes
+HTTP/1.1 200 OK
+Server: nginx/1.18.0 (Ubuntu)
+Date: Tue, 01 Mar 2022 05:04:17 GMT
+Content-Type: image/png
+Content-Length: 144082
+Last-Modified: Sun, 20 Feb 2022 08:35:21 GMT
+Connection: keep-alive
+ETag: "6211fd49-232d2"
+Expires: Thu, 31 Mar 2022 05:04:17 GMT #注意这个时间和下面的比较
+Cache-Control: max-age=2592000
+Cache-Control: public
+Pragma: public
+Vary: Accept-Encoding
+Accept-Ranges: bytes
 ```
 
-几分钟后再次请求同一个内容（验证是否服务端缓存）：
+这里可以看到，`response`中已经增加了`Cache-Control`头信息，说明配置已经生效。至于Nginx服务端有没有缓存响应，可以用`tcpdump`抓包看一看，这里不再演示。
 
-```shell
-
-```
+> 需要注意的是，如果在浏览器上访问`http://fengmengzhao.hypc:8088/assets/generate.png`，第一次返回的是`200`状态码，表示是服务端成功返回。第二次返回的是`304`状态码，表示浏览器根据第一次`response`头信息`Cache-Control: public`的指示，第二次访问的时候，直接使用客户端缓存。也可以通过`F12`打开控制台，勾选`Network --> Disable Cache`选项，这样浏览器端就不使用缓存。
 
 <h4 id="9.3">9.3 怎样压缩响应(response)</h4>
 
@@ -1780,7 +1781,7 @@ http {
 
 `keepalive_timeout`设置http connection的连接时间。`types_hash_maxsize`设置`Hash map`的大小。
 
-`SSL`的配置在下一个章节详细说明。
+`SSL`的配置在本文中不做讲解。
 
 `mail` Context可以将Nginx配置为一个邮件服务端，本文仅讨论Nginx作为web服务端，所以不做说明。
 
@@ -1827,3 +1828,11 @@ sudo ln -s /etc/nginx/sites-available/nginx-handbook.conf /etc/nginx/sites-enabl
 - [https://www.digitalocean.com/community/tutorials/understanding-nginx-http-proxying-load-balancing-buffering-and-caching](https://www.digitalocean.com/community/tutorials/understanding-nginx-http-proxying-load-balancing-buffering-and-caching)
 - [https://stackoverflow.com/questions/43156023/what-is-http-host-header](https://stackoverflow.com/questions/43156023/what-is-http-host-header)
 - [https://blog.csdn.net/gui951753/article/details/83070180](https://blog.csdn.net/gui951753/article/details/83070180)
+
+<h3 id="12">后话</h3>
+
+本文大部分内容参考[https://www.freecodecamp.org/news/the-nginx-handbook/](https://www.freecodecamp.org/news/the-nginx-handbook/)文章翻译整理，第[7. Nginx作为反向代理服务器](#7)章重点加入笔者的理解。
+
+---
+
+<p align="center" style="color: red">本书完</p>
