@@ -168,7 +168,11 @@ SELECT format(
 )
 FROM information_schema.tables
 WHERE table_schema = 'mySchema'
+
+#查看指定schema下、指定owner下的所有表
+select * from pg_tables where tableowner = 'gpadmin' and schemaname = 'xxx'
 ```
+
 
 **暴力修改字段的长度postgre**
 
