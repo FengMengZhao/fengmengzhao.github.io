@@ -53,7 +53,7 @@ comment: false
 这里不是说复制粘贴是不对的，而是如果只复制粘贴并不理解的话，迟早会出问题。所以，你必须理解Nginx的配置，通过学习本文，你能够：
 
 - 理解工具生成或者别人配置的Nginx。
-- 从0到1配置Web服务器、方向代理服务器和负载均衡服务器。
+- 从0到1配置Web服务器、反向代理服务器和负载均衡服务器。
 - 优化Nginx获取最大性能。
 - 配置HTTPS和HTTP/2。
 
@@ -208,7 +208,7 @@ nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 ```
 
-如果有相关的语法错误，上述命令会有相关提示。
+如果有相关的语法错误，上述命令输出结果会有相关提示。
 
 如果你想改变Nginx的相关状态，例如重启、重载等，可以有三种办法。一是通过`-s`(signal)参数向Nginx发送信号；二是使用系统服务管理工具`systemd`或者`service`等；三是使用`kill`命令对Linux进程操作。
 
@@ -356,7 +356,7 @@ http {
 }
 ```
 
-> 这里对Nginx默认的展示页面做了修改，在文件`/usr/share/nginx/html/assets/mystyle.css`写入`p {background: red;}`并在`html`文件中引入该`css`，这样正常情况段落的背景会变成红色。
+这里对Nginx默认的展示页面做了修改，在文件`/usr/share/nginx/html/assets/mystyle.css`写入`p {background: red;}`并在`html`文件中引入该`css`，这样正常情况段落的背景会变成红色。
 
 访问页面，展示的是`index.html`，但是段落的背景色没有生效。debug一下`css`文件：
 
@@ -1098,11 +1098,15 @@ sudo tcpdump -i eth0 tcp port 8088 and host 172.19.146.188 or host 121.42.46.75 
 
 启动后，访问代理服务，数据包经过网卡`eth0`就会被捕捉到。将`nginx-2.cap`文件在`Wireshark`中打开即可查看具体网络包。
 
-以下表请求为`demo`，抓包获取代理请求，如下图：
+以下表请求为`demo`，抓包获取代理请求。
+
+请求如下：
 
 | 匹配路径     | proxy_pass                | 客户端请求                                       | 代理后请求                            |
 | ------------ | ------------------------- | ------------------------------------------------ | ------------------------------------- |
 | /redis-commands/ | http://redis.cn/commands  | /redis-commands/keys.html | **/commandskeys.html** |
+
+抓取请求包如图：
 
 ![](/img/posts/nginx-wireshark-capture-location-match-get-proxy-request.png)
 
