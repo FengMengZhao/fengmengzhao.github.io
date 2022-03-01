@@ -37,11 +37,7 @@ comment: false
     - [9.2 怎样缓存静态文件](#9.2)
     - [9.3 怎样压缩响应(response)](#9.3)
 - [10. 理解Nginx整个配置文件](#10)
-- [11. 如何配置SSL和HTTP/2](#11)
-    - [11.1 如何配置SSL](#11.1)
-    - [11.2 如何开启HTTP/2](#11.2)
-    - [11.3 如何开启服务端推送](#11.3)
-- [12. 引用](#12)
+- [引用](#11)
 
 <h3 id="0">0. 前话</h3>
 
@@ -927,11 +923,9 @@ Nginx作为反向代理时，处在客户端和服务端之间。客户端发送
 
 实际上，不尽然。有些网站能够将主页代理过来，但功能不能完全使用；有些代理过来样式、图片等加载会出问题。只有理解了个中原理，才能够解释各种各样的情况。
 
-所谓的反向代理就是将客户端发送来的请求转发给实际处理请求服务端（`proxy_pass`指定的服务端），服务端响应之后，再将响应代理回客户端。如图：
+所谓的反向代理就是将客户端发送来的请求转发给实际处理请求服务端（`proxy_pass`指定的服务端），服务端响应之后，再将响应代理回客户端。
 
-![](/img/posts/)
-
-既然是代理，就不仅仅简单的只做转发，在代理收到客户端请求后，准备转发到指定代理服务端之前，会对请求的`header`信息进行重写，例如规则如下（[反向代理header重写](#7.5)章节会对规则做详细介绍）：
+既然是代理，就不仅仅简单的只做转发，在代理收到客户端请求后，准备转发到指定代理服务端之前，会对请求的`header`信息进行重写，例如重写规则如下（[反向代理header重写](#7.5)章节会对规则做详细介绍）：
 
 1. 值为空的`header`不会进行转发；`header`的`key`中包含有`_`下划线的不会进行转发。
 2. 默认改写`Host`和`Connection`两个`header`，分别为：`Host: $proxy_host`、`Connection: close`。
@@ -942,7 +936,7 @@ Nginx作为反向代理时，处在客户端和服务端之间。客户端发送
 
 > 代理服务转发的请求是代理服务端重新发起，因此在客户端的浏览器或者`Fiddler`工具进行网络抓包是抓不到的。要看具体的代理发起网络请求需要用`Wireshark`工具抓包代理服务器对应的网卡。
 
-别理解复杂了，就是`客户端<--->代理服务<--->被代理服务`。Nginx的反向代理不会改变响应的内容，被代理服务响应页面的绝对引用（`/assets/image/abc.jpg`）、相对引用（`assets/image/abc.jpg`）或者图床引用（`https://image.com/image/abc.jpg`）代理回客户端的时候不会发生改变。这些引用在客户端解析`html`时候会重新在当前域发起请求，如果请求指向了代理服务，会同样进行`请求<--->代理服务<--->被代理服务`这个流程。
+别理解复杂了，就是`客户端<--->代理服务<--->被代理服务`。Nginx的反向代理默认不会改变响应的内容，被代理服务响应页面的绝对引用（`/assets/image/abc.jpg`）、相对引用（`assets/image/abc.jpg`）或者图床引用（`https://image.com/image/abc.jpg`）代理回客户端的时候不会发生改变。这些引用在客户端解析`html`时候会重新发起请求，如果请求指向了代理服务，会同样进行`请求<--->代理服务<--->被代理服务`这个流程。
 
 > `--->`表示请求，`<---`表示响应。
 
@@ -976,7 +970,7 @@ http {
 
 ![](/img/posts/nginx-bbs-tianya-cn-proxy.png)
 
-> 因为是`http`反向代理了`https`，运营商竟然还在右下角插入了广告（`https://bbs.tianya.cn/`不会）。
+> 因为是`http`反向代理了`https`，运营商竟然还在右下角插入了广告（`https://bbs.tianya.cn/`不会被插入广告）。
 
 `proxy_pass`能够简单的将客户端请求转发给第三方服务端并反向代理响应结果返回给客户端。
 
@@ -1121,7 +1115,7 @@ Nginx在服务端代理的请求和客户端发的请求不是完全相同的，
 第3点的`Host`头信息覆写在Nginx的反向代理中是比较重要的，Nginx定义不同的变量代表不同的值：
 
 - `$proxy_host`：上面提过了，是默认反向代理覆写的`header`，其值是`proxy_pass`定义的上游服务IP和端口。
-- `$http_host`：是Nginx获取客户端请求的`Host`头。Nginx使用`$http_`作为前缀加上客户端`header`名称的小写，并将`-`符号用`_`替代拼接后就代表客户端实际请求的头信息。
+- `$http_host`：是Nginx获取客户端请求的`Host`头。Nginx使用`$http_`作为前缀加上客户端`header`名称的小写，并将`-`符号用`_`替换拼接后就代表客户端实际请求的头信息。
 - `$Host`：常常和`$http_host`一样，但是会将`http_host`转化为小写(域名情况)并去除端口。如果`http_host`不存在或者是空的情况，`$host`的值等于Nginx配置中`server_name`的值。
 
 Nginx可以通过`proxy_set_header`来覆写客户端发送过来请求的`header`再转发。除了上面说的`Host`头比较重要，经常用到的`header`还有：
@@ -1138,7 +1132,7 @@ Nginx可以通过`proxy_set_header`来覆写客户端发送过来请求的`heade
 
 > 所有HTTP/1.1 请求报文中必须包含一个Host头字段。对于缺少Host头或者含有超过一个Host头的HTTP/1.1 请求，可能会收到400（Bad Request）状态码。
 
-那Nginx反向代理默认对`Host`头覆写为`$proxy_host`的作用是什么，如果改写了会怎么样？用`tcpdump`工具抓包一探究竟。
+那Nginx反向代理默认对`Host`头覆写为`$proxy_host`的作用是什么，如果改写为其他会怎么样？用`tcpdump`工具抓包一探究竟。
 
 看示例，反向代理`http://redis.cn`，配置如下（情况一）：
 
@@ -1217,7 +1211,7 @@ http {
 
 ![](/img/posts/nginx-tcpdum-simple-capture-Host-http_host.png)
 
-从`tcpdump`抓包来看，该响应是正常从服务端响应的。那为何返回的页面会不同呢？
+从`tcpdump`抓包来看，该响应是正常从服务端响应的。那为何不同的`Host`头返回的页面会不同呢？
 
 情况二设置`proxy_set_header $http_host`之后Nginx代理请求的`Host`为客户端请求的`Host`(fengmengzhao.hypc:8088)，而情况一的`Host`为上游被代理服务的`Host`(redis.cn)。可能在`redis.cn`该域名对应的主机`121.42.46.75`不止提供一个`80`端口的服务。
 
@@ -1253,7 +1247,7 @@ http {
 }
 ```
 
-这时候，访问`http://fengmengzhao.hypc:8088/static`会发现其中绝对引用（`/assets/generate.png`）的图片加载失败，通过浏览器网络查看，其客户端加载的请求是`http://fengmengzhao.hypc:8088/assets/generate.png`。该请求在我们的配置中会默认寻找`root`匹配（一般默认是`/usr/share/nginx/html`路径），会找不到对应的资源。
+这时候，访问`http://fengmengzhao.hypc:8088/static`会发现其中绝对引用（`/assets/generate.png`）的图片加载失败，通过浏览器网络查看，其客户端加载的请求是`http://fengmengzhao.hypc:8088/assets/generate.png`。该请求在我们的配置中会默认寻找`root`匹配（一般默认是`/usr/share/nginx/html`路径），找不到对应的资源。
 
 实际上不管是绝对应用还是相对应用我们想让客户端的请求都是`http://fengmengzhao.hypc:8088/static/assets/generate.png`，这里可以看到，如果采用上面的代理方式，并且上游服务有绝对路径的引用，就会出现加载异常的情况。示例：
 
@@ -1321,7 +1315,7 @@ http {
 
 文中强调过多次，Nginx反向代理默认是不会修改目标服务端响应内容的。但Nginx也支持对响应内容进行修改，需要开启Nginx的[ngx_http_sub_module](http://nginx.org/en/docs/http/ngx_http_sub_module.html)。
 
-> 可以通过`nginx -V`查看是否报刊`http_sub_module`就知道当前Nginx是否有`ngx_http_sub_module`模块。
+> 可以通过`nginx -V`查看是否包含`http_sub_module`就知道当前Nginx是否有`ngx_http_sub_module`模块。
 
 开启`ngx_http_sub_module`模块后，修改配置如下：
 
@@ -1822,15 +1816,7 @@ sudo unlink /etc/nginx/sites-enabled/default
 sudo ln -s /etc/nginx/sites-available/nginx-handbook.conf /etc/nginx/sites-enabled/nginx-handbook 
 ```
 
-<h3 id="11">11. 如何配置SSL和HTTP/2</h3>
-
-<h4 id="11.1">11.1 如何配置SSL</h4>
-
-<h4 id="11.2">11.2 如何开启HTTP/2</h4>
-
-<h4 id="11.3">11.3 如何开启服务端推送</h4>
-
-<h3 id="12">12. 引用</h3>
+<h3 id="11">引用</h3>
 
 - [https://www.freecodecamp.org/news/the-nginx-handbook/](https://www.freecodecamp.org/news/the-nginx-handbook/)
 - [https://serverfault.com/questions/932628/how-to-handle-relative-urls-correctly-with-a-nginx-reverse-proxy](https://serverfault.com/questions/932628/how-to-handle-relative-urls-correctly-with-a-nginx-reverse-proxy)
