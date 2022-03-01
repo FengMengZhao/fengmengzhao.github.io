@@ -61,7 +61,7 @@ comment: false
 
 <h3 id="1">1. Nginx基本介绍</h3>
 
-Nginx是一个高性能的Web服务器，着眼于高性能、高并发和低资源消耗。尽管Nginx作为一个Web服务器被大家所熟知，它另外的一个核心功能时反向代理。
+Nginx是一个高性能的Web服务器，着眼于高性能、高并发和低资源消耗。尽管Nginx作为一个Web服务器被大家所熟知，它另外的一个核心功能是反向代理。
 
 Nginx不是市场上唯一的Web服务器，它最大的竞争对手[Apache HTTP Server(httpd)](https://httpd.apache.org/)在1995年就发布了。人们在选择Nginx作为Web服务器时候，基于下面两点考虑：
 
@@ -80,7 +80,7 @@ Nginx基本工作原理图：
 
 ![](/img/posts/nginx-basic-working-process.png)
 
-Nginx之所以能够在低资源消耗的情况下高性能提供静态文件服务，是因为它没有内置动态编程语言处理器。当一个静态文件请求到达后，Nginx就是简答的响应请求文件，并没有做什么额外的处理。
+Nginx之所以能够在低资源消耗的情况下高性能提供静态文件服务，是因为它没有内置动态编程语言处理器。当一个静态文件请求到达后，Nginx就是简单的响应请求文件，并没有做什么额外的处理。
 
 这不是说Nginx不能够整合动态编程语言处理器，它可以将请求任务代理到独立的进程上，例如`PHP-FPM`、`Node.js`或者`Python`。一旦第三方进程处理完请求，再将响应代理回客户端，工作如图：
 
@@ -214,7 +214,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 
 **向Nginx发送信号**
 
-nginx信号：`nginx -s reload|quit|stop|reopen`，分别表示重载配置文件、优雅停止Nginx、无条件停止Nginx和重新代开log文件。
+nginx信号：`nginx -s reload|quit|stop|reopen`，分别表示重载配置文件、优雅停止Nginx、无条件停止Nginx和重新打开log文件。
 
 > 所谓的“优雅停止”Nginx，是指处理完目前的请求再停止；而“无条件停止”Nginx，相当于`kill -9`，进程直接被杀死。
 
@@ -904,7 +904,7 @@ cat /var/log/nginx/error.log
 
 正向代理一般代理的是客户端，用户（客户端）是知道代理存在（一般是客户端配置的）。客户端对目标服务的请求会经由代理转发并将目标服务响应返回给客户端。常见的`VPN`代理、浏览器（设置）代理、Git（设置）代理和`Fiddler`抓包软件等都是正向代理。
 
-> 本文行所述的“目标服务”、“被代理的上游服务”、“被代理的服务”、“服务端”均指代`proxy_pass`配置的被代理的服务。“代理服务”、“代理服务的服务端”指代的是Nginx提供的代理服务。
+> 本文中所述的“目标服务”、“被代理的上游服务”、“被代理的服务”、“服务端”均指代`proxy_pass`配置的被代理的服务。“代理服务”、“代理服务的服务端”指代的是Nginx提供的代理服务。
 
 正向代理示意图：
 
@@ -1210,7 +1210,7 @@ http {
 
 这是什么页面？如果直接用[redis.cn](http://redis.cn)的IP地址[http://121.42.46.75](http://121.42.46.75)访问，得到同样的页面。为什么？
 
-看看抓到了包情况：
+看看抓到的包情况：
 
 ![](/img/posts/nginx-tcpdum-simple-capture-Host-http_host.png)
 
@@ -1260,7 +1260,7 @@ http {
 
 怎么样解决呢，有如下方案：
 
-**1).** 如果目标上游服务可以修改，可以将所有的绝对路径的引用改为相对路径引用。一级目录静态文件引用`/assets/generate.png`要改为`./assets/generate.p你g`或者`assets/generate.png`；二级目录静态文件引用要改为`../xxx/assets/generate.png`。总之，页面上绝对路径的引用要改为相对路径的引用。
+**1).** 如果目标上游服务可以修改，可以将所有的绝对路径的引用改为相对路径引用。一级目录静态文件引用`/assets/generate.png`要改为`./assets/generate.png`或者`assets/generate.png`；二级目录静态文件引用要改为`../xxx/assets/generate.png`。总之，页面上绝对路径的引用要改为相对路径的引用。
 
 **2).** 可以将不能正常代理的图片添加代理，如下配置：
 
@@ -1518,7 +1518,7 @@ http {
 
         root /usr/share/nginx/html;
         #正则匹配，大小写不敏感
-        #已.css或者.js或者.jpg结尾的匹配
+        #以.css或者.js或者.jpg结尾的匹配
         location ~* \.(css|js|jpg|png)$ {
             access_log off;
             
@@ -1671,7 +1671,7 @@ ls -lh
 # -rw-rw-r-- 1 vagrant vagrant  46K Apr 25 16:35 uncompressed.css
 ```
 
-没压缩的版本大小是是`46k`，而压缩后的版本大小事`9.1k`。
+没压缩的版本大小是`46k`，而压缩后的版本大小是`9.1k`。
 
 <h3 id="10">10. 理解Nginx整个配置文件</h3>
 
