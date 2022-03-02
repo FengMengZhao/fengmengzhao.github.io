@@ -40,6 +40,7 @@ comment: false
     - [3.4 Greenplum节点network error segment slice1 6000 check your network](#3.4)
     - [3.5 Greenplum报错：insufficient memory reserved for statement](#3.5)
     - [3.6 Greenplum报错：Canceling query because of high VMEM usage. Used 2308M, available 819M](#3.6)
+    - [3.7 Greenplum报错：failed to acquire resources on one or more segments](#3.7)
 - [更新记录](#99)
 
 ---
@@ -670,11 +671,54 @@ gpconfig -c statement_mem -v 512MB
 
 这个时候，一种办法是`statement_mem`小一点，可以有更多的并发量，但是会慢一点；另一种办法是增加节点的RAM（内存），这样就可以设置更高的`gp_vmem_protect_limit`。
 
-> 查考文章：\
+> 查考文章：
 - [https://community.pivotal.io/s/article/Query-Failing-with-ERROR-Canceling-query-because-of-high-VMEM-usage?language=en_US](https://community.pivotal.io/s/article/Query-Failing-with-ERROR-Canceling-query-because-of-high-VMEM-usage?language=en_US)
 - [https://stackoverflow.com/questions/61747639/greenplum-error-canceling-query-because-of-high-vmem-usage](https://stackoverflow.com/questions/61747639/greenplum-error-canceling-query-because-of-high-vmem-usage)
 - [https://greenplum.org/calc/](https://greenplum.org/calc/)
 
+<h4 id="3.7">3.7 Greenplum报错：failed to acquire resources on one or more segments</h4>
+
+生产环境报错`failed to acquire resources on one or more segments`，也就是节点的资源不够，服务端取消了执行中的`sql`语句。
+
+应用日志没有给出太多的信息，根据下面链接的官方回帖，报这个错，可能有多种情况：
+
+- `$GPHOME`的权限不对（比如，可能被修改为root），正常`$GPHOME`的属主是`gpadmin`。如果权限错了，可以通过`chown -R gpadmin:gpadmin <$GPHOME>`修改目录权限。
+- 数据库的`max_connections`和`max_prepared_transactions`设置的不合理（过小），这样当新的`connection`需要时，就会出现`resources`不足。具体配置增大`max_connections`后面详述。
+- 磁盘空间占满了。
+- `segment`日志上报的其他资源限制。
+
+本示例情况暂时也看不出来，通过查看`master`节点的日志有报错：`failed to acquire resources on one or more segments. Fatal: remaining connection slots are reserved for non-replication superuser connections`
+
+通过`select * form pg_stat_activity`查看`master`节点已有的连接是220个左右，`master`节点允许的`connections`是250。这里的报错含义可能是：虽然没达到最大的250，但是有一部分是预留出来的， 重复的`session`已经不能获取连接了（同一个事务可能用到多个connections）。试图增大`max_connections`：
+
+```shell
+#查看目前GP库max_connections
+#master节点和segment节点是分开的
+#本示例master: 250, segment: 750
+gpconfig -s max_connections
+
+#查看目前GP库max_prepared_transactions
+#该值和max_connections的master节点值是一致的
+#本示例master、segment均为250
+gpconfig -s max_prepared_transactions
+
+#重设max_connections值
+#master: 500, segment: 1000
+gpconfig -c max_connections -v 1000 -m 500
+
+#重设max_prepared_transactions值
+#master: 500, segment: 500
+gpconfig -c max_prepared_transactions -v 100
+```
+
+> 这里要注意：
+1. 当增大max_connections的master节点值时，一定要同步增大max_prepared_transactions的值，二者要保持一致，否则命令行设置完参数，GP库可能就起不来了。这时候要一个个节点修改`postgresql.conf`文件中写入的参数（`gpconfig`设置的参数实际上会写入`postgresql.conf`配置文件中），很麻烦。
+2. `gpconfig`命令中`-v`表示对`segment`设置，`-m`表示对`master`设置。当没有`-m`指定时，`master`节点的值设置为`-v`指定的值。
+
+修改参数后，重启GP库，参数可以生效。
+
+> 参考文章：
+- [https://community.pivotal.io/s/article/greenplum-error-failed-to-acquire-resources-on-one-or-more-segments?language=en_US](https://community.pivotal.io/s/article/greenplum-error-failed-to-acquire-resources-on-one-or-more-segments?language=en_US)
 
 ---
 
@@ -683,3 +727,4 @@ gpconfig -c statement_mem -v 512MB
 - 2022-01-10 10:27 现场发现GP库报错报错，新增`3.5`内容。
 - 2022-01-14 09:56 现场发现Greenplum库`too many clients`，补充“3.2”部分内容。
 - 2022-02-28 18:30 现场报错补充“high VMEM usage”，补充“3.6”部分内容。
+- 2022-03-02 17:33 现场报错补充“failed to acquire resources on one or more segments”，补充“3.7”部分内容。
