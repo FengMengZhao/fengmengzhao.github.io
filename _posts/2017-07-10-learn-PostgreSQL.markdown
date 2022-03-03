@@ -197,6 +197,16 @@ alter user tyyw_rdonly set default_transaction_read_only=on
 --postgre高版本用这个（进到库里面执行）
 grant select on all tables in schema tyyw to tyyw_rdonly 
 
+--取消某个模式下表的授权
+revoke select on all tables in schema $schema_name from $user
+
+--授权某个表
+grant select on tjrh.t0201 to $user;
+
+--只有上面授权，可能还是提示schema没有权限
+--执行schema的usage即可
+GRANT USAGE ON SCHEMA $schema TO $user;
+
 --postgre低版本
 --生成grant语句
 SELECT 'GRANT SELECT ON ' || table_schema || '.' table_name || ' to tyyw_rdonly;'
