@@ -671,6 +671,11 @@ gpconfig -c statement_mem -v 512MB
 
 这个时候，一种办法是`statement_mem`小一点，可以有更多的并发量，但是会慢一点；另一种办法是增加节点的RAM（内存），这样就可以设置更高的`gp_vmem_protect_limit`。
 
+```shell
+#建议值10240，需要重启GP库
+gpconfig -c gp_vmem_protect_limit -v 10240
+```
+
 > 查考文章：
 - [https://community.pivotal.io/s/article/Query-Failing-with-ERROR-Canceling-query-because-of-high-VMEM-usage?language=en_US](https://community.pivotal.io/s/article/Query-Failing-with-ERROR-Canceling-query-because-of-high-VMEM-usage?language=en_US)
 - [https://stackoverflow.com/questions/61747639/greenplum-error-canceling-query-because-of-high-vmem-usage](https://stackoverflow.com/questions/61747639/greenplum-error-canceling-query-because-of-high-vmem-usage)
