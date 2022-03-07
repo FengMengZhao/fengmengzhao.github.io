@@ -11,6 +11,7 @@ comment: true
 - [1. 为什么年轻代如此重要](#1)
 - [2. 年轻代Minor GC是如何进行的](#2)
 - [3. 年轻代相关的JVM性能调优参数](#3)
+- [99. 更新记录](#99)
 
 ---
 
@@ -96,3 +97,17 @@ Minor GC  VS Major GC VS Full GC：Minor GC是对`Yong Generation`进行回收�
 还有很多参数：`-XX:InitalTenuringThreadhold`、`-XX:MaxTenuringThreadhold`、`-XX:TargetSuvivorRatio`、`-XX:+NeverTenure`、`-XX:+AlwaysTenure`等。
 
 总之，`Yong Generation`的大小在整个应用JVM性能调优中起着很重要的作用，在设定`Yong Generation`的参数时，一定要兼顾`Old Generation`的带下，才能很好的起到作用。
+
+**MetaspaceSize和MaxMetaspacesize**
+
+MetaspaceSize的含义是Metaspace达到这个值进行full gc。
+
+应用运行一段时间后，就能够通过日志获取到该进程实际占用的Metaspace大小，并且在运行完一段时间后该值应该不太会变化。为什么运行一段时间再获取该值靠谱呢？因为JVM对类是动态加载的，运行一段时间该用的功能都用了，该加载的类都加载了，Metaspace存储class运行时相关信息，比如字节码，类型信息，方法信息等，不存储对象信息不会一直增大，所以就比较稳定。然后如果要设置MaxMetaspaceSize，可以比你获取到运行一段时间后实际MetaspaceSize再略大一点就可以了。
+
+实际上我理解就让默认值不设限制就可以，只是设置了的话，出现Metaspace内存溢出，能够了解到该应用占Metaspace的大小。即使大项目Metaspace也不会占用太大，一个项目class文件源代码就几M，十多M。应该不会因为Metaspace的占用，对服务器内存造成影响（现在服务器内存一般至少十多G）。
+
+参考链接：[https://stackoverflow.com/questions/36465192/guidelines-to-set-metaspacesize-java-8](https://stackoverflow.com/questions/36465192/guidelines-to-set-metaspacesize-java-8)
+
+<h3 id="99">更新记录</h3>
+
+- 2022-03-07 11:43 周末和俊波讨论JVM参数MetaspaceSize记录。
