@@ -70,6 +70,10 @@ select * from session_roles # 查看用户权限
 
 > 在使用`manager`达梦管理工具图形化新建表的时候，命名有`create table`权限却会报错没有`v$ciphers`系统视图或者系统对象（例如表）的查询权限，这时候要赋予用户`VTI`和`SOI`角色。
 
+达梦数据库`表`没有属主的概念（和PostgreSQL不同），只有所属`schema`，而`schema`有属主（授权用户）的概念。
+
+> PostgreSQL表和`schema`都有属主的概念。
+
 <h3 id="2">2. 用户密码相关</h3>
 
 <h4 id="2.1">2.1 密码修改</h4>
