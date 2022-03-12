@@ -51,6 +51,7 @@ comment: false
     - [7.4 maven小技巧](#7.4)
     - [7.5 增量tar打包文件](#7.5)
     - [7.6 jar包更新某个文件并重新打包](#7.6)
+-   - [7.7 Linux ssh客户端连接服务端不掉线](#7.7)
 - [8. 专项问题](#8)
     - [8.1 磁盘占用一点点，但是df -lh显示已经占用100%](#8.1)
 
@@ -1058,3 +1059,11 @@ systemctl restart rsyslog
 #如果还解决不了
 #看一看问题目录是怎么挂载的，重新挂载即可
 ```
+
+<h4 id="7.7">7.7 Linux ssh客户端连接服务端不掉线</h4>
+
+经常用ssh客户端连接购买的云服务主机时总是掉线，过一会儿就要重连。提供两种方法解决：
+
+1). 配置服务端`ssh`服务，参考[https://fengmengzhao.github.io/2021/12/07/wsl-using-headache-problem-solving.html#2.4](https://fengmengzhao.github.io/2021/12/07/wsl-using-headache-problem-solving.html#2.4)
+
+2). 对于方法1)，可能在一些云厂商那里不生效。可以实用`tmux`（是一个程序），很实用、方便。
