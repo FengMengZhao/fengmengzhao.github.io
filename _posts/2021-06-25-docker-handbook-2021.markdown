@@ -2256,7 +2256,7 @@ node_modules
 第二种方案你可能会想用`container inspect`命令找到`postgres`数据库容器的实际IP地址并且使用IP和端口进行连接。假设`postgres`数据库服务容器的名称是`notes-api-db-server`，你可以通过下面的命令，很方便的获得容器的IP地址：
 
 ```shell
-docker container inspect --format='{{range .NetworkSettings.Networks}} {{.IPAddress}} {{end}}' notes-api-db-server
+docker container inspect --format='{{ "{{" }}range .NetworkSettings.Networks}} {{ "{{" }}.IPAddress}} {{ "{{" }}end}}' notes-api-db-server
 
 #  172.17.0.2
 ```
@@ -2313,7 +2313,7 @@ docker network ls
 docker container run --rm --detach --name hello-dock --publish 8080:80 fhsinchy/hello-dock
 # a37f723dad3ae793ce40f97eb6bb236761baa92d72a2c27c24fc7fda0756657d
 
-docker network inspect --format='{{range .Containers}} {{.Name}} {{end}}' bridge #原文中是连在一起的，更好的格式化输出，分开
+docker network inspect --format='{{ "{{" }}range .Containers}} {{ "{{" }}.Name}} {{ "{{" }}end}}' bridge #原文中是连在一起的，更好的格式化输出，分开
 # hello-dock
 ```
 
@@ -2362,11 +2362,11 @@ docker network connect <network identifier> <container identifier>
 ```shell
 docker network connect skynet hello-dock
 
-docker network inspect --format='{{range .Containers}} {{.Name}} {{end}}' skynet
+docker network inspect --format='{{ "{{" }}range .Containers}} {{ "{{" }}.Name}} {{ "{{" }}end}}' skynet
 
 #  hello-dock
 
-docker network inspect --format='{{range .Containers}} {{.Name}} {{end}}' bridge
+docker network inspect --format='{{ "{{" }}range .Containers}} {{ "{{" }}.Name}} {{ "{{" }}end}}' bridge
 
 #  hello-dock
 ```
@@ -2529,7 +2529,7 @@ docker container run \
 现在使用`inspect`命令查看`notes-db`容器的挂载是否成功：
 
 ```shell
-docker container inspect --format='{{range .Mounts}} {{ .Name }} {{end}}' notes-db
+docker container inspect --format='{{ "{{" }}range .Mounts}} {{ "{{" }} .Name }} {{ "{{" }}end}}' notes-db
 
 #  notes-db-data
 ```
