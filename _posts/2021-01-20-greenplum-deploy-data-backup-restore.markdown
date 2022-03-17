@@ -41,6 +41,7 @@ comment: false
     - [3.5 Greenplum报错：insufficient memory reserved for statement](#3.5)
     - [3.6 Greenplum报错：Canceling query because of high VMEM usage. Used 2308M, available 819M](#3.6)
     - [3.7 Greenplum报错：failed to acquire resources on one or more segments](#3.7)
+    - [3.8 记一次现场节点被重启GP库起不来问题](#3.8)
 - [更新记录](#99)
 
 ---
@@ -725,6 +726,41 @@ gpconfig -c max_prepared_transactions -v 100
 > 参考文章：
 - [https://community.pivotal.io/s/article/greenplum-error-failed-to-acquire-resources-on-one-or-more-segments?language=en_US](https://community.pivotal.io/s/article/greenplum-error-failed-to-acquire-resources-on-one-or-more-segments?language=en_US)
 
+<h4 id="3.8">3.8 记一次现场节点被重启GP库起不来问题</h4>
+
+问题描述：现场GP5，1master + 3salve(12segments)，其中gpslave3在GP库启动的情况下关机，造成GP库整个起不来。
+
+排查过程；
+
+GP库启动情况下，某个slave关停后，会造成该slave上对应的segments停掉(state为`down`)。
+
+总体思路是，第一步：先将state为`up`的segments起来；第二步：尝试用`gprecovery`将state为`down`的segments恢复。这样就完成所有节点的启动。
+
+在进行第一步之前，要登录到各个节点，使用`ps -ef |grep /postgres`查看是否有启动着的进程，如果有，用`kill -9 $PID`命令杀死进程。同时，要通过命令`ls -la /tmp |grep gpadmin`查看是否有`gpadmin`用户下的`.s.PGSQL.*`临时文件，如果有，要手动删除。需要注意的是，有时候虚拟机重启后`/tmp`目录的权限会从`777`变为`750`，这样`gpadmin`就没有写入`/tmp`的权限，这时候要通过命令`chmod 777 /tmp`将`/tmp`目录赋权`777`。
+
+接下来就在`master`节点使用`gpstart`命令启动。如果有报错信息，就要去报错提示对应的segment节点数据目录下找到`pg_log`目录，查看相关日志，日志中会记录起不来的原因。例如路径：`/data/gpgdgf/gpdata/primary/gpseg0/pg_log/*`。这一步如果成功，就进行接下来的恢复节点。
+
+> 如果所有节点一起实在起不来，可以通过命令`gpstart -m`单独启动`master`节点，使用`PGOPTIONS="-c gp_session_role=utility" psql postgres`连接到master节点中，用`sql`查看节点的相关信息。
+
+连接上数据库后，通过sql语句`select * from gp_segment_configuration order by dbid;`查看各个节点的信息：
+
+- `status`列代表segment的状态，是`up`或者`down`。
+- `mode`列代表状态，`s(synchronized)`表示对应`primary`和`mirror`节点数据是同步的，是正常状态、`c(change tracking)`表示因为某种原因`primary`和`mirror`节点数据没有同步，是异常状态、`r(resynchronization)`表示`primary`和`mirror`节点数据在同步中，是过程状态。
+- `content`列同一个值代表一对`primary`和`mirror`。
+
+通过命令恢复状态为`down`的segment：
+
+```shell
+#会在当前目录生成一个recov文件，里面包含了要恢复的节点信息
+1. gprecoverseg -o ./recov 
+
+#该命令执行为异步过程，可以通过gpstate -s查看执行的进度
+2. gprecoverseg -i ./recov
+
+#通过sql查询所有的status为'u'，所有的`mode`为's'表示所有segment正常
+3.select * from gp_segment_configuration order by dbid;
+```
+
 ---
 
 <h3 id="99">更新记录</h3>
@@ -733,3 +769,4 @@ gpconfig -c max_prepared_transactions -v 100
 - 2022-01-14 09:56 现场发现Greenplum库`too many clients`，补充“3.2”部分内容。
 - 2022-02-28 18:30 现场报错补充“high VMEM usage”，补充“3.6”部分内容。
 - 2022-03-02 17:33 现场报错补充“failed to acquire resources on one or more segments”，补充“3.7”部分内容。
+- 2022-03-17 20:03 现场排查Greenplum slave节点主机重启后GP库宕机问题，补充“3.8”部分内容。
