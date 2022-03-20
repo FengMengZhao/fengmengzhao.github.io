@@ -16,7 +16,7 @@ weixinurl: 'https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzUxMzUyNDI5Mg==&actio
     - [3.1 怎么在macOS系统上安装Docker](#3.1)
     - [3.2 怎么在Windows系统上安装Docker](#3.2)
     - [3.3 怎么在Linux系统上安装Docker](#3.3)
-- [4. Docker运行Hello World - Docker基本介绍](#4)
+- [4. Docker运行Hello World - Docker基本概念](#4)
     - [4.1 什么是容器？](#4.1)
     - [4.2 什么是镜像？](#4.2)
     - [4.3 什么是Docker仓库（Docker Registry）？](#4.3)
@@ -75,6 +75,7 @@ weixinurl: 'https://mp.weixin.qq.com/mp/appmsgalbum?__biz=MzUxMzUyNDI5Mg==&actio
     - [10.7 怎样Compose一个全栈应用？](#10.7)
 - [11. 结论](#11)
 - [12. 译者注](#12)
+- [99. 更新记录](#99)
 
 ---
 
@@ -264,9 +265,9 @@ docker ps -a
 
 为了能够理解刚才屏幕中输出的内容，必须要了解Docker的架构和容器化技术的三个基本概念，如下：
 
-- [容器](https://www.freecodecamp.org/news/@fhsinchy/s/the-docker-handbook/~/drafts/-MS1b3opwENd_9qH1jTO/hello-world-in-docker#container)
-- [镜像](https://www.freecodecamp.org/news/@fhsinchy/s/the-docker-handbook/~/drafts/-MS1b3opwENd_9qH1jTO/hello-world-in-docker#image)
-- [仓库](https://www.freecodecamp.org/news/@fhsinchy/s/the-docker-handbook/~/drafts/-MS1b3opwENd_9qH1jTO/hello-world-in-docker#registry)
+- 容器
+- 镜像
+- 仓库
 
 我按照字母表的顺序开始第一个重要概念的讲解：
 
@@ -3517,7 +3518,7 @@ docker-compose --file docker-compose.yaml up --detach
 
 十分感谢您的时间阅读本书，希望你喜欢他并且学会的Docker的所有基础知识。
 
-除了这一篇，我还写了关于其他主题的长篇指导性手册，可以在[freeCodeCamp](https://www.freecodecamp.org/news/the-docker-handbook/freecodecamp.org/news/author/farhanhasin/)中看到。
+除了这一篇，我还写了关于其他主题的长篇指导性手册，可以在[freeCodeCamp](https://www.freecodecamp.org/news/author/farhanhasin/)中看到。
 
 这些手册都是我秉承着努力简化每个人对技术的理解的热情写的，每一本都花费了大量的时间和精力。
 
@@ -3539,6 +3540,12 @@ docker-compose --file docker-compose.yaml up --detach
 - 译者：`冯兄话吉`
 - 译者项目克隆仓库：[https://github.com/FengMengZhao/the-docker-handbook/](https://github.com/FengMengZhao/the-docker-handbook/)
 - 译者gitee项目同步仓库（GitHub访问异常使用）：[https://gitee.com/fengmengzhao/the-docker-handbook/](https://gitee.com/fengmengzhao/the-docker-handbook/)
+
+---
+
+<h2 id="99">更新记录</h2>
+
+- 2022-03-20 10:31 [冯兄出品](https://book.learnbyteaching.xyz)发表前重读、优化、勘误。
 
 ---
 
