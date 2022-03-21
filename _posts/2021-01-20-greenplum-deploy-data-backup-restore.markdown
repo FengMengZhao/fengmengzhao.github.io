@@ -42,6 +42,7 @@ comment: false
     - [3.6 Greenplum报错：Canceling query because of high VMEM usage. Used 2308M, available 819M](#3.6)
     - [3.7 Greenplum报错：failed to acquire resources on one or more segments](#3.7)
     - [3.8 记一次现场节点被重启GP库起不来问题](#3.8)
+        [3.8.1 分布键查询sql](#3.8.1)
 - [更新记录](#99)
 
 ---
@@ -761,6 +762,46 @@ GP库启动情况下，某个slave关停后，会造成该slave上对应的segme
 3.select * from gp_segment_configuration order by dbid;
 ```
 
+<h5 id="3.8.1">3.8.1 分布键查询sql</h5>
+
+**查询sql一：适合greenplum4、5、6**
+
+```sql
+select e.nspname,a.relname,b.attname
+from pg_class a, pg_attribute b, gp_distribution_policy d, pg_namespace e
+where d.localoid = a.oid
+  and a.relnamespace = e.oid
+  --and e.nspname = 'db_ztk'
+  and a.oid = b.attrelid
+  and b.attnum > 0
+  and b.attnum = any(d.attrnums)
+order by a.relname,attnum;
+```
+
+**查询sql二：适合greenplum6**
+
+```shell
+select
+ c.oid,
+ n.nspname as schemaname,
+ c.relname as tablename,
+ pg_get_table_distributedby(c.oid) distributedby,
+ case c.relstorage
+  when 'a' then ' append-optimized'
+  when 'c' then 'column-oriented'
+  when 'h' then 'heap'
+  when 'v' then 'virtual'
+  when 'x' then 'external table'
+ end as "data storage mode"
+from pg_class as c
+inner join pg_namespace as n
+ on c.relnamespace = n.oid
+where
+ n.nspname = 'poc'
+ and c.relstorage = 'c'
+order by n.nspname, c.relname ;
+```
+
 ---
 
 <h3 id="99">更新记录</h3>
@@ -770,3 +811,4 @@ GP库启动情况下，某个slave关停后，会造成该slave上对应的segme
 - 2022-02-28 18:30 现场报错补充“high VMEM usage”，补充“3.6”部分内容。
 - 2022-03-02 17:33 现场报错补充“failed to acquire resources on one or more segments”，补充“3.7”部分内容。
 - 2022-03-17 20:03 现场排查Greenplum slave节点主机重启后GP库宕机问题，补充“3.8”部分内容。
+- 2022-03-21 14:11 补充“3.8.1”分布键查询sql内容。
