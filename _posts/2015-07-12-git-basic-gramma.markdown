@@ -248,7 +248,7 @@ git config --global http.proxy http://127.0.0.1:10809 #设置全局仓库代理
 git config --unset http.proxy #取消本仓库设置代理
 git config --global --unset http.proxy #取消全局设置代理
 git config --global --list #查看全局设置列表
-git config --local --list #查看本仓库设置列表
+git config --local --list #查看本仓库设置列
 ```
 
 **报错：Git, fatal: The remote end hung up unexpectedly**
@@ -257,5 +257,11 @@ git config --local --list #查看本仓库设置列表
 #原因可能是上传的文件大小超过了Git的默认设置，用这个命令覆写即可
 git config http.postBuffer 524288000
 ```
+
+即使修改了postBuffer参数值，有些时候还是不能成功的push，查找网上的相关方法均无效，可能是网络速度或者其他被ban的问题，可以尝试的办法：
+
+1. 一部分一部分的提交，一次性提交的文件不要太大。
+2. 打开项目git地址，键盘按下`.`进入[http://github.dev]，通过web页面上传。
+3. 可以尝试使用`ssh`而非`https`的方式进行pull/push。
 
 ---
