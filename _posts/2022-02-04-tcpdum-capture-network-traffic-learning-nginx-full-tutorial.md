@@ -55,7 +55,6 @@ comment: false
 - 理解工具生成或者别人配置的Nginx。
 - 从0到1配置Web服务器、反向代理服务器和负载均衡服务器。
 - 优化Nginx获取最大性能。
-- 配置HTTPS和HTTP/2。
 
 学习本文需要有一定的Linux基础，会执行例如`ls`、`cat`等Linux命令，还需要你对前后端有一定的了解，不过这些对前端或者后端程序员都很容易。
 
@@ -197,7 +196,7 @@ Connection: keep-alive
 Bonjour, mon ami!
 ```
 
-<h3 id="4.2">4.2 校验、重载Nginx配置文件</h3>
+<h4 id="4.2">4.2 校验、重载Nginx配置文件</h4>
 
 Nginx的配置文件是否正确可以通过`-t`参数校验：
 
@@ -896,7 +895,7 @@ cat /var/log/nginx/error.log
 
 这里可以看到，没有输出之前的`[notice]`日志了。
 
-<h3 id="7">7. Nginx作为反向代理服</h3>
+<h3 id="7">7. Nginx作为反向代理服务器</h3>
 
 <h4 id="7.1">7.1 什么是反向代理？</h4>
 
