@@ -17,7 +17,7 @@ facebook_username: #fengmengzhao
 # 百度统计
 analytics:
     baidu:
-        siteid: 913a0f71c5d4930322e4f0e9f4e245e4
+        siteid: b7f730d99b394d548fcf6ef121ac0a1c #913a0f71c5d4930322e4f0e9f4e245e4
 
 # Build settings
 markdown:          kramdown
