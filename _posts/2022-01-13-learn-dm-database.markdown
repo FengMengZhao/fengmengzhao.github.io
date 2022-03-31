@@ -18,6 +18,8 @@ comment: false
 - [3. 修改用户资源限制](#3)
 - [4. 审计相关](#4)
 - [5. 版本和license](#5)
+- [6. 问题记录](#6)
+    - [6.1 达梦数据库获取一个表所有字段的拼接串](#6.1)
 
 ---
 
@@ -162,6 +164,27 @@ select * from v$version;
 
 #查看license信息
 select * form v$license;
+```
+
+<h3 id="6">6. 问题记录</h3>
+
+<h4 id="6.1">6.1 达梦数据库获取一个表所有字段的拼接串</h4>
+
+达梦数据库想要获取一张表的所有字段并且用','将各个字段按照顺序拼接起来，形成例如'select a, b, c, d from t_xxxx'这样的形式。
+
+达梦的表`all_tab_columns`存储有各个表以及对应的字段，可以通过函数`wm_concat`将行转列。具体sql如下：
+
+```shell
+/opt/dmdbms/bin/disql user_name/'"passwd"'@xx.xx.xx.xx:xx -e "select wm_concat(column_name) from all_tab_columns where owner='TYYW2_LCBA_DATA' and table_name = '$line'" | tail -n 1
+```
+
+但是有一个问题，如果行的个数过多，查询出来的结果会被截取，这样拼接出来的结果就可能不完整。有可能是达梦的一个bug。通过shell找折中的办法解决：
+
+```shell
+#tail -n +10  --> 从第10行开始到
+#tr -s '\n' '\n' --> 删除空行
+#tr '\n' ',' --> 换行符替换为','，也就是就每一行用','连起来
+/opt/dmdbms/bin/disql user_name/'"passwd"'@ip:port -c "set heading off" -e "select wm_concat(column_name) from all_tab_columns where owner='TYYW2_LCBA_DATA' and table_name = '$line'" | tail -n +10|tr -s '\n' '\n'|tr '\n' ','
 ```
 
 ---
