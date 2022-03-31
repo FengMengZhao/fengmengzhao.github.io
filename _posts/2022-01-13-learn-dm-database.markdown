@@ -20,6 +20,7 @@ comment: false
 - [5. 版本和license](#5)
 - [6. 问题记录](#6)
     - [6.1 达梦数据库获取一个表所有字段的拼接串](#6.1)
+    - [6.2 达梦数据迁移整个数据目录并重新启动数据库](#6.2)
 
 ---
 
@@ -185,6 +186,25 @@ select * form v$license;
 #tr -s '\n' '\n' --> 删除空行
 #tr '\n' ',' --> 换行符替换为','，也就是就每一行用','连起来
 /opt/dmdbms/bin/disql user_name/'"passwd"'@ip:port -c "set heading off" -e "select wm_concat(column_name) from all_tab_columns where owner='TYYW2_LCBA_DATA' and table_name = '$line'" | tail -n +10|tr -s '\n' '\n'|tr '\n' ','
+```
+
+<h4 id="6.2">6.2 达梦数据迁移整个数据目录并重新启动数据库</h4>
+
+从一台服务器迁移达梦数据库数据目录到另一台服务器之后，启动报错找不到`.DBF`文件。
+
+首先迁移到目标服务器之后，可以修改`dm.ini`文件对应的路径，但是修改之后还是报错。原来有的路径是在数据目录的`dm.ctl`中写死的，这时候就要修改`dm.ctl`文件里的路径。
+
+但是`dm.ctl`是二机制文件，不能进行修改。达梦提供了工具可以经二进制文件转化为文本文件，修改后，再转化为二进制文件：
+
+```shell
+#将dm.ctl二进制文件转化为dmctl.txt文本文件
+./dmctlcvt TYPE=1 SRC=$DATADIR/dm.ctl DEST=$DATADIR/dmctl.txt
+
+#修改文件中的路径并保存
+vim $DATADIR/dmctl.txt
+
+#将dmctl.txt文本文件转化为dm.ctl二进制文件
+./dmctlcvt TYPE=2 SRC=$DATADIR/dmctl.txt DEST=$DATADIR/dm.ctl
 ```
 
 ---
