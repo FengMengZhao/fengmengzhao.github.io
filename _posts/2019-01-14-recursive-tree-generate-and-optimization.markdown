@@ -32,15 +32,15 @@ comment: true
       "parent_id" varchar(300) DEFAULT NULL
     ) 
 
-    INSERT INTO "sys_dept" VALUES ('1', '**软件', '0', '-1');
-    INSERT INTO "sys_dept" VALUES ('2', '**信息', '0', '-1');
-    INSERT INTO "sys_dept" VALUES ('3', '经理', '0', '1');
-    INSERT INTO "sys_dept" VALUES ('4', '审计办公室', '0', '1');
-    INSERT INTO "sys_dept" VALUES ('5', '北京研发中心', '0', '2');
-    INSERT INTO "sys_dept" VALUES ('6', '大数据开发部', '0', '5');
-    INSERT INTO "sys_dept" VALUES ('7', '测试部', '0', '2');
-    INSERT INTO "sys_dept" VALUES ('8', '开发二组', '0', '6');
-    INSERT INTO "sys_dept" VALUES ('9', '产品开发部', '0', '2');
+    INSERT INTO "sys_dept" VALUES ('1', '01', '0', '-1');
+    INSERT INTO "sys_dept" VALUES ('2', '12', '0', '-1');
+    INSERT INTO "sys_dept" VALUES ('3', '123', '0', '1');
+    INSERT INTO "sys_dept" VALUES ('4', '1234', '0', '1');
+    INSERT INTO "sys_dept" VALUES ('5', '12345', '0', '2');
+    INSERT INTO "sys_dept" VALUES ('6', '123456', '0', '5');
+    INSERT INTO "sys_dept" VALUES ('7', '1234567', '0', '2');
+    INSERT INTO "sys_dept" VALUES ('8', '12345678', '0', '6');
+    INSERT INTO "sys_dept" VALUES ('9', '123456789', '0', '2');
 
 需要将上述数据转化为JSON，格式为：
 
