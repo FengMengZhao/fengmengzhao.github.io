@@ -46,38 +46,38 @@ comment: true
 
     [{
         "id": "1",
-        "name": "**软件",
+        "name": "01",
         "childrenList": [{
             "id": "3",
-            "name": "经理"
+            "name": "123"
         },
         {
             "id": "4",
-            "name": "审计办公室"
+            "name": "1234"
         }]
     },
     {
         "id": "2",
-        "name": "**信息",
+        "name": "**12",
         "childrenList": [{
             "id": "5",
-            "name": "北京研发中心",
+            "name": "12345",
             "childrenList": [{
                 "id": "6",
-                "name": "大数据开发部",
+                "name": "123456",
                 "childrenList": [{
                     "id": "8",
-                    "name": "开发二组"
+                    "name": "12345678"
                 }]
             }]
         },
         {
             "id": "7",
-            "name": "测试部"
+            "name": "1234567"
         },
         {
             "id": "9",
-            "name": "产品开发部"
+            "name": "123456789"
         }]
     }]
 
