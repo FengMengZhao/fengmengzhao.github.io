@@ -152,6 +152,25 @@ round(NUMERIC_VALUE, m)
 
 # 从某个时间到某个时间随机日期
 timestamp '2013-01-01 00:00:00' + random() * (timestamp '2019-11-01 00:00:00' - timestamp '2013-01-01 00:00:00')
+
+#基于原有表中的数据造数据
+select 'insert into ' || 'db_zxyw.t_zx_zxktc' || ' select replace(uuid_generate_v4()::text, ''-'', '''')' || ',' || (
+
+select string_agg(col, ',') from (
+
+    SELECT  column_name as col
+      FROM information_schema.columns
+     WHERE table_schema = 'db_zxyw'
+       AND table_name   = 't_zx_zxktc'
+         offset 1 rows
+         
+             
+    ) a
+)
+		 
+|| ' from ' || 'db_zxyw.t_zx_zxktc'
+
+|| ' cross JOIN generate_series(1,10000) as a';
 ```
 
 ### 最佳实践

@@ -51,7 +51,9 @@ comment: false
     - [7.4 maven小技巧](#7.4)
     - [7.5 增量tar打包文件](#7.5)
     - [7.6 jar包更新某个文件并重新打包](#7.6)
--   - [7.7 Linux ssh客户端连接服务端不掉线](#7.7)
+    - [7.7 Linux ssh客户端连接服务端不掉线](#7.7)
+    - [7.8 vim使用技巧](#7.8)
+    - [7.9 Linux实用小命令](#7.9)
 - [8. 专项问题](#8)
     - [8.1 磁盘占用一点点，但是df -lh显示已经占用100%](#8.1)
 
@@ -1067,3 +1069,86 @@ systemctl restart rsyslog
 1). 配置服务端`ssh`服务，参考[https://fengmengzhao.github.io/2021/12/07/wsl-using-headache-problem-solving.html#2.4](https://fengmengzhao.github.io/2021/12/07/wsl-using-headache-problem-solving.html#2.4)
 
 2). 对于方法1)，可能在一些云厂商那里不生效。可以实用`tmux`（是一个程序），很实用、方便。
+
+<h4 id="7.8">7.8 vim使用技巧</h4>
+
+**删除匹配/不匹配行**
+
+```shell
+#全局删除匹配到的行
+:g/pattern/d
+
+#删除1-10行里匹配到的行
+:1,10g/pattern/d
+
+#删除不包含指定字符的行
+#可以这样
+:g!/pattern/d
+#也可以这样
+:v/pattern/d
+```
+
+**分组替换**
+
+```shell
+#正则匹配表达式需要用括号括起来，例如：数据：ABC，正则式为：(.*$)；替换为：insert into '\1'，结果为insert into 'ABC'。原理是用正则表达式匹配字符串，用括号隔开，可以用\1 \2等数字第几组匹配进而替换
+#vim中执行需要转意括号
+:%s/\(^.*$\)/inster into '\1'/g
+```
+
+**一些示例**
+
+```shell
+#截取字符串，插入换行符，删除不匹配的行
+:/[0-9]\{6\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}
+:%s/\([0-9]\{6\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\)/\r\1\r/g
+:%g!/[0-9]\{6\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/d
+:sort u
+:w! v1.x_base_extract.txt
+
+#截取字符串，插入换行符，删除不匹配的行
+:/[0-9]\{6\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}_[0-9]\{6\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}
+:%s/\([0-9]\{6\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}_[0-9]\{6\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\)/\r\1\r/g
+:%g!/[0-9]\{6\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}_[0-9]\{6\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/d
+:sort u
+:w! v1.x_underline1_tmp.txt
+
+#整合文件内容，删除\r(^M)字符
+cat v1.x*extract* > v1.x_result.txt
+:%s/\r//g
+:sort u
+```
+
+**vim在命令模式下贴入剪切板内容方法**
+
+`vim`命令模式下输入`:`或者`/`，按键`Ctrl r`，光标会出现`"`符号，再按键`"`或者`Shift +`，会填充`vim`复制或者剪切板中的内容。
+
+<h4 id="7.9">7.9 Linux实用小命令</h4>
+
+**替换目录下所有文件内容匹配到的字符串**
+
+```shell
+sed -i "s/oldstring/newstring/g" `grep oldstring -rl yourdir`
+
+#例如：替换/home下所有文件中的www.bcak.com.cn为bcak.com.cn
+sed -i "s/www.bcak.com.cn/bcak.com.cn/g" `grep www.bcak.com.cn -rl /home`
+```
+
+**查看某一个目录下所有大文件**
+
+```shell
+find / -type f -size +1024M  -print0 | xargs -0 du -h
+```
+
+**Linux中用vim替换Windowns换行符^M**
+
+```shell
+#1
+:%s/^M//g
+
+#2
+:set ff=unix;
+
+#3
+:%s/\r//g替换试一试
+```

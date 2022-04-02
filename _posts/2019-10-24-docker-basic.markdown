@@ -20,6 +20,8 @@ comment: false
     - [3.1 启动一个Nginx镜像](#3.1)
     - [3.2 启动一个Mysql镜像](#3.1)
     - [3.3 制作一个应用镜像](#3.3)
+- [4. Docker问题](#4)
+    - [4.1 docker配置insecure registries](#4.1)
 
 ---
 
@@ -365,7 +367,17 @@ ENTRYPOINT java -jar comments-0.0.1-SNAPSHOT.jar --spring.datasource.url=${DATAS
 
 ```
 
----
+<h3 id="4">4. Docker问题</h3>
+
+<h4 id="4.1">4.1 docker配置insecure registries</h4>
+
+```shell
+#vi /etc/docker/daemon.json
+
+{
+	"insecure-registries":["registry.xxx.com:5000", "registry.fmz.com:9500"]
+}
+```
 
 **Reference**
 
