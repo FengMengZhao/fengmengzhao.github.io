@@ -264,4 +264,11 @@ git config http.postBuffer 524288000
 2. 打开项目git地址，键盘按下`.`进入[http://github.dev]，通过web页面上传。
 3. 可以尝试使用`ssh`而非`https`的方式进行pull/push。
 
+**使用ssh方式拉去/推送项目**
+
+1. 使用`ssh-keygen`工具生成公钥和密钥
+2. 将公钥`id_rsa.pub`内容粘贴到github/gitlab ssh管理界面中
+3. clone使用`ssh://git@ip:port/root/project.git`
+4. 已clone的项目将remote url 设置为`ssh://git@ip:port/root/project.git`的方式
+
 ---

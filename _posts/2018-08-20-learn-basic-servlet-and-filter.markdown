@@ -14,7 +14,8 @@ comment: true
     - [3.1 Request设置字符编码Filter](#3.1)
     - [3.2 请求日志输出Filter](#3.2)
     - [3.3 用户认证(Authentication)Filter](#3.3)
-- [Servlet核心相关对象解读](#4)
+- [4. Servlet核心相关对象解读](#4)
+- [5. IDEA使用问题](#5)
 
 ---
 
@@ -462,7 +463,7 @@ comment: true
 
 ---
 
-<h3 id="4">Servlet核心相关对象解读</h3>
+<h3 id="4">4. Servlet核心相关对象解读</h3>
 
 Servlet的核心对象有：`ServletContext`、`HttpServletRequest`、`HttpServletResponse`、`HttpSession`。
 
@@ -520,4 +521,12 @@ Servlet Container作为Web Server的扩展总是和Web Server一起工作，Web 
         } 
     }
 
----
+<h3 id="5">5. IDEA使用问题</h3>
+
+新安装的IDEA使用maven导入项目时，一直好像不识别这是个maven项目，解决办法：
+
+1. Close your project window (and IntelliJ) and remove all \*.iml files and all .idea folders (there should be one per module)（删除项目中.idea和.iml文件）
+2. Run mvn clean install from the command line（maven命令行执行mvn clean install）
+3. Re-import the project into IntelliJ and pay attention when it asks you to enable auto-import（重新导入项目）
+
+参考：[https://stackoverflow.com/questions/11454822/import-maven-dependencies-in-intellij-idea?page=1&tab=scoredesc#tab-top](https://stackoverflow.com/questions/11454822/import-maven-dependencies-in-intellij-idea?page=1&tab=scoredesc#tab-top)

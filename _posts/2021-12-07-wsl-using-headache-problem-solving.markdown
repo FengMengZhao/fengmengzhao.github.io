@@ -30,6 +30,7 @@ weixinurl: 'https://mp.weixin.qq.com/s/5g-Dx9wl1iyW2pxwe4qtVg'
 - [3. WSL2使用遇到的问题](#3)
     - [3.1 WSL和VirtualBox对于Hyper-v冲突](#3.1)
     - [3.2 Centos6在wsl2 docker上运行有问题](#3.1)
+    - [3.3 WSL2自定义内存分配](#3.3)
 - [4. 引用](#4)
 
 ---
@@ -359,6 +360,17 @@ netsh int ip set dynamicport tcp start=49152 num=16384 #设置新的端口范围
 ```shell
 [wsl2]
 kernelCommandLine = vsyscall=emulate
+```
+
+<h4 id="3.2">3.2 Centos6在wsl2 docker上运行有问题</h4>
+
+在配置文件`%userprofile%\.wslconfig`配置如下内容：
+
+```shell
+memory=6GB
+swap=1GB
+localhostForwarding=true
+processors=4
 ```
 
 <h3 id="4">4. 引用</h3>

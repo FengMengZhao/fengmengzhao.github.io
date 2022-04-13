@@ -1152,3 +1152,15 @@ find / -type f -size +1024M  -print0 | xargs -0 du -h
 #3
 :%s/\r//g替换试一试
 ```
+
+**vim中匹配到的内容转大小写**
+
+```shell
+#将<source_table>db_jcy.t_abc</source_table> 转化为 <source_table>DB_JCY.T_ABC</source_table>
+#\U\1 --> 将匹配到分组内容转为大写
+:%s/<source_table>\(.*\)</<source_table>\U\1>/g
+
+#将<source_table>DB_JCY.T_ABC</source_table> 转化为 <source_table>db_jcy.t_abc</source_table>
+#\L\1 --> 将匹配到分组内容转为小写
+:%s/<source_table>\(.*\)</<source_table>\L\1>/g
+```
