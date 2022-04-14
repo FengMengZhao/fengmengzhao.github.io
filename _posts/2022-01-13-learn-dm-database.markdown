@@ -21,6 +21,7 @@ comment: false
 - [6. 问题记录](#6)
     - [6.1 达梦数据库获取一个表所有字段的拼接串](#6.1)
     - [6.2 达梦数据迁移整个数据目录并重新启动数据库](#6.2)
+    - [6.3 达梦数据库dmfldr导入clob字段200多k数据报错](#6.3)
 
 ---
 
@@ -206,5 +207,13 @@ vim $DATADIR/dmctl.txt
 #将dmctl.txt文本文件转化为dm.ctl二进制文件
 ./dmctlcvt TYPE=2 SRC=$DATADIR/dmctl.txt DEST=$DATADIR/dm.ctl
 ```
+
+<h4 id="6.3">6.3 达梦数据库dmfldr导入clob字段200多k数据报错</h4>
+
+> 测试clob字段，如果该字段大一点，使用dmfldr导入就会报错，提示数据格式有误。
+
+> 可以任建一个表，建一个clob字段，导入如下测试数据，就会报错。
+
+DM官方给的解释是`dmfldr`在load数据的时候可能有限制，只能说这明显是一个bug。
 
 ---
