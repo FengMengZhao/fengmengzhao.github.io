@@ -16,6 +16,7 @@ comment: true
     - [3.3 用户认证(Authentication)Filter](#3.3)
 - [4. Servlet核心相关对象解读](#4)
 - [5. IDEA使用问题](#5)
+- [6. Eclipse使用问题](#6)
 
 ---
 
@@ -530,3 +531,32 @@ Servlet Container作为Web Server的扩展总是和Web Server一起工作，Web 
 3. Re-import the project into IntelliJ and pay attention when it asks you to enable auto-import（重新导入项目）
 
 参考：[https://stackoverflow.com/questions/11454822/import-maven-dependencies-in-intellij-idea?page=1&tab=scoredesc#tab-top](https://stackoverflow.com/questions/11454822/import-maven-dependencies-in-intellij-idea?page=1&tab=scoredesc#tab-top)
+
+<h3 id="6">6. Eclipse使用问题</h3>
+
+有一个系统前端和后端分开是两个子系统，但是前端要获取后端运行进程的一些状态(例如`ps -ef |grep -v grep |grep xxx.jar`)。
+
+如果在Windows上进行开发，`ps -ef`命令无法执行，不能很丝滑的调试。
+
+这时候就想到了用Linux上的IDE Eclipse，下载[eclipse jee](https://ftp.jaist.ac.jp/pub/eclipse/technology/epp/downloads/release/2022-03/R/eclipse-jee-2022-03-R-linux-gtk-x86_64.tar.gz)，解压到Linux系统上就可以使用。
+
+时间长不用eclipse，有些东西还真不知道怎么用了，这里记录一下：
+
+1. `Eclipse IDE for Java Developers`，这个版本没有web功能，如果是web项目要下载版本`Eclipse IDE for Enterprise Java and Web Developers`。
+2. 配置`Server`，Windows --> Preferences --> Server --> Runtime Environment --> 配置Server
+3. 视图中调出来Server，Windows --> Show view --> Server
+
+**竟然将src也作为了包**
+
+`src` --> Build Path --> Use As Source Folder，这样就可以将一个目录作为源码路径。
+
+**识别不了项目是一个web项目**
+
+1. Project --> Properties --> Project Facets，勾选Dynamic Web Module、Java、JavaScript
+2. Project --> Properties --> Deployment Assembly --> 
+    1. /src --> WEB-INF/classes
+    2. /web --> /
+    3. /web/WEB-INF/web.xml --> WEB-INF/web.xml
+    4. Maven Dependencies --> WEB-INF/lib
+
+注意，这里的`src`是源代码的路径，`/web`是web路径，可以根据实际项目的定义做出修改。
