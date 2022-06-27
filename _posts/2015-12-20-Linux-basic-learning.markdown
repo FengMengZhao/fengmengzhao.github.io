@@ -53,6 +53,7 @@ comment: false
     - [7.6 jar包更新某个文件并重新打包](#7.6)
     - [7.7 Linux ssh客户端连接服务端不掉线](#7.7)
     - [7.8 vim使用技巧](#7.8)
+        - [7.8.1 vi/vim中用正确的字符编码打开文件](#7.8.1)
     - [7.9 Linux实用小命令](#7.9)
 - [8. 专项问题](#8)
     - [8.1 磁盘占用一点点，但是df -lh显示已经占用100%](#8.1)
@@ -1096,6 +1097,14 @@ systemctl restart rsyslog
 :%s/\(^.*$\)/inster into '\1'/g
 ```
 
+<h5 id="7.8.1">7.8.1 vi/vim中用正确的字符编码打开文件</h5>
+
+```shell
+:set fileencoding #展示当前文件的字符编码
+:set fileencoding=UTF-8/gbk #将文件编码设置为UTF-8/gbk
+:set fileencodings; #展示vim编码探测的顺序，如果没有对应的文件编码（如gbk)可以加上（当然前提是本地系统支持该字符集（有安装））
+```
+
 **一些示例**
 
 ```shell
@@ -1134,6 +1143,16 @@ sed -i "s/oldstring/newstring/g" `grep oldstring -rl yourdir`
 sed -i "s/www.bcak.com.cn/bcak.com.cn/g" `grep www.bcak.com.cn -rl /home`
 ```
 
+**查找某个目录下所有包含字符的文件并替换**
+
+```shell
+#查找当前目录中所有包含ip(172.16.12.13)的txt文件并替换为141.151.1.111
+find . -type f -name '*.txt' -exec sed -i 's/172.16.12.13/141.151.1.111/g' {} \;
+
+#将xml文件中包含【null as xxx,】的字符替换为【CAST(null as char) as xxx,】，最后的i表示忽略大小写
+find . -type f -name '*.xml' -exec sed -i 's/null[[:space:]]\{1,\}as \([a-zA-Z0-9 ]*\),/CAST\(null as CHAR\) as \1,/gi' {} \;
+```
+
 **查看某一个目录下所有大文件**
 
 ```shell
@@ -1163,4 +1182,29 @@ find / -type f -size +1024M  -print0 | xargs -0 du -h
 #将<source_table>DB_JCY.T_ABC</source_table> 转化为 <source_table>db_jcy.t_abc</source_table>
 #\L\1 --> 将匹配到分组内容转为小写
 :%s/<source_table>\(.*\)</<source_table>\L\1>/g
+```
+
+<h3 id= "8">8. 专项问题</h3>
+
+<h4 id="8.1">8.1 磁盘占用一点点，但是df -lh显示已经占用100%</h4>
+
+一般会有两种情况，第一种是本地的进程打开文件但是进程关闭后关联的文件没有清除，造成文件还是打开状态会占用空间；第二种是挂载路径下本身已经存满了文件，在新挂载硬盘的时候没有清除，还是会显示占用的磁盘空间。
+
+<h4 id="8.2">8.2 Linux安装本地字符编码</h4>
+
+```shell
+#安装中文字体支持
+sudo apt-get install language-pack-zh-hans
+#查看本地支持的字符集
+locale -a
+#修改本地支持的字符集
+sudo vim /var/lib/locales/supported.d/zh-hans
+#添加
+#zh_CN.GBK GBK
+#zh_CN GB2312
+#zh_CN.UTF-8 UTF-8
+#生成本地字符集
+sudo locale-gen
+#再次查看本地支持的字符集
+locale -a
 ```
