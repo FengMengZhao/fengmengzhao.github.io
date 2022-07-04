@@ -1058,14 +1058,6 @@ jar Mcf ../SomeClass-belong-to.jar * #重新打包
 :%s/\(^.*$\)/inster into '\1'/g
 ```
 
-<h5 id="7.8.1">7.8.1 vi/vim中用正确的字符编码打开文件</h5>
-
-```shell
-:set fileencoding #展示当前文件的字符编码
-:set fileencoding=UTF-8/gbk #将文件编码设置为UTF-8/gbk
-:set fileencodings; #展示vim编码探测的顺序，如果没有对应的文件编码（如gbk)可以加上（当然前提是本地系统支持该字符集（有安装））
-```
-
 **一些示例**
 
 ```shell
@@ -1143,6 +1135,14 @@ find / -type f -size +1024M  -print0 | xargs -0 du -h
 #将<source_table>DB_JCY.T_ABC</source_table> 转化为 <source_table>db_jcy.t_abc</source_table>
 #\L\1 --> 将匹配到分组内容转为小写
 :%s/<source_table>\(.*\)</<source_table>\L\1>/g
+```
+
+<h5 id="7.8.1">7.8.1 vi/vim中用正确的字符编码打开文件</h5>
+
+```shell
+:set fileencoding #展示当前文件的字符编码
+:set fileencoding=UTF-8/gbk #将文件编码设置为UTF-8/gbk
+:set fileencodings; #展示vim编码探测的顺序，如果没有对应的文件编码（如gbk)可以加上（当然前提是本地系统支持该字符集（有安装））
 ```
 
 <h3 id="8">8. 专项问题</h3>
