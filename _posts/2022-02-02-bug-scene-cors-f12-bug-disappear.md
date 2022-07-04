@@ -225,7 +225,7 @@ Kemal.run
 
 0). 同域下请求
 
-从`http://172.22.27.215:4000/greet`接口域下发送“简单”的`ajax`请求，如图：
+从`http://xx.22.27.215:4000/greet`接口域下发送“简单”的`ajax`请求，如图：
 
 ![](/img/posts/same-origin-ajax-post-request.png)
 

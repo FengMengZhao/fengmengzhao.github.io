@@ -176,7 +176,7 @@ JDBC连接达梦是通过`client_ssl/SYSDBA/.keystore`文件，而ODBA和其他�
 import java.sql.*;
 
 public class FirstExample {
-   static final String DB_URL = "jdbc:dm://172.26.19.77:5336?sslFilesPath=client_ssl/SYSDBA&sslKeystorePass=dameng";
+   static final String DB_URL = "jdbc:dm://xx.26.19.77:5336?sslFilesPath=client_ssl/SYSDBA&sslKeystorePass=dameng";
    static final String USER = "SYSDBA";
    static final String PASS = "SYSDBA";
    static final String QUERY = "SELECT * from dba_users";

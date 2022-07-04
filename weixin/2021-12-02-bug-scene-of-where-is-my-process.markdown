@@ -267,7 +267,7 @@ public class Calculator {
 
 ![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/java_awt_headless-set-false-use-awt-error-display-not-working.png)
 
-这里报错信息是不能连接到启动环境中的`X DISPLAY Server`，本地环境中有安装`Microsoft VcXsrv X Server`，设置的display port为`3600`，因此在JVM启动的shell环境中设置`export DISPLAY=172.26.18.37:3600`，重新执行：
+这里报错信息是不能连接到启动环境中的`X DISPLAY Server`，本地环境中有安装`Microsoft VcXsrv X Server`，设置的display port为`3600`，因此在JVM启动的shell环境中设置`export DISPLAY=xx.26.18.37:3600`，重新执行：
 
 ![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/java_awt_headless-set-false-use-awt-error-display-working.png)
 

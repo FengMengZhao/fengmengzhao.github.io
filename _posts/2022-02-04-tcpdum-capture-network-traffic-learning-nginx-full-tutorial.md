@@ -328,7 +328,7 @@ welcome dear librarian!
 这样能成功的提前是指定的域名解析到同一个IP，或者在本地的hosts文件中配置好域名进行本地测试：
 
 ```shell
-172.19.146.188 library.test librarian.library.test
+xx.19.146.188 library.test librarian.library.test
 ```
 
 > 注意，这里`return`这个`Directive`后面跟两个参数，一个是状态码，一个是返回的文本信息，文本信息要用引号引起来。
@@ -1090,9 +1090,9 @@ http {
 `tcpdump`监听命令：
 
 ```shell
-#172.19.146.188是Nginx代理IP；121.42.46.75是被代理上游服务IP，也就是redis.cn域名的解析IP
-#ech0是172.19.146.188使用的网卡IP
-sudo tcpdump -i eth0 tcp port 8088 and host 172.19.146.188 or host 121.42.46.75 -c 100 -n -vvv -w /opt/nginx-2.cap
+#xx.19.146.188是Nginx代理IP；121.42.46.75是被代理上游服务IP，也就是redis.cn域名的解析IP
+#ech0是xx.19.146.188使用的网卡IP
+sudo tcpdump -i eth0 tcp port 8088 and host xx.19.146.188 or host 121.42.46.75 -c 100 -n -vvv -w /opt/nginx-2.cap
 ```
 
 启动后，访问代理服务，数据包经过网卡`eth0`就会被捕捉到。将`nginx-2.cap`文件在`Wireshark`中打开即可查看具体网络包。
