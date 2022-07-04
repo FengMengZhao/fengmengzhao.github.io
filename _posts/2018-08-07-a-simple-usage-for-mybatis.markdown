@@ -145,7 +145,7 @@ Mybatis3的使用方式有两种：
                 <!-- 数据库连接池,由mybatis管理-->
                 <dataSource type="POOLED">
                     <property name="driver" value="com.mysql.jdbc.Driver" />
-                    <property name="url" value="jdbc:mysql://172.16.193.14:3306/mybatis?characterEncoding=utf-8" />
+                    <property name="url" value="jdbc:mysql://xx.xx.193.14:3306/mybatis?characterEncoding=utf-8" />
                     <property name="username" value="root" />
                     <property name="password" value="root" />
                 </dataSource>

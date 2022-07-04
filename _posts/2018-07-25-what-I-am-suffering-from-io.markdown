@@ -191,7 +191,7 @@ comment: true
 
         public void startClient() throws IOException, InterruptedException {
 
-            String hostName = "172.16.193.14";
+            String hostName = "xx.xx.193.14";
             int portNumber = 4444;
             String threadName = Thread.currentThread().getName();
             /*
@@ -372,7 +372,7 @@ Java NIO提供了一个类叫做`Selector`，这个类能够让单个线程监�
 
         public static void main(String[] args) throws Exception {
             try {
-                new EchoNIOServer("172.16.193.14", 9093).startServer();
+                new EchoNIOServer("xx.xx.193.14", 9093).startServer();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -477,7 +477,7 @@ Java NIO提供了一个类叫做`Selector`，这个类能够让单个线程监�
 
         public void startClient() throws IOException, InterruptedException {
 
-            InetSocketAddress hostAddress = new InetSocketAddress("172.16.193.14", 9093);
+            InetSocketAddress hostAddress = new InetSocketAddress("xx.xx.193.14", 9093);
             SocketChannel client = SocketChannel.open(hostAddress);
 
             System.out.println("Client... started");
