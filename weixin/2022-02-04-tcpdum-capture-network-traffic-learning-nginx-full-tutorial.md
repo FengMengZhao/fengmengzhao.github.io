@@ -2,7 +2,7 @@
 layout: post
 title: 'tcpdump抓包学习Nginx(反向代理)，学完不怵nginx了，还总想跃跃欲试！(Nginx使用、原理完整版手册)'
 subtitle: '之前遇到Nginx总是把配置文件改吧改吧能用就可以了，不理解也不敢改动相关的配置文件，云里雾里。抽时间整体上将Nginx捋一遍，囊括了Nginx的基础配置、功能使用。tcpdump抓包探究反向代理实现。学完再看到Nginx，总想试一试！'
-background: '/img/posts/nginx-switch-army-knife.jpg'
+background: 'https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/nginx-switch-army-knife.jpg'
 comment: false
 ---
 
@@ -48,13 +48,14 @@ comment: false
 
 感谢[DigitalOcean](https://digitalocean.com/)公司的[NGINXConfig](https://www.digitalocean.com/community/tools/nginx)项目，提供了很多写好的Nginx模板供下载，这样就可以在不理解Nginx配置的情况下复制粘贴配置Nginx。
 
-![](/img/posts/nginx-programmer-copy-and-paste.jpg)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/nginx-programmer-copy-and-paste.jpg)
 
 这里不是说复制粘贴是不对的，而是如果只复制粘贴并不理解的话，迟早会出问题。所以，你必须理解Nginx的配置，通过学习本文，你能够：
 
 - 理解工具生成或者别人配置的Nginx。
 - 从0到1配置Web服务器、反向代理服务器和负载均衡服务器。
 - 优化Nginx获取最大性能。
+- 配置HTTPS和HTTP/2。
 
 学习本文需要有一定的Linux基础，会执行例如`ls`、`cat`等Linux命令，还需要你对前后端有一定的了解，不过这些对前端或者后端程序员都很容易。
 
@@ -77,13 +78,13 @@ Nginx工作时候会设定worker进程(worker process)，每一个worker进程�
 
 Nginx基本工作原理图：
 
-![](/img/posts/nginx-basic-working-process.png)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/nginx-basic-working-process.png)
 
 Nginx之所以能够在低资源消耗的情况下高性能提供静态文件服务，是因为它没有内置动态编程语言处理器。当一个静态文件请求到达后，Nginx就是简单的响应请求文件，并没有做什么额外的处理。
 
 这不是说Nginx不能够整合动态编程语言处理器，它可以将请求任务代理到独立的进程上，例如`PHP-FPM`、`Node.js`或者`Python`。一旦第三方进程处理完请求，再将响应代理回客户端，工作如图：
 
-![](/img/posts/nginx-basic-working-with-external-process.png)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/nginx-basic-working-with-external-process.png)
 
 <h3 id="2">2. 怎么安装nginx</h3>
 
@@ -108,7 +109,7 @@ sudo service nginx status
 
 Nginx的配置文件经常放在`/etc/nginx`目录中，默认的配置端口是`80`，如果启动成功，可以访问得到页面：
 
-![](/img/posts/nginx-install-success.png)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/nginx-install-success.png)
 
 恭喜！Nginx安装成功了！
 
@@ -196,7 +197,7 @@ Connection: keep-alive
 Bonjour, mon ami!
 ```
 
-<h4 id="4.2">4.2 校验、重载Nginx配置文件</h4>
+<h3 id="4.2">4.2 校验、重载Nginx配置文件</h3>
 
 Nginx的配置文件是否正确可以通过`-t`参数校验：
 
@@ -411,7 +412,7 @@ http {
 
 重新访问页面，样式正常，`mystyle.css`文件的`response`头`Content-Type`为`text/css`：
 
-![](/img/posts/nginx-learn-file-type-handle-right.png)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/nginx-learn-file-type-handle-right.png)
 
 这里在`http{}`中引入了`types{}`，通过文件的后缀映射文件的类型。需要注意，如果没有`types{}`，nginx会认为`.html`文件的类型是`text/html`，但是一旦引入`types{}`，nginx只会解析定义的类型映射。所以这里引入`types{}`后，不能只定义`css`的类型映射，同样要显式定义`html`的类型映射，否则nginx会将`html`解析为普通文本文件。
 
@@ -895,7 +896,7 @@ cat /var/log/nginx/error.log
 
 这里可以看到，没有输出之前的`[notice]`日志了。
 
-<h3 id="7">7. Nginx作为反向代理服务器</h3>
+<h3 id="7">7. Nginx作为反向代理服</h3>
 
 <h4 id="7.1">7.1 什么是反向代理？</h4>
 
@@ -907,13 +908,13 @@ cat /var/log/nginx/error.log
 
 正向代理示意图：
 
-![](/img/posts/forward_proxy-3.png)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/forward_proxy-3.png)
 
 反向代理一般代理的是服务端，客户端直接和代理服务打交道（如果有反向代理的话），而对被代理的服务一无所知。客户端请求到达代理服务之后，代理服务再将请求转发到被代理的服务并将响应返回给客户端。
 
 反向代理示意图：
 
-![](/img/posts/reverse_proxy-resized-600.png)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/reverse_proxy-resized-600.png)
 
 > 上面二图，可以理解蓝色背景的服务是相互知晓的。
 
@@ -970,7 +971,7 @@ http {
 
 代理后页面如下：
 
-![](/img/posts/nginx-bbs-tianya-cn-proxy.png)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/nginx-bbs-tianya-cn-proxy.png)
 
 > 因为是`http`反向代理了`https`，运营商竟然还在右下角插入了广告（`https://bbs.tianya.cn/`不会被插入广告）。
 
@@ -1107,7 +1108,7 @@ sudo tcpdump -i eth0 tcp port 8088 and host xx.19.146.188 or host 121.42.46.75 -
 
 抓取请求包如图：
 
-![](/img/posts/nginx-wireshark-capture-location-match-get-proxy-request.png)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/nginx-wireshark-capture-location-match-get-proxy-request.png)
 
 <h4 id="7.5">7.5 反向代理header重写</h4>
 
@@ -1174,15 +1175,15 @@ sudo tcpdump -i eth0 host 121.42.46.75 -c 100 -n -vvv -w /opt/nginx-redis-1.cap
 
 这时候访问`http://fengmengzhao.hypc:8088/`，代理页面很正常：
 
-![](/img/posts/nginx-tcpdum-simple-capture.png)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/nginx-tcpdum-simple-capture.png)
 
 Nginx服务端的`tcpdump`包也抓到了：
 
-![](/img/posts/nginx-tcpdump-simple-capture-package-generation.png)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/nginx-tcpdump-simple-capture-package-generation.png)
 
 用Wireshark查看包请求：
 
-![](/img/posts/nginx-tcpdum-simple-capture-Host-default.png)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/nginx-tcpdum-simple-capture-Host-default.png)
 
 修改Nginx配置`proxy_set_header Host $http_host`（情况二）：
 
@@ -1209,13 +1210,13 @@ http {
 
 访问`http://fengmengzhao.hypc:8088/`，代理页面：
 
-![](/img/posts/nginx-tcpdum-http_host-capture.png)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/nginx-tcpdum-http_host-capture.png)
 
 这是什么页面？如果直接用[redis.cn](http://redis.cn)的IP地址[http://121.42.46.75](http://121.42.46.75)访问，得到同样的页面。为什么？
 
 看看抓到的包情况：
 
-![](/img/posts/nginx-tcpdum-simple-capture-Host-http_host.png)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/nginx-tcpdum-simple-capture-Host-http_host.png)
 
 从`tcpdump`抓包来看，该响应是正常从服务端响应的。那为何不同的`Host`头返回的页面会不同呢？
 
@@ -1257,7 +1258,7 @@ http {
 
 实际上不管是绝对应用还是相对应用我们想让客户端的请求都是`http://fengmengzhao.hypc:8088/static/assets/generate.png`，这里可以看到，如果采用上面的代理方式，并且上游服务有绝对路径的引用，就会出现加载异常的情况。示例：
 
-![](/img/posts/nginx-relative-path-load-error-demo.png)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/nginx-relative-path-load-error-demo.png)
 
 > 这里我们也可以看出来，Nginx反向代理默认对响应的内容是不会修改的，目标服务中相对路径或者绝对路径的引用反向代理之后返回给客户端的跟直接访问目标服务端响应是一样的。
 
@@ -1349,7 +1350,7 @@ http {
 
 通过上面的任意方法，可以获取正确的代理响应：
 
-![](/img/posts/nginx-relative-path-load-success-demo.png)
+![](https://gitee.com/fengmengzhao/fengmengzhao.github.io/raw/master/img/posts/nginx-relative-path-load-success-demo.png)
 
 这里要注意一个点，当你的访问路径是`http://fengmengzhao.hypc:8088/static`（情况一），其响应`html`中有引用`assets/generate.png`，对该`generate.png`的请求路径是：`http://fengmengzhao.hypc:8088/assets/gnerate.png`。而当你的访问路径是`http://fengmengzhao.hypc:8088/static/`（情况二），其响应`html`同样引用`assets/generate.png`，对图片的请求会变为：`http://fengmengzhao.hypc:8088/static/assets/generate.png`。情况二访问路径和情况一的区别是`URI`的最后有没有跟`/`，如果有`/`结尾的话，认为当前访问是一个目录，所以其相对引用就从当前地址栏中的路径开始；如果没有`/`结尾的话，认为当前访问是一个文件，其相对路径就是文件所在的路径，也就是`URI`往前数有出现`/`那个层级，在这里就是根目录，所以情况一虽然是相对引用，但是请求路径还是从根目录开始。
 

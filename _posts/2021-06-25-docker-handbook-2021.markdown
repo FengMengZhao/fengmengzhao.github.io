@@ -1140,7 +1140,7 @@ docker image prune --force
 # deleted: sha256:ba9558bdf2beda81b9acc652ce4931a85f0fc7f69dbc91b4efc4561ef7378aff
 # deleted: sha256:ad9cc3ff27f0d192f8fa5fadebf813537e02e6ad472f6536847c4de183c02c81
 # deleted: sha256:f1e9b82068d43c1bb04ff3e4f0085b9f8903a12b27196df7f1145aa9296c85e7
-# deleted: sha256:ec16024aa036172544908ec4e5f842627d04ef99ee9b8d9aaa26b9c2a4b52baa
+# deleted: sha256:ec16024aa036xx.44908ec4e5f842627d04ef99ee9b8d9aaa26b9c2a4b52baa
 
 # Total reclaimed space: 59.19MB
 ```
@@ -2259,10 +2259,10 @@ node_modules
 ```shell
 docker container inspect --format='{{ "{{" }}range .NetworkSettings.Networks}} {{ "{{" }}.IPAddress}} {{ "{{" }}end}}' notes-api-db-server
 
-#  172.17.0.2
+#  xx.17.0.2
 ```
 
-现在已知`postgres`默认的端口是`5432`，`notes-api`容器可以方便的通过`172.17.0.2:5432`连接到数据库服务。
+现在已知`postgres`默认的端口是`5432`，`notes-api`容器可以方便的通过`xx.17.0.2:5432`连接到数据库服务。
 
 这种办法也存在问题，实际上使用容器的IP来连接容器是不被推荐的。并且，假设容器被销毁或者被重新创建，容器的IP是会发生改变的，跟踪这些变化的IP是一件很繁琐的事情。
 
@@ -2387,14 +2387,14 @@ docker container run --network skynet --rm --name alpine-box -it alpine sh
 
 docker container run --network skynet --rm --name alpine-box -it alpine sh
 / # ping hello-dock
-PING hello-dock (172.18.0.2): 56 data bytes
-64 bytes from 172.18.0.2: seq=0 ttl=64 time=0.055 ms
-64 bytes from 172.18.0.2: seq=1 ttl=64 time=0.052 ms
-64 bytes from 172.18.0.2: seq=2 ttl=64 time=0.065 ms
-64 bytes from 172.18.0.2: seq=3 ttl=64 time=0.050 ms
-64 bytes from 172.18.0.2: seq=4 ttl=64 time=0.076 ms
-64 bytes from 172.18.0.2: seq=5 ttl=64 time=0.054 ms
-64 bytes from 172.18.0.2: seq=6 ttl=64 time=0.064 ms
+PING hello-dock (xx.18.0.2): 56 data bytes
+64 bytes from xx.18.0.2: seq=0 ttl=64 time=0.055 ms
+64 bytes from xx.18.0.2: seq=1 ttl=64 time=0.052 ms
+64 bytes from xx.18.0.2: seq=2 ttl=64 time=0.065 ms
+64 bytes from xx.18.0.2: seq=3 ttl=64 time=0.050 ms
+64 bytes from xx.18.0.2: seq=4 ttl=64 time=0.076 ms
+64 bytes from xx.18.0.2: seq=5 ttl=64 time=0.054 ms
+64 bytes from xx.18.0.2: seq=6 ttl=64 time=0.064 ms
 ^C
 --- hello-dock ping statistics ---
 7 packets transmitted, 7 packets received, 0% packet loss
@@ -2462,7 +2462,7 @@ docker container run \
     --network=notes-api-network \
     postgres:12
 
-# a7b287d34d96c8e81a63949c57b83d7c1d71b5660c87f5172f074bd1606196dc
+# a7b287d34d96c8e81a63949c57b83d7c1d71b5660c87f5xx.074bd1606196dc
 
 docker container ls
 
@@ -2817,8 +2817,8 @@ docker container inspect notes-db
 #                     "Aliases": null,
 #                     "NetworkID": "e4c7ce50a5a2a49672155ff498597db336ecc2e3bbb6ee8baeebcf9fcfa0e1ab",
 #                     "EndpointID": "2a2587f8285fa020878dd38bdc630cdfca0d769f76fc143d1b554237ce907371",
-#                     "Gateway": "172.17.0.1",
-#                     "IPAddress": "172.17.0.2",
+#                     "Gateway": "xx.17.0.1",
+#                     "IPAddress": "xx.17.0.2",
 #                     "IPPrefixLen": 16,
 #                     "IPv6Gateway": "",
 #                     "GlobalIPv6Address": "",
@@ -2834,8 +2834,8 @@ docker container inspect notes-db
 #                     ],
 #                     "NetworkID": "06579ad9f93d59fc3866ac628ed258dfac2ed7bc1a9cd6fe6e67220b15d203ea",
 #                     "EndpointID": "5b8f8718ec9a5ec53e7a13cce3cb540fdf3556fb34242362a8da4cc08d37223c",
-#                     "Gateway": "172.18.0.1",
-#                     "IPAddress": "172.18.0.2",
+#                     "Gateway": "xx.18.0.1",
+#                     "IPAddress": "xx.18.0.2",
 #                     "IPPrefixLen": 16,
 #                     "IPv6Gateway": "",
 #                     "GlobalIPv6Address": "",

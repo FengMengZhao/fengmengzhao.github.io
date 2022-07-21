@@ -33,7 +33,7 @@ RPM打包指南：
 - 命令行输出和包括源代码在内的文本文件的内容放在代码块中：
 
 ```shell
-[root@172 rpmbuild]# ls -l
+[root@xx.rpmbuild]# ls -l
 total 0
 drwx------ 3 root root 58 Oct 18 16:47 BUILD
 drwx------ 2 root root  6 Oct 18 16:47 BUILDROOT

@@ -1021,7 +1021,7 @@ Builder模式主要是为了为了解决**复杂对象**的创建，复杂对象
     public class Client {
 
         public static void main(String args[]) {
-            JDBCConnectionPool pool = new JDBCConnectionPool("com.mysql.jdbc.Driver", "jdbc:mysql://172.16.193.14:3306/test", "fmz", "147258");
+            JDBCConnectionPool pool = new JDBCConnectionPool("com.mysql.jdbc.Driver", "jdbc:mysql://xx.xx.193.14:3306/test", "fmz", "147258");
 
             for(int i = 0; i < 10; i++){
                 new Thread(new Runnable(){

@@ -809,7 +809,7 @@ connect_from_port_20=YES #(默认Active Mode情况下server端数据传输通过
 # -e引号内是命令
 # /dev/null 吃掉stdout日志
 # 2>nohup 错误日志输出到nohup中
-nohup lftp -u drspInner,123456 -e"mirror -e -n -v /home/drspInner/test ./" 172.16.30.57 >/dev/null 2>nohup &
+nohup lftp -u drspInner,123456 -e"mirror -e -n -v /home/drspInner/test ./" xx.xx.30.57 >/dev/null 2>nohup &
 ```
 
 <h5 id="6.6.3">6.6.3 将FTP文件映射为本地目录</h5>
@@ -850,7 +850,7 @@ yum -y install curlftpfs
 ```shell
 #将ftp上的目录通过curlftpfs挂载到指定的 /xxx目录下： 
 curlftpfs ftp://ftpusername:ftppasswd@ftpip:ftpport /xxx
-#如：curlftpfs -o codepage=utf8   ftp://admin:admin@172.16.32.221:2121 /data/bigdata_v/ftpmapdir
+#如：curlftpfs -o codepage=utf8   ftp://admin:admin@xx.xx.32.221:2121 /data/bigdata_v/ftpmapdir
 ```
 
 **卸载挂载目录：**
@@ -867,7 +867,7 @@ umount /xxx
 #开机启动项的设置如下：
 vi /etc/rc.d/rc.local
 #添加挂载命令：
-curlftpfs -o codepage=utf8 ftp://admin:admin@172.16.32.221:2121 /ftp/ftpmapdata
+curlftpfs -o codepage=utf8 ftp://admin:admin@xx.xx.32.221:2121 /ftp/ftpmapdata
 #确保文件rc.local具有可执行权限：
 chmod a+x /etc/rc.d/rc.local
 ```
@@ -1058,14 +1058,6 @@ jar Mcf ../SomeClass-belong-to.jar * #重新打包
 :%s/\(^.*$\)/inster into '\1'/g
 ```
 
-<h5 id="7.8.1">7.8.1 vi/vim中用正确的字符编码打开文件</h5>
-
-```shell
-:set fileencoding #展示当前文件的字符编码
-:set fileencoding=UTF-8/gbk #将文件编码设置为UTF-8/gbk
-:set fileencodings; #展示vim编码探测的顺序，如果没有对应的文件编码（如gbk)可以加上（当然前提是本地系统支持该字符集（有安装））
-```
-
 **一些示例**
 
 ```shell
@@ -1107,8 +1099,8 @@ sed -i "s/www.bcak.com.cn/bcak.com.cn/g" `grep www.bcak.com.cn -rl /home`
 **查找某个目录下所有包含字符的文件并替换**
 
 ```shell
-#查找当前目录中所有包含ip(172.16.12.13)的txt文件并替换为141.151.1.111
-find . -type f -name '*.txt' -exec sed -i 's/172.16.12.13/141.151.1.111/g' {} \;
+#查找当前目录中所有包含ip(xx.xx.12.13)的txt文件并替换为141.151.1.111
+find . -type f -name '*.txt' -exec sed -i 's/xx.xx.12.13/141.151.1.111/g' {} \;
 
 #将xml文件中包含【null as xxx,】的字符替换为【CAST(null as char) as xxx,】，最后的i表示忽略大小写
 find . -type f -name '*.xml' -exec sed -i 's/null[[:space:]]\{1,\}as \([a-zA-Z0-9 ]*\),/CAST\(null as CHAR\) as \1,/gi' {} \;
@@ -1143,6 +1135,14 @@ find / -type f -size +1024M  -print0 | xargs -0 du -h
 #将<source_table>DB_JCY.T_ABC</source_table> 转化为 <source_table>db_jcy.t_abc</source_table>
 #\L\1 --> 将匹配到分组内容转为小写
 :%s/<source_table>\(.*\)</<source_table>\L\1>/g
+```
+
+<h5 id="7.8.1">7.8.1 vi/vim中用正确的字符编码打开文件</h5>
+
+```shell
+:set fileencoding #展示当前文件的字符编码
+:set fileencoding=UTF-8/gbk #将文件编码设置为UTF-8/gbk
+:set fileencodings; #展示vim编码探测的顺序，如果没有对应的文件编码（如gbk)可以加上（当然前提是本地系统支持该字符集（有安装））
 ```
 
 <h3 id="8">8. 专项问题</h3>

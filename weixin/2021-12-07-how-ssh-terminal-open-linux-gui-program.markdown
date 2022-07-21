@@ -65,7 +65,7 @@ Window System的设计是有层级的，这也体现了Unix系统的设计哲学
 
 Linux gui程序是如何找`DISPLAY SERVER`服务的呢？
 
-在程序启动的环境变量中会查找`DISPLAY`设置的服务地址。比如`EXPORT DISPLAY=:0.0`表示调用本机`DISPLAY SERVER`服务，服务的端口是`127.0.0.1:6000`；`EXPORT DISPLAY=:10.0`表示调用本机`DISPLAY SERVER`服务，服务的端口是`127.0.0.1:6010`；`EXPORT DISPLAY=172.26.18.37:3600.0`表示调用非本机**但在本地**`DISPLAY SERVER`，服务的端口是`172.26.18.37:9600`。
+在程序启动的环境变量中会查找`DISPLAY`设置的服务地址。比如`EXPORT DISPLAY=:0.0`表示调用本机`DISPLAY SERVER`服务，服务的端口是`127.0.0.1:6000`；`EXPORT DISPLAY=:10.0`表示调用本机`DISPLAY SERVER`服务，服务的端口是`127.0.0.1:6010`；`EXPORT DISPLAY=xx.26.18.37:3600.0`表示调用非本机**但在本地**`DISPLAY SERVER`，服务的端口是`xx.26.18.37:9600`。
 
 这里实际`DISPLAY SERVER`服务监听的端口号是设置环境变量`:`后第一个数字`+6000`，正如上面`:3600.0`实际服务监听的端口就是`6000 + 3600 --> 9600`。配置完`DISPLAY`环境变量之后，可以使用`xhost +`来验证并禁用掉Access Control限制。
 

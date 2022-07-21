@@ -202,9 +202,9 @@ Github Pages默认支持Jekyll作为静态站点生成器。如果你写的Jekyl
 
 参考[Jekyll官方中文文档](https://jekyllcn.com/docs/home/ "Jekyll官方中文文档")。
 
-需要注意的是：如果在虚拟机上进行开发，最好指定IP启动，例如：`bundle exec jekyll serve --host 172.16.192.208`。
+需要注意的是：如果在虚拟机上进行开发，最好指定IP启动，例如：`bundle exec jekyll serve --host xx.xx.192.208`。
 
-> 这里设置`--host 172.16.192.208`表示只能该指定IP访问，如果想让所有IP都能够访问，可以使用`--host 0.0.0.0`。
+> 这里设置`--host xx.xx.192.208`表示只能该指定IP访问，如果想让所有IP都能够访问，可以使用`--host 0.0.0.0`。
 
 > 因为官方有中文文档，讲解特别清晰，就不再赘述了。
 

@@ -443,7 +443,7 @@ comment: true
 <h4 id="2.8">db.properties</h4>
 
     jdbc.driver=com.mysql.jdbc.Driver
-    jdbc.url=jdbc:mysql://172.16.193.14:3306/mybatis?characterEncoding=utf-8
+    jdbc.url=jdbc:mysql://xx.xx.193.14:3306/mybatis?characterEncoding=utf-8
     jdbc.username=root
     jdbc.password=root
 
