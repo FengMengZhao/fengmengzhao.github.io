@@ -42,7 +42,9 @@ comment: false
     - [3.6 Greenplum报错：Canceling query because of high VMEM usage. Used 2308M, available 819M](#3.6)
     - [3.7 Greenplum报错：failed to acquire resources on one or more segments](#3.7)
     - [3.8 记一次现场节点被重启GP库起不来问题](#3.8)
-        [3.8.1 分布键查询sql](#3.8.1)
+        - [3.8.1 分布键查询sql](#3.8.1)
+    - [3.9 Greenplum创建uuid_generate_v1函数](#3.9)
+    - [3.10 Greenplum的pg_stat_activity中大量出现wait_event_type为LWLockTranche,wait_event为buffer_mapping](#3.10)
 - [更新记录](#99)
 
 ---
@@ -802,6 +804,44 @@ where
 order by n.nspname, c.relname ;
 ```
 
+<h5 id="3.9">3.9 Greenplum创建uuid_generate_v1函数</h5>
+
+Greenplum不支持`uuid-ossp`扩展，如果要使用`uuid_generate_v1`函数需要借助于Greenplum的`PL/Python`扩展。针对某个数据库加载了语言扩展之后，在Greenplum中就可以调用Python相关的定义：
+
+首先需要将扩展语言加载到数据库中：`createlang plpythonu DB_XXX`。
+
+用Python扩展语法创建一个函数`uuid_python`：
+
+```shell
+CREATE OR REPLACE FUNCTION "public"."uuid_python"()
+    RETURNs "pg_catalog"."varchar" AS $BODY$
+        import uuid
+        return uuid.uuid1()
+    $BODY$
+        LANGUAGE plpythonu VOLATILE
+        COST 100
+```
+
+基于函数`uuid_python`创建`uuid_generate_v1`：
+
+```shell
+create or replace function "public"."uuid_generate_v1"()
+    returns "pg_catalog"."varchar" AS $BODY$
+    DECLARE
+    BEGIN
+        return REPLACE(public.uuid_python()::varchar, '-', '');
+    END;
+    $BODY$
+        LANGUAGE plpgsql VOLATILE
+        COST 100
+```
+
+<h5 id="3.10">3.10 Greenplum的pg_stat_activity中大量出现wait_event_type为LWLockTranche,wait_event为buffer_mapping</h5>
+
+数据库后台视图`pg_stat_activity`中出现大量wait_event_type为LWLockTranche,wait_event为buffer_mapping的记录，造成sql执行的瓶颈。
+
+默认数据库`shared_buffers`的值为`1G`，正常可调整为系统(OS)内存的`20%或者25%`，如果OS内存很大(大于32G)，则可以将`shared_buffers`设置为`8G`。
+
 ---
 
 <h3 id="99">更新记录</h3>
@@ -812,3 +852,4 @@ order by n.nspname, c.relname ;
 - 2022-03-02 17:33 现场报错补充“failed to acquire resources on one or more segments”，补充“3.7”部分内容。
 - 2022-03-17 20:03 现场排查Greenplum slave节点主机重启后GP库宕机问题，补充“3.8”部分内容。
 - 2022-03-21 14:11 补充“3.8.1”分布键查询sql内容。
+- 2022-07-19 15:30 补充“3.9”基于PL/Python扩展创建uuid函数。
