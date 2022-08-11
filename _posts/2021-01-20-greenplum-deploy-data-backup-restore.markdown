@@ -227,6 +227,8 @@ Centos7.x：  修改/etc/security/limits.d/20-nproc.conf
 将   *   soft    nproc  2048  改为  *   soft    nproc   131072
 ```
 
+> 说明：`sysctl.conf`和`security/limit.conf`的对比，首先二者都是为了限制计算机的资源的相关配置。前者主要是用来设置`kernel`级别的资源限制，后者主要是用来设置用户级别的资源限制（配置中第一列可以配置为用户，-n表示每一个进程可以打开的文件数）。前者配置完成后使用`sysctl -p`可即时生效，后者可以通过命令`ulimit -n 65536`修改当前shell的配置，也可以修改配置文件后重新登录shell后整个session生效。
+
 <h5 id="1.4.3">1.4.3 xfs文件系统（所有的服务器）</h5>
 
 ```shell
