@@ -1146,6 +1146,8 @@ find / -type f -size +1024M  -print0 | xargs -0 du -h
 :set fileencodings; #展示vim编码探测的顺序，如果没有对应的文件编码（如gbk)可以加上（当然前提是本地系统支持该字符集（有安装））
 ```
 
+参考链接：[https://blog.csdn.net/sdcxyz/article/details/23467657](https://blog.csdn.net/sdcxyz/article/details/23467657)
+
 <h3 id="8">8. 专项问题</h3>
 
 <h4 id="8.1">8.1 磁盘占用一点点，但是df -lh显示已经占用100%</h4>
