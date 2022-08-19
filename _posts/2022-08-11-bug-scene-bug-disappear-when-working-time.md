@@ -5,7 +5,7 @@ subtitle: '友商系统的一个bug，已经存在一年多了，解决不了。
 background: '/img/posts/bug-scene-bug-disappear-when-working-time.jpg'
 comment: false
 
-weixinurl: ''
+weixinurl: 'https://mp.weixin.qq.com/s/zxJ13OuwDeKq_saV3AxK5Q'
 ---
 
 # 目录
