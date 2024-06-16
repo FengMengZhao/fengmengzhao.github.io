@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+    <head>
+        <style>
+            body {
+                height: 778px;
+            } 
+        </style>
+    </head>
+    <body>
+        <embed width="100%"
+               height="100%"
+               name="plugin"
+               src="fmz-resume.pdf"
+               type="application/pdf"/>
+    </body>
+</html>
