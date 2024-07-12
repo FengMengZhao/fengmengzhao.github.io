@@ -4,7 +4,7 @@ title: '当AI遇到程序员如何做加法'
 subtitle: '探索AI的现状与未来:一名程序员的亲身体验与思考。从全球AI巨头到中国创新企业,从GPT到Claude,本文带你一览AI的惊人发展。作者还分享了自己开发AI工具的经历,以及对程序员如何在AI时代保持竞争力的思考。'
 background: '/img/posts/2024/12-cover.png'
 comment: false
-weixinurl: ''
+weixinurl: 'https://mp.weixin.qq.com/s?__biz=MzUxMzUyNDI5Mg==&mid=2247484045&idx=1&sn=9cc0a128ae7e52cabaa6b7eda1f07376&chksm=f95295a6ce251cb0459d7a60c6a4a83c089ec4089dd49547e15c9097b0aa088edd57d1cd4b8f#rd'
 ---
 
 # 目录
@@ -106,3 +106,4 @@ weixinurl: ''
 <h3 id="99">更新记录</h3>
 
 - 2024-12-07 18:41 首次提交文章到[冯兄话吉](https://fengmengzhao.github.io)。
+- 2024-12-07 21:41 微信公众号“冯兄画戟”文章发表前重读、优化、勘误
